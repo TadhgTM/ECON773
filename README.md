@@ -21,6 +21,7 @@ Initial Setup (Do This Once)
 Open Positron.
 Select “Clone Git Repository”.
 Paste the repository URL.
+https://github.com/TadhgTM/ECON773.git
 Choose a local folder and open the project.
 
 2. Do not rename the root folder
