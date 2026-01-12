@@ -1,6 +1,6 @@
 ---
 title: "ECON 773: Assignment 1"
-author: "Tadhg Taylor-McGreal (400330297), Stella 000 (), Jeneta Ljutic(400138420) (student Number)"
+author: "The BLUE Team, Jeneta Ljutic (400138420), Tadhg Taylor-McGreal (400330297), Stella Till (400364649)"
 date: "January 2026"
 format:
   typst: 
