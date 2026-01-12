@@ -1,10 +1,6 @@
 ---
 title: "ECON 773: Assignment 1"
-<<<<<<< HEAD
-author: "Tadhg Taylor-McGreal (400330297), Stella 000 (), Jeneta Lutijic(?) (student Number)"
-=======
-author: "Tadhg Taylor-McGreal (400330297), Stella Till (400364649), Jeneta Lutijic(?) (student Number)"
->>>>>>> b3914a1d89ff60a23ff378a109be3b6abf8399e9
+author: "Tadhg Taylor-McGreal (400330297), Stella 000 (), Jeneta Ljutic(400138420) (student Number)"
 date: "January 2026"
 format:
   typst: 
