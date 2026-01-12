@@ -194,6 +194,55 @@ Fourth, repeat this, grouping by `female` **and** `assignment`. Interpret your r
 
 ### Answer
 
+```{r}
+# 1) Group by female (create grouped object and also show counts)
+grouped_by_female <- JC_short |> dplyr::group_by(female)
+female_counts <- grouped_by_female |> dplyr::summarise(n = dplyr::n(), .groups = "drop")
+
+means_by_female <- JC_short |>
+  dplyr::group_by(female) |>
+  dplyr::summarise(mean_earny4 = mean(earny4, na.rm = TRUE), n = dplyr::n(), .groups = "drop")
+
+filtered <- JC_short |> dplyr::filter(!is.na(educ))
+means_by_assignment_filtered <- filtered |>
+  dplyr::group_by(assignment) |>
+  dplyr::summarise(mean_earny4 = mean(earny4, na.rm = TRUE), n = dplyr::n(), .groups = "drop")
+
+means_by_female_assignment <- filtered |>
+  dplyr::group_by(female, assignment) |>
+  dplyr::summarise(mean_earny4 = mean(earny4, na.rm = TRUE), n = dplyr::n(), .groups = "drop")
+
+CATEs <- means_by_female_assignment |>
+  tidyr::pivot_wider(names_from = assignment, values_from = mean_earny4, names_prefix = "assign_") |>
+  dplyr::mutate(CATE = assign_1 - assign_0)
+
+female_shares <- filtered |>
+  dplyr::group_by(female) |>
+  dplyr::summarise(share = dplyr::n() / nrow(filtered), .groups = "drop")
+
+CATEs_with_shares <- CATEs |>
+  dplyr::left_join(female_shares, by = "female") |>
+  dplyr::mutate(weighted_CATE = CATE * share)
+
+weighted_CATE_sum <- CATEs_with_shares |> dplyr::summarise(weighted_CATE = sum(weighted_CATE)) 
+
+ATE_unconditional_filtered <- means_by_assignment_filtered |>
+  tidyr::pivot_wider(names_from = assignment, values_from = mean_earny4, names_prefix = "assign_") |>
+  dplyr::mutate(ATE = assign_1 - assign_0) 
+
+list(
+  female_counts = female_counts,
+  means_by_female = means_by_female,
+  means_by_assignment_filtered = means_by_assignment_filtered,
+  means_by_female_assignment = means_by_female_assignment,
+  CATEs = CATEs,
+  female_shares = female_shares,
+  CATEs_with_shares = CATEs_with_shares,
+  weighted_CATE_sum = weighted_CATE_sum,
+  ATE_unconditional_filtered = ATE_unconditional_filtered
+)
+```
+
 ...
 
 {{< pagebreak >}}
