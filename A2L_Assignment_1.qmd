@@ -1,6 +1,6 @@
 ---
 title: "ECON 773: Assignment 1"
-author: "Tadhg Taylor-McGreal (400330297), Stella 000 (), Jeneta Ljutic (400138420) (student Number)"
+author: "Tadhg Taylor-McGreal (400330297), Stella 000 (), Jeneta Ljutic(400138420) (student Number)"
 date: "January 2026"
 format:
   typst: 
@@ -310,6 +310,8 @@ In this data set, which variable corresponds to $D$? Which variable corresponds 
 First, use `group_by` and `summarize` to compute the group-specific means. Friendly reminder to use `drop_na()`! Second, repeat this exercise to compute a group-specific mean for each value of `tinc`. Third, take the resulting table and plot it using `geom_point` and/or `geom_line`. Interpret the results.
 
 ### Answer
+
+
 
 ...
 
