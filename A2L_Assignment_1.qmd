@@ -25,7 +25,7 @@ The goals of this assignment are to:
 
 ## Instructions
 
-Before you start the assignment, make sure to in`stall `R` and Positron. Positron comes with command-line tools for `quarto`, which in turn includes `typst`.
+Before you start the assignment, make sure to install `R` and Positron. Positron comes with command-line tools for `quarto`, which in turn includes `typst`.
 
 You will use `quarto` for generating your assignment output file. You begin with this script downloaded from A2L. Make sure that it is placed in the same folder as any data that came with it. Instructions for editing `quarto` are discussed in class, or see the [Quarto website](www.quarto.org).
 
@@ -45,7 +45,7 @@ Some additional instructions:
     -   *Render* it to pdf
     -   inspect the resulting `.pdf`: would you want to grade it?
     -   submit
-
+    
 To render this document, click the *Render* button in the menu just above the top of this file. Alternatively, use the command palette. This step may fail until you install additional packages.
 
 {{< pagebreak >}}
@@ -311,7 +311,50 @@ First, use `group_by` and `summarize` to compute the group-specific means. Frien
 
 ### Answer
 
+```{r}
+install.packages("causaldata")
+# Packages
+library(causaldata)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(tibble)
 
+data("thornton_hiv")
+
+thornton <- thornton_hiv |>
+  drop_na() |>
+  as_tibble()
+
+thornton |>
+  group_by(any) |>
+  summarize(
+    mean_got = mean(got),
+    n = n(),
+    .groups = "drop"
+  )
+
+by_amount <- thornton |>
+  group_by(tinc) |>
+  summarize(
+    mean_got = mean(got),
+    n = n(),
+    .groups = "drop"
+  )
+
+by_amount
+
+ggplot(by_amount, aes(x = tinc, y = mean_got)) +
+  geom_point(size = 3) +
+  geom_line() +
+  labs(
+    x = "Voucher amount (tinc, USD)",
+    y = "Pr(got tested)",
+    title = "HIV Testing Uptake by Incentive Amount"
+  ) +
+  theme_minimal()
+
+```
 
 ...
 
