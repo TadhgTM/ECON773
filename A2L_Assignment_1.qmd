@@ -345,6 +345,61 @@ You will continue with the `JC` data. A useful data summary for our purpose is t
 First, make a boxplot of `earny4`. Second, make a boxplot of log earnings for those with positive earnings. Third, split out each of the two boxplots by `assignment`.
 
 ### Answer
+To code our boxplot we use 'ggplot'. Using 'ggplot' allows us to build the plot step by step using JC data. Withing our 'ggplot' bracket, we indicate that the y axis should show the category for earnings after the fourth year of the program. Following 'ggplot', we use 'geom_boxplot'. This tells R to put the JC data into a boxplot. In the last step of the code, we set the titles. We repeated this code skeleton for all of the following boxplots, changing the variables to either be in logs, sorted by assignment or both. In the second step, these changes are made by indicating under 'ggplot' to filter earny4>0, this ensures that only positive values are included, essential when taking a logarithim. To split out each of the boxplots by 'assignment', we type factor(assignment, ...) in the first line of 'ggplot' code.
+```{r}
+ggplot(JC, aes(y = earny4)) +
+  geom_boxplot() +
+  labs(
+    y = "Weekly earnings in 4th year after assignment",
+    title = "Distribution of fourth-year earnings"
+  )
+```
+
+This boxplot shows the weekly earnings in the fourth year after assignment on the y-axis and In this boxplot we see a skew to the right. This indicates that most individuals earn relatively low wages. The high earning individuals appear to be outliers. This suggests that only some individuals benefit largely in the fourth year post Job Corps program which indicates that the treatment did not have the same effect across all participants. 
+
+In this plot, the effect of earnings are skewed by the extreme high values. This is because in a chart using levels, the differences are absolute and are thus highly influenced by outliers. This motivates the use of log earnings in the following charts since taking the logs compresses the upper tail of the distribution allow for comparisons which reflect proportional differences in earnings rather than absolute differences. 
+
+```{r}
+ggplot(
+  JC |> filter(earny4 > 0),
+  aes(y = log(earny4))
+) +
+  geom_boxplot() +
+  labs(
+    y = "Log weekly earnings in 4th year",
+    title = "Distribution of log fourth-year earnings (earny4 > 0)"
+  )
+```
+
+The second boxplot shows the distribution of log earnings for those with positive earnings. In this plot, we see that the earnings are more centred. This indicates that once we restrict for positive earnings, measured on a log scale the upper tail one the distribution becomes compressed. There remain some lower outliers, indicating that some individuals continue to have low but positive earnings. Thus, even when separating for positive earnings, heterogeneity of the results remain suggesting that there are other characteristics that influence earnings in the period four years after the program. 
+
+```{r}
+ggplot(JC, aes(x = factor(assignment), y = earny4)) +
+  geom_boxplot() +
+  labs(
+    x = "Assignment",
+    y = "Weekly earnings in 4th year",
+    title = "Fourth-year earnings by treatment assignment"
+  )
+```
+
+The boxplot, shows the  weekly earnings in the fourth year after the treatment and is grouped by assignment on the x-axis. The y-axis shows the level of weekly earnings. In this plot, all earnings are positive. Dividing the earnings distribution by assignment highlights the differences in earnings between the control group (assignment = 0) and the treatment group (assignment = 1). We see a strong right-skew of earnings in both groups. This indicates that most individuals earn relatively low wages. We can note that there are few outliers in the control group with very high earnings. The outliers in both the treatment and the control group suggest that there may be heterogeneous program effects. However, it is important to distinguish that the treatment group has shows a higher median level of earnings. This suggests that there was a positive effect from the Jobs Corps program. 
+
+```{r}
+ggplot(
+  JC |> filter(earny4 > 0),
+  aes(x = factor(assignment), y = log(earny4))
+) +
+  geom_boxplot() +
+  labs(
+    x = "Assignment",
+    y = "Log weekly earnings in 4th year",
+    title = "Log fourth-year earnings by treatment assignment"
+  )
+```
+This final boxplot shows the positive earnings by assignment. It compares the distribution of log weekly earnings in the fourth year after the assignment between the control group and the (assignment = 0) and the treatment group (assignment = 1). All individuals in this plot are restricted to have positive earnings. On the boxplot, we see that there is a higher median log earnings in the treatment group. This indicates that those assigned to the Jobs Corps training program have higher typical earnings four years after  the treatment assignment. This suggests a positive average treatment effect of Jobs Corps on earnings. 
+
+There is substantial overlap between the distributions of the treatment and control group. This suggests that the programs effects were moderate and there may be other characteristics driving certain individuals to earn higher wages. 
 
 ...
 
@@ -513,7 +568,40 @@ First, create a binarized variable, cutting off `age` at a value that you can de
 
 ### Answer
 
-...
+```{r}
+median(JC$age, na.rm = TRUE)
+```
+
+To choose an age of the cutoff range, we use the sample median age. To determine this we ran the code above. The output is that the sample median age is 18. Thus, those in the older group are those aged 18 or older and those in the younger group are 17 and below. 
+
+
+```{r}
+age_cut <- median(JC$age, na.rm = TRUE)
+
+JC <- JC |>
+  mutate(age_high = age >= age_cut)
+JC |> 
+  count(age_high)
+```
+
+This splits the sample into a "younger" and "older" group. In the younger group, we have 3740 observations and 5500 observations in the older group. Age_higher = FALSE indicates the younger age group. 
+
+```{r}
+JC |>
+  filter(educmis == 0) |>
+  group_by(age_high, assignment) |>
+  summarize(EY = mean(earny4), .groups = "drop") |>
+  pivot_wider(names_from = assignment,
+              values_from = EY,
+              names_prefix = "assign_") |>
+  mutate(CATE = assign_1 - assign_0)
+```
+
+To compute the means for the control and treatment group for each value of the binarized variable we ran the code above. The CATE is the conditional average treatment effect and shows the different in mean earnings between the treatment and control.  
+
+Our results show that the CATE for younger individuals is 10.7. This means that assignment to Jobs Corps increases fourth-year earnings by about 10.7 units for younger individuals. The control mean for younger individuals is 177 and the treatment mean is 188. 
+
+For older individuals (age_high = TRUE), the control mean is 214 and the treatment mean is 231. The CATE is 17. Thus, our findings suggest that the increased average earnings is higher for older individuals. This suggests heterogeneous treatment effects by age.  
 
 {{< pagebreak >}}
 
