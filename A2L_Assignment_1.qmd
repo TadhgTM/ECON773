@@ -261,7 +261,7 @@ Finally, explore whether the effect differs depending on whether individuals hav
 
 1. We will use the JC data to calculate the ATE for the porportion of weeks employed in the fourth
 year after assignment, 'pworky4'. The code below returns the average values for treatement and control
-as well as the ATE in a table. First, 'group_by' splits the data into groups based on the value of the assignment variable. Next, summarise() collapses each group into a single row by computing the average of pworky4 within each assignment group. The pivot_wider() step reshapes the data from a long format into a wide format, creating separate columns for each value of assignment (prefixed with "assignment_") and filling them with the corresponding group means. Finally, mutate() adds the ATE variable.
+as well as the ATE in a table. First, 'group_by' splits the data into groups based on the value of the assignment variable. Next, 'summarise' collapses each group into a single row by computing the average of pworky4 within each assignment group. The 'pivot_wider' step reshapes the data from a long format into a wide format, creating separate columns for each value of assignment (prefixed with "assignment_") and filling them with the corresponding group means. Finally, 'mutate' adds the ATE variable.
 
 ```{r}
 JC |>
@@ -362,7 +362,7 @@ Third, split the results out by `assignment`, by setting `colour = assignment`. 
 
 ### Answer
 
-1. We will use 'ggplot' and 'geom_point' to create a scatterplot of logged earnings at assignment, 'mwearn' and at year 4, 'earny4'. The code filters the data to include only individuals with positive earnings at assignment and in year 4 so that taking logarithms is valid. It creates a scatterplot of log earnings at assignment versus log earnings in year 4, adds semi-transparent points, and overlays a dashed 45-degree reference line showing where earnings would be equal in both periods
+1. We will use 'ggplot' and 'geom_point' to create a scatterplot of logged earnings at assignment, 'mwearn' and at year 4, 'earny4'. The code filters the data to include only individuals with positive earnings at assignment and in year 4 so that taking logarithms is valid. It creates a scatterplot of log earnings at assignment versus log earnings in year 4, adds semi-transparent points, and overlays a dashed 45-degree reference line showing where earnings would be equal in both periods.
 
 ```{r}
 library(ggplot2)
@@ -387,13 +387,10 @@ JC |>
 ```
 
 The scatterplot of log earnings at assignment versus log earnings in the fourth year shows that
-most individuals are concentrated in the middle of the earnings distribution. There is only a slight
-upward-right trend, indicating a weak positive relationship between initial and later earnings.
-This suggests that while higher earnings at assignment are somewhat associated with higher
-earnings in year 4, there is substantial variation in earnings growth across individuals.
+most individuals are concentrated in the middle of the earnings distribution (between log earnings of 4 and 6 in year 4 and at assignment). There is only a slight upward-right trend, indicating a weak positive relationship between initial and later earnings. This suggests that while higher earnings at assignment are somewhat associated with higher earnings in year 4, there is substantial variation in earnings growth across individuals.
 
 2. Next, we will use geom_smooth() to add a least-squares regression line to our scatterplot to
-show the overall trend in log earnings. The code is similar to above, but overlays a least-squares regression line with a confidence band using geom_smooth(method = "lm")
+show the overall trend in log earnings. The code is similar to above, but overlays a least-squares regression line with a confidence band using geom_smooth(method = "lm").
 
 ```{r}
 JC |>
@@ -421,7 +418,7 @@ is modest. Most individuals cluster near the middle of the distribution, and the
 variation in earnings growth across individuals.
 
 3. Lastly, we will add color by treatment group to see separate trends for treated and control
-groups and their fitted lines. This is again simialr to the code above, but adds colours to points by treatment group ('assignment') using 'factor' to treat assignment as a categorical variable rather than a numeric one. This ensures that each group gets a separate colour and that geom_smooth() draws separate regression lines with confidence bands for each group.
+groups and their fitted lines. This is again similar to the code above, but adds colours to points by treatment group ('assignment') using 'factor' to treat assignment as a categorical variable rather than a numeric one. This ensures that each group gets a separate colour and that geom_smooth() draws separate regression lines with confidence bands for each group.
 
 ```{r}
 JC |>
@@ -439,7 +436,7 @@ JC |>
 
 ```
 
-The control group’s line (denoted in orange) is relatively flat, suggesting that initial earnings have little effect on year-4 earnings for this group. In contrast, the treated group’s line (denoted in blue) is slightly steeper, indicating that higher initial earnings are associated with higher year-4 earnings, and that the treatment amplifies earnings growth. Overall, this suggests that the treatment has a larger positive impact on earnings, particularly for individuals who started with higher earnings, while individual variation remains substantial.
+The control group’s line (denoted in orange) is relatively flat, suggesting that initial earnings have little effect on year-4 earnings for this group. In contrast, the treated group’s line (denoted in blue) is slightly steeper, indicating that higher initial earnings are associated with higher year-4 earnings, and that the treatment amplifies earnings growth. Overall, this suggests that the treatment has a slightly larger positive impact on earnings, particularly for individuals who started with higher earnings, while individual variation remains substantial.
 
 {{< pagebreak >}}
 
