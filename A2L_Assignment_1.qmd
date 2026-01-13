@@ -259,7 +259,78 @@ Finally, explore whether the effect differs depending on whether individuals hav
 
 ### Answer
 
-...
+1. We will use the JC data to calculate the ATE for the porportion of weeks employed in the fourth
+year after assignment, 'pworky4'. The code below returns the average values for treatement and control
+as well as the ATE in a table. First, 'group_by' splits the data into groups based on the value of the assignment variable. Next, summarise() collapses each group into a single row by computing the average of pworky4 within each assignment group. The pivot_wider() step reshapes the data from a long format into a wide format, creating separate columns for each value of assignment (prefixed with "assignment_") and filling them with the corresponding group means. Finally, mutate() adds the ATE variable.
+
+```{r}
+JC |>
+  group_by(assignment) |>
+  summarise(
+    mean_pworky4 = mean(pworky4, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  (\(df) pivot_wider(
+    df,
+    names_from = assignment,
+    values_from = mean_pworky4,
+    names_prefix = "assignment_"
+  ))() |>
+  mutate(
+    ATE = assignment_1 - assignment_0
+  )
+```
+
+The estimated ATE is 3.27, indicating that assignment to the treatment increased proportion of weeks employed in the fourth year after assignment by approximately three weeks on average,
+relative to the control group.
+
+2. Next, we extend the analysis by estimating the ATE conditional on education group
+(using the 'educ_high' variable created above) to examine whether the impact of the treatment differs
+based on education level. The logic is very similar to the part 1, but this time we are grouping by 'educ_high' and 'assignment'.
+
+```{r}
+JC |>
+  group_by(educ_high, assignment) |>
+  summarise(
+    mean_pworky4 = mean(pworky4, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  (\(df) pivot_wider(
+    df,
+    names_from = assignment,
+    values_from = mean_pworky4,
+    names_prefix = "assignment_"
+  ))() |>
+  mutate(
+    CATE = assignment_1 - assignment_0
+  )
+
+```
+
+For individuals with 12 years of education or more ('educ_high' = 1), the treatment increases proportion of weeks employed in the fourth year after assignment by 3.35 weeks. For those with 12 years of education or less (educ_high = 0), the estimated effect is slightly smaller, at 2.91 weeks. These results suggest that the program has a slightly larger impact on employment for higher-
+educated individuals, although the difference is relatively small (0.44 weeks).
+
+3. Using 'haschild' ('haschild' = 1 indicates at least one child, 'haschild' = 0 indicates no children at assignment), we’ll explore the effect of the program conditional on whether individuals have at least one child at assignment.
+
+```{r}
+JC |>
+  group_by(haschild, assignment) |>
+  summarise(
+    mean_pworky4 = mean(pworky4, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  (\(df) pivot_wider(
+    df,
+    names_from = assignment,
+    values_from = mean_pworky4,
+    names_prefix = "assignment_"
+  ))() |>
+  mutate(
+    CATE = assignment_1 - assignment_0
+  )
+```
+
+For individuals without children at assignment ('haschild' = 0), the estimated CATE is 2.76 weeks of employment in the fourth year, while for those with at least one child at assignment ('haschild' = 1), the effect is substantially larger at 5.76 weeks (for a difference of 3 weeks). These results indicate that the treatment has a stronger impact on employment for parents, suggesting that the program may be particularly beneficial for individuals with children.
 
 {{< pagebreak >}}
 
@@ -291,7 +362,84 @@ Third, split the results out by `assignment`, by setting `colour = assignment`. 
 
 ### Answer
 
-...
+1. We will use 'ggplot' and 'geom_point' to create a scatterplot of logged earnings at assignment, 'mwearn' and at year 4, 'earny4'. The code filters the data to include only individuals with positive earnings at assignment and in year 4 so that taking logarithms is valid. It creates a scatterplot of log earnings at assignment versus log earnings in year 4, adds semi-transparent points, and overlays a dashed 45-degree reference line showing where earnings would be equal in both periods
+
+```{r}
+library(ggplot2)
+
+JC |>
+  filter(mwearn > 0, earny4 > 0) |>  # keep only positive earnings
+  ggplot(aes(x = log(mwearn), y = log(earny4))) +
+  geom_point(alpha = 0.5) +          # semi-transparent points for clarity
+  geom_abline(
+    slope = 1,
+    intercept = 0,
+    linetype = "dashed",
+    color = "red"
+  ) +                                # 45-degree reference line
+  labs(
+    x = "Log Average Weekly Earnings at Assignment",
+    y = "Log Weekly Earnings in Year 4",
+    title = "Scatterplot of Log Earnings: Average Weekly Earnings at Assignment vs Year 4"
+  ) +
+  theme_minimal()
+
+```
+
+The scatterplot of log earnings at assignment versus log earnings in the fourth year shows that
+most individuals are concentrated in the middle of the earnings distribution. There is only a slight
+upward-right trend, indicating a weak positive relationship between initial and later earnings.
+This suggests that while higher earnings at assignment are somewhat associated with higher
+earnings in year 4, there is substantial variation in earnings growth across individuals.
+
+2. Next, we will use geom_smooth() to add a least-squares regression line to our scatterplot to
+show the overall trend in log earnings. The code is similar to above, but overlays a least-squares regression line with a confidence band using geom_smooth(method = "lm")
+
+```{r}
+JC |>
+  filter(mwearn > 0, earny4 > 0) |>
+  ggplot(aes(x = log(mwearn), y = log(earny4))) +
+  geom_point(alpha = 0.5) +                    # points
+  geom_smooth(
+    method = "lm",
+    se = TRUE,
+    color = "blue"
+  ) +                                          # least-squares fit with confidence band
+  labs(
+    x = "Log Average Weekly Earnings at Assignment",
+    y = "Log Weekly Earnings in Year 4",
+    title = "Scatterplot of Log Earnings with Least-Squares Fit"
+  ) +
+  theme_minimal()
+
+```
+
+The scatterplot with a least-squares fit shows that earnings at assignment are only weakly predic-
+tive of earnings in the fourth year. The slope of the regression line is slightly upward, indicating
+that higher initial earnings are associated with slightly higher later earnings, but the relationship
+is modest. Most individuals cluster near the middle of the distribution, and there is considerable
+variation in earnings growth across individuals.
+
+3. Lastly, we will add color by treatment group to see separate trends for treated and control
+groups and their fitted lines. This is again simialr to the code above, but adds colours to points by treatment group ('assignment') using 'factor' to treat assignment as a categorical variable rather than a numeric one. This ensures that each group gets a separate colour and that geom_smooth() draws separate regression lines with confidence bands for each group.
+
+```{r}
+JC |>
+  filter(mwearn > 0, earny4 > 0) |>
+  ggplot(aes(x = log(mwearn), y = log(earny4), color = factor(assignment))) +
+  geom_point(alpha = 0.5) +                    # semi-transparent points
+  geom_smooth(method = "lm", se = TRUE) +      # separate regression lines by color with confidence bands
+  labs(
+    x = "Log Average Weekly Earnings at Assignment",
+    y = "Log Weekly Earnings in Year 4",
+    color = "Assignment",
+    title = "Scatterplot of Log Earnings by Treatment with Least-Squares Fit"
+  ) +
+  theme_minimal()
+
+```
+
+The control group’s line (denoted in orange) is relatively flat, suggesting that initial earnings have little effect on year-4 earnings for this group. In contrast, the treated group’s line (denoted in blue) is slightly steeper, indicating that higher initial earnings are associated with higher year-4 earnings, and that the treatment amplifies earnings growth. Overall, this suggests that the treatment has a larger positive impact on earnings, particularly for individuals who started with higher earnings, while individual variation remains substantial.
 
 {{< pagebreak >}}
 
