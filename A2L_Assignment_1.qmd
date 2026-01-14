@@ -50,8 +50,6 @@ To render this document, click the *Render* button in the menu just above the to
 
 {{< pagebreak >}}
 
-# Job corps
-
 ## Installing packages and loading data
 
 This question will be demonstrated in class.
@@ -183,6 +181,112 @@ Before deriving any conclusions, let's look at the control group.
  ```
 
  The average annual earnings, 4 years after the program, are higher by about 16 dollars in the treatment group. This agrees with the finding in H, p. 21. 
+## Piping and `group_by`
+
+This question will be demonstrated in class.
+
+You will practice how to use a sequence of `pipes`, use `group_by`.
+You continue with the `JC_short` data that we created in the previous question. 
+
+First, use `group_by` to group the observations in `JC_short` by `female`, and comment on the result.
+
+Second, pipe the result from `group_by` into a `summarize` command to see the means for each group in one table. Interpret the result.
+
+Third, start with a `filter` command that keeps only those with education information available, then group by `assignment`, then compute the mean of `earny4` for each group. Interpret the result.
+
+Fourth, repeat this, grouping by `female` **and** `assignment`.
+Interpret your result, discussing the conditional average treatment effect (CATE) for men and for women.
+Compare it to the unconditional ATE. Is the unconditional ATE an average of the two CATEs? Comment on this finding.
+
+### Answer
+
+```{r}
+JC_short |> 
+    group_by(female) |> 
+
+
+    summarize(EY = mean(earny4))
+```
+
+```{r}
+JC_short |> 
+    filter(educmis == 0) |> 
+    group_by(assignment) |> 
+    summarize(EY = mean(earny4))
+```
+
+```{r}
+JC_short |> 
+    filter(educmis == 0) |> 
+    group_by(female, assignment) |> 
+    summarize(EY = mean(earny4)) 
+```
+
+```{r}
+JC_short_TG <- JC_short |>
+  filter(assignment == 1)
+
+JC_short_CG <- JC_short |>
+  filter(assignment == 0)
+```
+
+```{r}
+
+mean_TG <- JC_short_TG |>
+  summarize(mean_earny4 = mean(earny4, na.rm = TRUE)) |>
+  pull(mean_earny4)
+
+mean_CG <- JC_short_CG |>
+  summarize(mean_earny4 = mean(earny4, na.rm = TRUE)) |>
+  pull(mean_earny4)
+
+ATE_diff <- mean_TG - mean_CG
+
+mean_TG
+mean_CG
+ATE_diff
+```
+...
+
+```{r}
+JC_short |>
+  filter(educmis == 0) |>
+  group_by(female, assignment) |>
+  summarize(EY = mean(earny4), .groups = "drop")
+```
+
+```{r}
+JC_short |>
+  filter(educmis == 0) |>
+  group_by(female, assignment) |>
+  summarize(EY = mean(earny4), .groups = "drop") |>
+  pivot_wider(names_from = assignment,
+              values_from = EY,
+              names_prefix = "assign_") |>
+  mutate(CATE = assign_1 - assign_0)
+```
+
+In the first step, nothing happened. We just indicated to R, that we will group by female. In the second step, we saw that the expected earnings for males is 236 and 171 for females. This indicates that females earn less 65 less than males, annually. 
+
+In the second step, we see that those in the control group earn 198 and in the treatment group earning are 214. Here, we filter for only those with education. 
+
+In the third step, we group by treatment assignment and sex. We see that for males with the treatment, they earn 246 and for males without the treatment, they earn 223. For females with the treatment they earn 177 adn for females without the treatment they earn 160. Males earn more both with and without the treatment. If this is a RCT, we say that the gap is caused by the treatment. Males and females do not have the same treatment effect. The effect is 23 for men and 17 for women. Previously, we said that the overall effect is 16. The difference ATE_diff = mean_TG − mean_CG is the (unadjusted) estimated average treatment effect of assignment to Job Corps on fourth-year weekly earnings. 
+
+Fourth, This table reports mean fourth-year earnings separately by gender (female) and treatment status (assignment).
+For each gender, the conditional average treatment effect (CATE) is the difference in mean earnings between the treatment group (assignment = 1) and the control group (assignment = 0).
+
+The CATE for men is the treatment–control difference among individuals with female = 0.
+
+The CATE for women is the analogous difference among individuals with female = 1.
+
+Comparing the two CATEs shows whether the Job Corps program had heterogeneous effects by gender. If the CATEs differ, this indicates that the impact of the program is not the same for men and women.
+
+The unconditional ATE (computed earlier without conditioning on gender) is a weighted average of these two CATEs, where the weights are the proportions of men and women in the sample. Therefore, the unconditional ATE will generally not equal the simple average of the male and female CATEs unless the two groups are the same size.
+
+This finding highlights that unconditional treatment effects can mask important heterogeneity across subgroups, and that policy conclusions may differ depending on which population is emphasized.
+
+
+{{< pagebreak >}} 
 
 ## Piping and `group_by`
 
@@ -308,22 +412,78 @@ Group only by "one child" variable, do not continue to condition on education.
 
 ### Answer
 
-```{r}
-JC_short |> 
-    filter(educmis == 0) |> 
-    group_by(assignment) |> 
-    summarize(EY = mean(earny4))
-```
+1. We will use the JC data to calculate the ATE for the porportion of weeks employed in the fourth
+year after assignment, 'pworky4'. The code below returns the average values for treatement and control
+as well as the ATE in a table. First, 'group_by' splits the data into groups based on the value of the assignment variable. Next, 'summarise' collapses each group into a single row by computing the average of pworky4 within each assignment group. The 'pivot_wider' step reshapes the data from a long format into a wide format, creating separate columns for each value of assignment (prefixed with "assignment_") and filling them with the corresponding group means. Finally, 'mutate' adds the ATE variable.
 
 ```{r}
 JC |>
-  filter(educmis == 0) |>
   group_by(assignment) |>
-  summarize(EY = mean(pworky4), .groups = "drop")
+  summarise(
+    mean_pworky4 = mean(pworky4, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  (\(df) pivot_wider(
+    df,
+    names_from = assignment,
+    values_from = mean_pworky4,
+    names_prefix = "assignment_"
+  ))() |>
+  mutate(
+    ATE = assignment_1 - assignment_0
+  )
 ```
 
+The estimated ATE is 3.27, indicating that assignment to the treatment increased proportion of weeks employed in the fourth year after assignment by approximately three weeks on average,
+relative to the control group.
 
-...
+2. Next, we extend the analysis by estimating the ATE conditional on education group
+(using the 'educ_high' variable created above) to examine whether the impact of the treatment differs
+based on education level. The logic is very similar to the part 1, but this time we are grouping by 'educ_high' and 'assignment'.
+
+```{r}
+JC |>
+  group_by(educ_high, assignment) |>
+  summarise(
+    mean_pworky4 = mean(pworky4, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  (\(df) pivot_wider(
+    df,
+    names_from = assignment,
+    values_from = mean_pworky4,
+    names_prefix = "assignment_"
+  ))() |>
+  mutate(
+    CATE = assignment_1 - assignment_0
+  )
+
+```
+
+For individuals with 12 years of education or more ('educ_high' = 1), the treatment increases proportion of weeks employed in the fourth year after assignment by 3.35 weeks. For those with 12 years of education or less (educ_high = 0), the estimated effect is slightly smaller, at 2.91 weeks. These results suggest that the program has a slightly larger impact on employment for higher-
+educated individuals, although the difference is relatively small (0.44 weeks).
+
+3. Using 'haschild' ('haschild' = 1 indicates at least one child, 'haschild' = 0 indicates no children at assignment), we’ll explore the effect of the program conditional on whether individuals have at least one child at assignment.
+
+```{r}
+JC |>
+  group_by(haschild, assignment) |>
+  summarise(
+    mean_pworky4 = mean(pworky4, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  (\(df) pivot_wider(
+    df,
+    names_from = assignment,
+    values_from = mean_pworky4,
+    names_prefix = "assignment_"
+  ))() |>
+  mutate(
+    CATE = assignment_1 - assignment_0
+  )
+```
+
+For individuals without children at assignment ('haschild' = 0), the estimated CATE is 2.76 weeks of employment in the fourth year, while for those with at least one child at assignment ('haschild' = 1), the effect is substantially larger at 5.76 weeks (for a difference of 3 weeks). These results indicate that the treatment has a stronger impact on employment for parents, suggesting that the program may be particularly beneficial for individuals with children.
 
 
 {{< pagebreak >}} 
@@ -345,6 +505,61 @@ Second, make a boxplot of log earnings for those with positive earnings.
 Third, split out each of the two boxplots by `assignment`. 
 
 ### Answer
+To code our boxplot we use 'ggplot'. Using 'ggplot' allows us to build the plot step by step using JC data. Withing our 'ggplot' bracket, we indicate that the y axis should show the category for earnings after the fourth year of the program. Following 'ggplot', we use 'geom_boxplot'. This tells R to put the JC data into a boxplot. In the last step of the code, we set the titles. We repeated this code skeleton for all of the following boxplots, changing the variables to either be in logs, sorted by assignment or both. In the second step, these changes are made by indicating under 'ggplot' to filter earny4>0, this ensures that only positive values are included, essential when taking a logarithim. To split out each of the boxplots by 'assignment', we type factor(assignment, ...) in the first line of 'ggplot' code.
+```{r}
+ggplot(JC, aes(y = earny4)) +
+  geom_boxplot() +
+  labs(
+    y = "Weekly earnings in 4th year after assignment",
+    title = "Distribution of fourth-year earnings"
+  )
+```
+
+This boxplot shows the weekly earnings in the fourth year after assignment on the y-axis and In this boxplot we see a skew to the right. This indicates that most individuals earn relatively low wages. The high earning individuals appear to be outliers. This suggests that only some individuals benefit largely in the fourth year post Job Corps program which indicates that the treatment did not have the same effect across all participants. 
+
+In this plot, the effect of earnings are skewed by the extreme high values. This is because in a chart using levels, the differences are absolute and are thus highly influenced by outliers. This motivates the use of log earnings in the following charts since taking the logs compresses the upper tail of the distribution allow for comparisons which reflect proportional differences in earnings rather than absolute differences. 
+
+```{r}
+ggplot(
+  JC |> filter(earny4 > 0),
+  aes(y = log(earny4))
+) +
+  geom_boxplot() +
+  labs(
+    y = "Log weekly earnings in 4th year",
+    title = "Distribution of log fourth-year earnings (earny4 > 0)"
+  )
+```
+
+The second boxplot shows the distribution of log earnings for those with positive earnings. In this plot, we see that the earnings are more centred. This indicates that once we restrict for positive earnings, measured on a log scale the upper tail one the distribution becomes compressed. There remain some lower outliers, indicating that some individuals continue to have low but positive earnings. Thus, even when separating for positive earnings, heterogeneity of the results remain suggesting that there are other characteristics that influence earnings in the period four years after the program. 
+
+```{r}
+ggplot(JC, aes(x = factor(assignment), y = earny4)) +
+  geom_boxplot() +
+  labs(
+    x = "Assignment",
+    y = "Weekly earnings in 4th year",
+    title = "Fourth-year earnings by treatment assignment"
+  )
+```
+
+The boxplot, shows the  weekly earnings in the fourth year after the treatment and is grouped by assignment on the x-axis. The y-axis shows the level of weekly earnings. In this plot, all earnings are positive. Dividing the earnings distribution by assignment highlights the differences in earnings between the control group (assignment = 0) and the treatment group (assignment = 1). We see a strong right-skew of earnings in both groups. This indicates that most individuals earn relatively low wages. We can note that there are few outliers in the control group with very high earnings. The outliers in both the treatment and the control group suggest that there may be heterogeneous program effects. However, it is important to distinguish that the treatment group has shows a higher median level of earnings. This suggests that there was a positive effect from the Jobs Corps program. 
+
+```{r}
+ggplot(
+  JC |> filter(earny4 > 0),
+  aes(x = factor(assignment), y = log(earny4))
+) +
+  geom_boxplot() +
+  labs(
+    x = "Assignment",
+    y = "Log weekly earnings in 4th year",
+    title = "Log fourth-year earnings by treatment assignment"
+  )
+```
+This final boxplot shows the positive earnings by assignment. It compares the distribution of log weekly earnings in the fourth year after the assignment between the control group and the (assignment = 0) and the treatment group (assignment = 1). All individuals in this plot are restricted to have positive earnings. On the boxplot, we see that there is a higher median log earnings in the treatment group. This indicates that those assigned to the Jobs Corps training program have higher typical earnings four years after  the treatment assignment. This suggests a positive average treatment effect of Jobs Corps on earnings. 
+
+There is substantial overlap between the distributions of the treatment and control group. This suggests that the programs effects were moderate and there may be other characteristics driving certain individuals to earn higher wages. 
 
 ```{r}
 ```{r}
@@ -500,9 +715,6 @@ JC |>
 
 The control group’s line (denoted in orange) is relatively flat, suggesting that initial earnings have little effect on year-4 earnings for this group. In contrast, the treated group’s line (denoted in blue) is slightly steeper, indicating that higher initial earnings are associated with higher year-4 earnings, and that the treatment amplifies earnings growth. Overall, this suggests that the treatment has a slightly larger positive impact on earnings, particularly for individuals who started with higher earnings, while individual variation remains substantial.
 
-
-...
-
 {{< pagebreak >}} 
 ...
 
@@ -594,7 +806,9 @@ Interpret your results.
 ```{r}
 median(JC$age, na.rm = TRUE)
 ```
+
 To choose an age of the cutoff range, we use the sample median age. To determine this we ran the code above. The output is that the sample median age is 18. Thus, those in the older group are those aged 18 or older and those in the younger group are 17 and below. 
+
 ```{r}
 age_cut <- median(JC$age, na.rm = TRUE)
 
@@ -616,7 +830,12 @@ JC |>
               names_prefix = "assign_") |>
   mutate(CATE = assign_1 - assign_0)
 ```
+
 To compute the means for the control and treatment group for each value of the binarized variable we ran the code above. The CATE is the conditional average treatment effect and shows the different in mean earnings between the treatment and control.  
+
+Our results show that the CATE for younger individuals is 10.7. This means that assignment to Jobs Corps increases fourth-year earnings by about 10.7 units for younger individuals. The control mean for younger individuals is 177 and the treatment mean is 188. 
+
+For older individuals (age_high = TRUE), the control mean is 214 and the treatment mean is 231. The CATE is 17. Thus, our findings suggest that the increased average earnings is higher for older individuals. This suggests heterogeneous treatment effects by age.  
 
 {{< pagebreak >}}
 

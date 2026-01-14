@@ -1,7 +1,12 @@
 ---
 title: "ECON 773: Assignment 1"
+<<<<<<< HEAD
 author: "The BLUE Team, Jeneta Ljutic (400138420), Tadhg Taylor-McGreal (400330297), Stella Till (400364649)"
 date: "January 12th 2026"
+=======
+author: "Team Name and Student IDs"
+date: "Date you started this assignmentghjkghjk"
+>>>>>>> b67df1d951d36335f2b72942166e8ee47b34906c
 format:
   typst: 
     toc: TRUE
@@ -183,7 +188,10 @@ Before deriving any conclusions, let's look at the control group.
  ```
 
  The average annual earnings, 4 years after the program, are higher by about 16 dollars in the treatment group. This agrees with the finding in H, p. 21. 
+<<<<<<< HEAD
 
+=======
+>>>>>>> b67df1d951d36335f2b72942166e8ee47b34906c
 ## Piping and `group_by`
 
 This question will be demonstrated in class.
@@ -424,6 +432,7 @@ Interpret your findings.
 
 ### Answer
 
+<<<<<<< HEAD
 1. We will use 'ggplot' and 'geom_point' to create a scatterplot of logged earnings at assignment, 'mwearn' and at year 4, 'earny4'. The code filters the data to include only individuals with positive earnings at assignment and in year 4 so that taking logarithms is valid. It creates a scatterplot of log earnings at assignment versus log earnings in year 4, adds semi-transparent points, and overlays a dashed 45-degree reference line showing where earnings would be equal in both periods.
 
 ```{r}
@@ -505,6 +514,12 @@ The control group’s line (denoted in orange) is relatively flat, suggesting th
 
 {{< pagebreak >}} 
 ...
+=======
+...
+
+
+{{< pagebreak >}} 
+>>>>>>> b67df1d951d36335f2b72942166e8ee47b34906c
 
 # HIV information experiment
 
@@ -532,6 +547,7 @@ Interpret the results.
 
 ### Answer
 
+<<<<<<< HEAD
 ```{r}
 # Packages
 library(causaldata)
@@ -576,6 +592,8 @@ ggplot(by_amount, aes(x = tinc, y = mean_got)) +
 
 ```
 
+=======
+>>>>>>> b67df1d951d36335f2b72942166e8ee47b34906c
 ...
 
 
