@@ -50,33 +50,39 @@ To render this document, click the *Render* button in the menu just above the to
 
 {{< pagebreak >}}
 
-# Job corps
-
 ## Installing packages and loading data
 
 This question will be demonstrated in class.
 
-For this and the next few questions, we will use the data used in H3.1. To load the data, you first have to install the `R` package that accompanies the book. To install a package in `R`, which you need to do once for every `R` installation, run `install.packages(<PACKAGE_NAME>)` in your console. We will use data from the `causalweight` package. To install it, run:
+For this and the next few questions, we will use the data used in H3.1.
+To load the data, you first have to install the `R` package that accompanies the book.
+To install a package in `R`, which you need to do once for every `R` installation, run `install.packages(<PACKAGE_NAME>)` in your console. 
+We will use data from the `causalweight` package. 
+To install it, run:
 
 ```{r}
 #| eval: false
 install.packages("causalweight")
-install.packages("causalweight", repos = "https://cloud.r-project.org")
+# install.packages("causalweight", repos = "https://cloud.r-project.org")
 ```
 
-The `#| eval: false` switch in the options of the above code chunk ensure that the code is not run whenever you render this `.qmd` file. Once per `R` session, and once in each `.qmd` file, you need to load the functionality of installed packages that you wish to use. You can do this by `library(<PACKAGE_NAME)`. In this case:
+The `#| eval: false` switch in the options of the above code chunk ensure that the code is not run whenever you render this `.qmd` file.
+Once per `R` session, and once in each `.qmd` file, you need to load the functionality of installed packages that you wish to use. 
+You can do this by `library(<PACKAGE_NAME)`. In this case:
 
 ```{r}
 library(causalweight)
 ```
 
-After a `library` command, the functions and data sets in a given package are available to you. To load the `JC` data from the `causalweight` package:
+After a `library` command, the functions and data sets in a given package are available to you.
+To load the `JC` data from the `causalweight` package:
 
 ```{r}
 data(JC)
 ```
 
-We will explore this data set using tools from the `tidyverse` library. If that collection of packages is not yet installed, run:
+We will explore this data set using tools from the `tidyverse` library.
+If that collection of packages is not yet installed, run:
 
 ```{r}
 #| eval: false
@@ -91,10 +97,13 @@ library(tidyverse)
 library(gt)
 ```
 
-We will discover how to use the `tidyverse` as we go. Have a look at [this vignette](https://cran.r-project.org/web/packages/tidyverse/vignettes/paper.html) for the ideas behind it, and at [the book R4DS](https://r4ds.hadley.nz/) for a fantastic introduction to how to use it. In this assignment, we will focus on using
+We will discover how to use the `tidyverse` as we go.
+Have a look at [this vignette](https://cran.r-project.org/web/packages/tidyverse/vignettes/paper.html) for the ideas behind it, 
+and at [the book R4DS](https://r4ds.hadley.nz/) for a fantastic introduction to how to use it. 
+In this assignment, we will focus on using
 
--   `dplyr` for data manipulation, start your practice [in this R4DS chapter](https://r4ds.hadley.nz/data-transform)
--   `ggplot` for data visualization, see [Grammar for Graphics](https://ggplot2.tidyverse.org/).
+- `dplyr` for data manipulation, start your practice [in this R4DS chapter](https://r4ds.hadley.nz/data-transform)
+- `ggplot` for data visualization, see [Grammar for Graphics](https://ggplot2.tidyverse.org/).
 
 We start by putting `JC` in `tibble` format, and by having a look at the top lines using `tinytable`.
 
@@ -115,68 +124,169 @@ To bring up a description of the variables, ask:
 
 Answer the following questions, using one `dplyr` verb each:
 
-
-1.  using `arrange`, sort the observations by age (first) and years of education at assignment (second)
-
-To answer this question we will use the dplyr `arrange` tool to sort the data as directed within the question.
-```{r}
-JC <- JC |>
-  dplyr::arrange(age, educ)
-```
-
-2.  make a new, binarized, variable `educ_high` that equals `TRUE` if the years of education at assignment is 12 or greater, and `FALSE` otherwise. Use:
-    -   `mutate`
-    -   `ifelse`
-    -   the pipe operator `|>` to pass `JC` to `mutate`
-    -   `-> JC` to overwrite the original `tibble`
-    
-```{r}
-JC |>
-  dplyr::mutate(educ_high = ifelse(educ >= 12, TRUE, FALSE)) -> JC
-```
-
-3.  use `select` to keep only the 5 variables: `assignment`; the weekly earnings in fourth year after assignment; the variable indicating `female`; the education variable that you just created; the variable that indicates whether education is missing at assignment. Save the result in a new tibble called `JC_short`
-
-```{r}
-JC_short <- JC |>
-  dplyr::select(age, assignment, earny4, female, educ, educmis)
-```
-
-4.  starting from `JC_short`, use `filter` to keep only the observations for which `assignment` equals 1 and save the results as `JC_short_TG`. Create an analogous `JC_short_CG`.
-
-```{r}
-JC_short_TG <- JC_short |>
-  dplyr::filter(assignment == 1)
-
-JC_short_CG <- JC_short |>
-  dplyr::filter(assignment == 0)
-```
-
-This works and we checked by visually analyzing the data set. We invite you to confirm this by seeing the printout in the appendix. 
-
-5.  compute the mean weekly earnings in fourth year in the `JC_short_TG` tibble, and compare it to the analogous mean in `JC_short_CG`.
-
-```{r}
-TG_mean <- JC_short_TG |>
-  dplyr::summarise(mean_earny4 = mean(earny4, na.rm = TRUE))
-
-CG_mean <- JC_short_CG |>
-  dplyr::summarise(mean_earny4 = mean(earny4, na.rm = TRUE))
-
-TG_mean
-CG_mean
-```
+1. using `arrange`, sort the observations by age (first) and years of education at assignment (second)
+2. make a new, binarized, variable `educ_high` that equals `TRUE` if the years of education at assignment is 12 or greater, and `FALSE` otherwise. Use:
+    - `mutate` 
+    - `ifelse`
+    - the pipe operator `|>` to pass `JC` to `mutate`
+    - `-> JC` to overwrite the original `tibble` 
+3. use `select` to keep only the 5 variables: `assignment`; the weekly earnings in fourth year after assignment; the variable indicating `female`; the education variable that you just created; the variable that indicates whether education is missing at assignment. Save the result in a new tibble called `JC_short`
+4. starting from `JC_short`, use `filter` to keep only the observations for which `assignment` equals 1 and save the results as `JC_short_TG`. Create an analogous `JC_short_CG`.
+5. compute the mean weekly earnings in fourth year in the `JC_short_TG` tibble, and compare it to the analogous mean in `JC_short_CG`.
 
 Interpret the final result, and compare it to the result on H, p. 21.
 
 ### Answer
 
+To answer the first question, we can use the 'arrange' function from 'dplyr'
 ```{r}
-as.numeric(TG_mean$mean_earny4) - as.numeric(CG_mean$mean_earny4)
+JC |> arrange(age, educ)
 ```
 ...
 
-{{< pagebreak >}}
+From visual inspection, it looks like the 'arrange' command worked. 
+
+```{r}
+JC |> mutate(educ_high = ifelse(educ >= 12, TRUE, FALSE)) -> JC
+
+JC |> select(educ, educmis, educ_high)
+```
+{{< pagebreak >}} 
+This worked, and we checked it by visually inspecting the resulting data set in the viewer. 
+
+To answer the third question, we will use 'select' to keep only the relevant variables. 
+
+```{r}
+(JC |> select(assignment, female, earny4, educ_high, educmis) -> JC_short)
+```
+
+To keep only the observations corresponding to the treatment group, we will use the 'filter' function, applied to the 'assignment' variable. 
+
+ ```{r}
+ JC_short |> filter(assignment ==1) -> JC_short_TG
+ JC_short |> filter(assignment ==0) -> JC_short_CG
+ ```
+
+ It worked! 
+ I am going to use the 'mean' function to compute the average annual earnings ('earny4') for the treatment group and the control group separetly. We start with the treatment group, which corresponds to 'JC_short_TG'.
+ 
+ ```{r}
+ mean(JC_short_TG$earny4)
+ ```
+ 
+
+Before deriving any conclusions, let's look at the control group. 
+ ```{r}
+  mean(JC_short_CG$earny4)
+ ```
+
+ The average annual earnings, 4 years after the program, are higher by about 16 dollars in the treatment group. This agrees with the finding in H, p. 21. 
+## Piping and `group_by`
+
+This question will be demonstrated in class.
+
+You will practice how to use a sequence of `pipes`, use `group_by`.
+You continue with the `JC_short` data that we created in the previous question. 
+
+First, use `group_by` to group the observations in `JC_short` by `female`, and comment on the result.
+
+Second, pipe the result from `group_by` into a `summarize` command to see the means for each group in one table. Interpret the result.
+
+Third, start with a `filter` command that keeps only those with education information available, then group by `assignment`, then compute the mean of `earny4` for each group. Interpret the result.
+
+Fourth, repeat this, grouping by `female` **and** `assignment`.
+Interpret your result, discussing the conditional average treatment effect (CATE) for men and for women.
+Compare it to the unconditional ATE. Is the unconditional ATE an average of the two CATEs? Comment on this finding.
+
+### Answer
+
+```{r}
+JC_short |> 
+    group_by(female) |> 
+
+
+    summarize(EY = mean(earny4))
+```
+
+```{r}
+JC_short |> 
+    filter(educmis == 0) |> 
+    group_by(assignment) |> 
+    summarize(EY = mean(earny4))
+```
+
+```{r}
+JC_short |> 
+    filter(educmis == 0) |> 
+    group_by(female, assignment) |> 
+    summarize(EY = mean(earny4)) 
+```
+
+```{r}
+JC_short_TG <- JC_short |>
+  filter(assignment == 1)
+
+JC_short_CG <- JC_short |>
+  filter(assignment == 0)
+```
+
+```{r}
+
+mean_TG <- JC_short_TG |>
+  summarize(mean_earny4 = mean(earny4, na.rm = TRUE)) |>
+  pull(mean_earny4)
+
+mean_CG <- JC_short_CG |>
+  summarize(mean_earny4 = mean(earny4, na.rm = TRUE)) |>
+  pull(mean_earny4)
+
+ATE_diff <- mean_TG - mean_CG
+
+mean_TG
+mean_CG
+ATE_diff
+```
+...
+
+```{r}
+JC_short |>
+  filter(educmis == 0) |>
+  group_by(female, assignment) |>
+  summarize(EY = mean(earny4), .groups = "drop")
+```
+
+```{r}
+JC_short |>
+  filter(educmis == 0) |>
+  group_by(female, assignment) |>
+  summarize(EY = mean(earny4), .groups = "drop") |>
+  pivot_wider(names_from = assignment,
+              values_from = EY,
+              names_prefix = "assign_") |>
+  mutate(CATE = assign_1 - assign_0)
+```
+
+In the first step, nothing happened. We just indicated to R, that we will group by female. In the second step, we saw that the expected earnings for males is 236 and 171 for females. This indicates that females earn less 65 less than males, annually. 
+
+In the second step, we see that those in the control group earn 198 and in the treatment group earning are 214. Here, we filter for only those with education. 
+
+In the third step, we group by treatment assignment and sex. We see that for males with the treatment, they earn 246 and for males without the treatment, they earn 223. For females with the treatment they earn 177 adn for females without the treatment they earn 160. Males earn more both with and without the treatment. If this is a RCT, we say that the gap is caused by the treatment. Males and females do not have the same treatment effect. The effect is 23 for men and 17 for women. Previously, we said that the overall effect is 16. The difference ATE_diff = mean_TG − mean_CG is the (unadjusted) estimated average treatment effect of assignment to Job Corps on fourth-year weekly earnings. 
+
+Fourth, This table reports mean fourth-year earnings separately by gender (female) and treatment status (assignment).
+For each gender, the conditional average treatment effect (CATE) is the difference in mean earnings between the treatment group (assignment = 1) and the control group (assignment = 0).
+
+The CATE for men is the treatment–control difference among individuals with female = 0.
+
+The CATE for women is the analogous difference among individuals with female = 1.
+
+Comparing the two CATEs shows whether the Job Corps program had heterogeneous effects by gender. If the CATEs differ, this indicates that the impact of the program is not the same for men and women.
+
+The unconditional ATE (computed earlier without conditioning on gender) is a weighted average of these two CATEs, where the weights are the proportions of men and women in the sample. Therefore, the unconditional ATE will generally not equal the simple average of the male and female CATEs unless the two groups are the same size.
+
+This finding highlights that unconditional treatment effects can mask important heterogeneity across subgroups, and that policy conclusions may differ depending on which population is emphasized.
+
+
+{{< pagebreak >}} 
 
 ## Piping and `group_by`
 
@@ -611,4 +721,5 @@ For older individuals (age_high = TRUE), the control mean is 214 and the treatme
 #| echo: false
 Sys.info()
 Sys.time()
+
 ```
