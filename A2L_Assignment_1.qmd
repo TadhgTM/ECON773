@@ -1,7 +1,7 @@
 ---
 title: "ECON 773: Assignment 1"
 author: "The BLUE Team, Jeneta Ljutic (400138420), Tadhg Taylor-McGreal (400330297), Stella Till (400364649)"
-date: "January 12th 2026"
+date: "January 12 2026"
 format:
   typst: 
     toc: TRUE
@@ -544,63 +544,6 @@ ggplot(JC, aes(x = factor(assignment), y = earny4)) +
 ```
 
 The boxplot, shows the  weekly earnings in the fourth year after the treatment and is grouped by assignment on the x-axis. The y-axis shows the level of weekly earnings. In this plot, all earnings are positive. Dividing the earnings distribution by assignment highlights the differences in earnings between the control group (assignment = 0) and the treatment group (assignment = 1). We see a strong right-skew of earnings in both groups. This indicates that most individuals earn relatively low wages. We can note that there are few outliers in the control group with very high earnings. The outliers in both the treatment and the control group suggest that there may be heterogeneous program effects. However, it is important to distinguish that the treatment group has shows a higher median level of earnings. This suggests that there was a positive effect from the Jobs Corps program. 
-
-```{r}
-ggplot(
-  JC |> filter(earny4 > 0),
-  aes(x = factor(assignment), y = log(earny4))
-) +
-  geom_boxplot() +
-  labs(
-    x = "Assignment",
-    y = "Log weekly earnings in 4th year",
-    title = "Log fourth-year earnings by treatment assignment"
-  )
-```
-This final boxplot shows the positive earnings by assignment. It compares the distribution of log weekly earnings in the fourth year after the assignment between the control group and the (assignment = 0) and the treatment group (assignment = 1). All individuals in this plot are restricted to have positive earnings. On the boxplot, we see that there is a higher median log earnings in the treatment group. This indicates that those assigned to the Jobs Corps training program have higher typical earnings four years after  the treatment assignment. This suggests a positive average treatment effect of Jobs Corps on earnings. 
-
-There is substantial overlap between the distributions of the treatment and control group. This suggests that the programs effects were moderate and there may be other characteristics driving certain individuals to earn higher wages. 
-
-```{r}
-```{r}
-ggplot(JC, aes(y = earny4)) +
-  geom_boxplot() +
-  labs(
-    y = "Weekly earnings in 4th year after assignment",
-    title = "Distribution of fourth-year earnings"
-  )
-```
-  )
-```
-
-This boxplot shows the weekly earnings in the fourth year after assignment on the y-axis and In this boxplot we see a skew to the right. This indicates that most individuals earn relatively low wages. The high earning individuals appear to be outliers. This suggests that only some individuals benefit largely in the fourth year post Job Corps program which indicates that the treatment did not have the same effect across all participants. 
-
-In this plot, the effect of earnings are skewed by the extreme high values. This is because in a chart using levels, the differences are absolute and are thus highly influenced by outliers. This motivates the use of log earnings in the following charts since taking the logs compresses the upper tail of the distribution allow for comparisons which reflect proportional differences in earnings rather than absolute differences. 
-
-```{r}
-ggplot(
-  JC |> filter(earny4 > 0),
-  aes(y = log(earny4))
-) +
-  geom_boxplot() +
-  labs(
-    y = "Log weekly earnings in 4th year",
-    title = "Distribution of log fourth-year earnings (earny4 > 0)"
-  )
-```
-The second boxplot shows the distribution of log earnings for those with positive earnings. In this plot, we see that the earnings are more centred. This indicates that once we restrict for positive earnings, measured on a log scale the upper tail one the distribution becomes compressed. There remain some lower outliers, indicating that some individuals continue to have low but positive earnings. Thus, even when separating for positive earnings, heterogeneity of the results remain suggesting that there are other characteristics that influence earnings in the period four years after the program. 
-
-```{r}
-ggplot(JC, aes(x = factor(assignment), y = earny4)) +
-  geom_boxplot() +
-  labs(
-    x = "Assignment",
-    y = "Weekly earnings in 4th year",
-    title = "Fourth-year earnings by treatment assignment"
-  )
-```
-The boxplot, shows the  weekly earnings in the fourth year after the treatment and is grouped by assignment on the x-axis. The y-axis shows the level of weekly earnings. In this plot, all earnings are positive. Dividing the earnings distribution by assignment highlights the differences in earnings between the control group (assignment = 0) and the treatment group (assignment = 1). We see a strong right-skew of earnings in both groups. This indicates that most individuals earn relatively low wages. We can note that there are few outliers in the control group with very high earnings. The outliers in both the treatment and the control group suggest that there may be heterogeneous program effects. However, it is important to distinguish that the treatment group has shows a higher median level of earnings. This suggests that there was a positive effect from the Jobs Corps program. 
-
 
 ```{r}
 ggplot(
