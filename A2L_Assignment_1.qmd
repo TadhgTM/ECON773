@@ -1,7 +1,7 @@
 ---
 title: "ECON 773: Assignment 1"
 author: "The BLUE Team, Jeneta Ljutic (400138420), Tadhg Taylor-McGreal (400330297), Stella Till (400364649)"
-date: "January 12 2026"
+date: "January 12th 2026"
 format:
   typst: 
     toc: TRUE
@@ -13,15 +13,15 @@ format:
 
 ## Goal
 
-The goals of this assignment are to: 
+The goals of this assignment are to:
 
-- make sure your `R`, `Positron` are set up properly
-- learn to install packages in `R`
-- learn to edit text in `quarto`
-- learn to load data in `R`
-- learn to use 5 `dplyr` verbs for basic computations with data in `R`
-- learn to create some visualizations using `ggplot` 
-- learn to render an `.qmd` to `.pdf` (via Typst) 
+-   make sure your `R`, `Positron` are set up properly
+-   learn to install packages in `R`
+-   learn to edit text in `quarto`
+-   learn to load data in `R`
+-   learn to use 5 `dplyr` verbs for basic computations with data in `R`
+-   learn to create some visualizations using `ggplot`
+-   learn to render an `.qmd` to `.pdf` (via Typst)
 
 ## Instructions
 
@@ -31,58 +31,52 @@ You will use `quarto` for generating your assignment output file. You begin with
 
 To submit this assignment:
 
-- edit the `author` and `date` fields in the `YAML` (lines 1-9). Do not touch any other line in the YAML.
-- complete the questions
-- render to pdf
-- email to TA
+-   edit the `author` and `date` fields in the `YAML` (lines 1-9). Do not touch any other line in the YAML.
+-   complete the questions
+-   render to pdf
+-   email to TA
 
 Some additional instructions:
 
-1. leave all the text between `## Question` and `### Answer` unchanged and write your answers between `### Answer` and the next `## Question`
-2. for each question that involves `R` code, **do not only write R code**, but add at least one sentence before the code explaining what you are going to do, and at least one line after the R code interpreting the result
-3. check spelling before submissions 
-4. once your assignment is complete: 
-    - *Render* it to pdf
-    - inspect the resulting `.pdf`: would you want to grade it?
-    - submit
-
+1.  leave all the text between `## Question` and `### Answer` unchanged and write your answers between `### Answer` and the next `## Question`
+2.  for each question that involves `R` code, **do not only write R code**, but add at least one sentence before the code explaining what you are going to do, and at least one line after the R code interpreting the result
+3.  check spelling before submissions
+4.  once your assignment is complete:
+    -   *Render* it to pdf
+    -   inspect the resulting `.pdf`: would you want to grade it?
+    -   submit
+    
 To render this document, click the *Render* button in the menu just above the top of this file. Alternatively, use the command palette. This step may fail until you install additional packages.
 
 {{< pagebreak >}}
+
+# Job corps
 
 ## Installing packages and loading data
 
 This question will be demonstrated in class.
 
-For this and the next few questions, we will use the data used in H3.1.
-To load the data, you first have to install the `R` package that accompanies the book.
-To install a package in `R`, which you need to do once for every `R` installation, run `install.packages(<PACKAGE_NAME>)` in your console. 
-We will use data from the `causalweight` package. 
-To install it, run:
+For this and the next few questions, we will use the data used in H3.1. To load the data, you first have to install the `R` package that accompanies the book. To install a package in `R`, which you need to do once for every `R` installation, run `install.packages(<PACKAGE_NAME>)` in your console. We will use data from the `causalweight` package. To install it, run:
 
 ```{r}
 #| eval: false
 install.packages("causalweight")
-# install.packages("causalweight", repos = "https://cloud.r-project.org")
+install.packages("causalweight", repos = "https://cloud.r-project.org")
 ```
 
-The `#| eval: false` switch in the options of the above code chunk ensure that the code is not run whenever you render this `.qmd` file.
-Once per `R` session, and once in each `.qmd` file, you need to load the functionality of installed packages that you wish to use. 
-You can do this by `library(<PACKAGE_NAME)`. In this case:
+The `#| eval: false` switch in the options of the above code chunk ensure that the code is not run whenever you render this `.qmd` file. Once per `R` session, and once in each `.qmd` file, you need to load the functionality of installed packages that you wish to use. You can do this by `library(<PACKAGE_NAME)`. In this case:
 
 ```{r}
 library(causalweight)
 ```
 
-After a `library` command, the functions and data sets in a given package are available to you.
-To load the `JC` data from the `causalweight` package:
+After a `library` command, the functions and data sets in a given package are available to you. To load the `JC` data from the `causalweight` package:
 
 ```{r}
 data(JC)
 ```
 
-We will explore this data set using tools from the `tidyverse` library.
-If that collection of packages is not yet installed, run:
+We will explore this data set using tools from the `tidyverse` library. If that collection of packages is not yet installed, run:
 
 ```{r}
 #| eval: false
@@ -97,13 +91,10 @@ library(tidyverse)
 library(gt)
 ```
 
-We will discover how to use the `tidyverse` as we go.
-Have a look at [this vignette](https://cran.r-project.org/web/packages/tidyverse/vignettes/paper.html) for the ideas behind it, 
-and at [the book R4DS](https://r4ds.hadley.nz/) for a fantastic introduction to how to use it. 
-In this assignment, we will focus on using
+We will discover how to use the `tidyverse` as we go. Have a look at [this vignette](https://cran.r-project.org/web/packages/tidyverse/vignettes/paper.html) for the ideas behind it, and at [the book R4DS](https://r4ds.hadley.nz/) for a fantastic introduction to how to use it. In this assignment, we will focus on using
 
-- `dplyr` for data manipulation, start your practice [in this R4DS chapter](https://r4ds.hadley.nz/data-transform)
-- `ggplot` for data visualization, see [Grammar for Graphics](https://ggplot2.tidyverse.org/).
+-   `dplyr` for data manipulation, start your practice [in this R4DS chapter](https://r4ds.hadley.nz/data-transform)
+-   `ggplot` for data visualization, see [Grammar for Graphics](https://ggplot2.tidyverse.org/).
 
 We start by putting `JC` in `tibble` format, and by having a look at the top lines using `tinytable`.
 
@@ -124,69 +115,74 @@ To bring up a description of the variables, ask:
 
 Answer the following questions, using one `dplyr` verb each:
 
-1. using `arrange`, sort the observations by age (first) and years of education at assignment (second)
-2. make a new, binarized, variable `educ_high` that equals `TRUE` if the years of education at assignment is 12 or greater, and `FALSE` otherwise. Use:
-    - `mutate` 
-    - `ifelse`
-    - the pipe operator `|>` to pass `JC` to `mutate`
-    - `-> JC` to overwrite the original `tibble` 
-3. use `select` to keep only the 5 variables: `assignment`; the weekly earnings in fourth year after assignment; the variable indicating `female`; the education variable that you just created; the variable that indicates whether education is missing at assignment. Save the result in a new tibble called `JC_short`
-4. starting from `JC_short`, use `filter` to keep only the observations for which `assignment` equals 1 and save the results as `JC_short_TG`. Create an analogous `JC_short_CG`.
-5. compute the mean weekly earnings in fourth year in the `JC_short_TG` tibble, and compare it to the analogous mean in `JC_short_CG`.
+
+1.  using `arrange`, sort the observations by age (first) and years of education at assignment (second)
+
+To answer this question we will use the dplyr `arrange` tool to sort the data as directed within the question.
+```{r}
+JC <- JC |>
+  dplyr::arrange(age, educ)
+```
+
+2.  make a new, binarized, variable `educ_high` that equals `TRUE` if the years of education at assignment is 12 or greater, and `FALSE` otherwise. Use:
+    -   `mutate`
+    -   `ifelse`
+    -   the pipe operator `|>` to pass `JC` to `mutate`
+    -   `-> JC` to overwrite the original `tibble`
+    
+```{r}
+JC |>
+  dplyr::mutate(educ_high = ifelse(educ >= 12, TRUE, FALSE)) -> JC
+```
+
+3.  use `select` to keep only the 5 variables: `assignment`; the weekly earnings in fourth year after assignment; the variable indicating `female`; the education variable that you just created; the variable that indicates whether education is missing at assignment. Save the result in a new tibble called `JC_short`
+
+```{r}
+JC_short <- JC |>
+  dplyr::select(age, assignment, earny4, female, educ, educmis)
+```
+
+4.  starting from `JC_short`, use `filter` to keep only the observations for which `assignment` equals 1 and save the results as `JC_short_TG`. Create an analogous `JC_short_CG`.
+
+```{r}
+JC_short_TG <- JC_short |>
+  dplyr::filter(assignment == 1)
+
+JC_short_CG <- JC_short |>
+  dplyr::filter(assignment == 0)
+```
+
+This works and we checked by visually analyzing the data set. We invite you to confirm this by seeing the printout in the appendix. 
+
+5.  compute the mean weekly earnings in fourth year in the `JC_short_TG` tibble, and compare it to the analogous mean in `JC_short_CG`.
+
+```{r}
+TG_mean <- JC_short_TG |>
+  dplyr::summarise(mean_earny4 = mean(earny4, na.rm = TRUE))
+
+CG_mean <- JC_short_CG |>
+  dplyr::summarise(mean_earny4 = mean(earny4, na.rm = TRUE))
+
+TG_mean
+CG_mean
+```
 
 Interpret the final result, and compare it to the result on H, p. 21.
 
 ### Answer
 
-To answer the first question, we can use the 'arrange' function from 'dplyr'
 ```{r}
-JC |> arrange(age, educ)
+as.numeric(TG_mean$mean_earny4) - as.numeric(CG_mean$mean_earny4)
 ```
 ...
 
-From visual inspection, it looks like the 'arrange' command worked. 
+{{< pagebreak >}}
 
-```{r}
-JC |> mutate(educ_high = ifelse(educ >= 12, TRUE, FALSE)) -> JC
-
-JC |> select(educ, educmis, educ_high)
-```
-{{< pagebreak >}} 
-This worked, and we checked it by visually inspecting the resulting data set in the viewer. 
-
-To answer the third question, we will use 'select' to keep only the relevant variables. 
-
-```{r}
-(JC |> select(assignment, female, earny4, educ_high, educmis) -> JC_short)
-```
-
-To keep only the observations corresponding to the treatment group, we will use the 'filter' function, applied to the 'assignment' variable. 
-
- ```{r}
- JC_short |> filter(assignment ==1) -> JC_short_TG
- JC_short |> filter(assignment ==0) -> JC_short_CG
- ```
-
- It worked! 
- I am going to use the 'mean' function to compute the average annual earnings ('earny4') for the treatment group and the control group separetly. We start with the treatment group, which corresponds to 'JC_short_TG'.
- 
- ```{r}
- mean(JC_short_TG$earny4)
- ```
- 
-
-Before deriving any conclusions, let's look at the control group. 
- ```{r}
-  mean(JC_short_CG$earny4)
- ```
-
- The average annual earnings, 4 years after the program, are higher by about 16 dollars in the treatment group. This agrees with the finding in H, p. 21. 
 ## Piping and `group_by`
 
 This question will be demonstrated in class.
 
-You will practice how to use a sequence of `pipes`, use `group_by`.
-You continue with the `JC_short` data that we created in the previous question. 
+You will practice how to use a sequence of `pipes`, use `group_by`. You continue with the `JC_short` data that we created in the previous question.
 
 First, use `group_by` to group the observations in `JC_short` by `female`, and comment on the result.
 
@@ -194,221 +190,72 @@ Second, pipe the result from `group_by` into a `summarize` command to see the me
 
 Third, start with a `filter` command that keeps only those with education information available, then group by `assignment`, then compute the mean of `earny4` for each group. Interpret the result.
 
-Fourth, repeat this, grouping by `female` **and** `assignment`.
-Interpret your result, discussing the conditional average treatment effect (CATE) for men and for women.
-Compare it to the unconditional ATE. Is the unconditional ATE an average of the two CATEs? Comment on this finding.
+Fourth, repeat this, grouping by `female` **and** `assignment`. Interpret your result, discussing the conditional average treatment effect (CATE) for men and for women. Compare it to the unconditional ATE. Is the unconditional ATE an average of the two CATEs? Comment on this finding.
 
 ### Answer
 
 ```{r}
-JC_short |> 
-    group_by(female) |> 
+# 1) Group by female (create grouped object and also show counts)
+grouped_by_female <- JC_short |> dplyr::group_by(female)
+female_counts <- grouped_by_female |> dplyr::summarise(n = dplyr::n(), .groups = "drop")
 
+means_by_female <- JC_short |>
+  dplyr::group_by(female) |>
+  dplyr::summarise(mean_earny4 = mean(earny4, na.rm = TRUE), n = dplyr::n(), .groups = "drop")
 
-    summarize(EY = mean(earny4))
+filtered <- JC_short |> dplyr::filter(!is.na(educ))
+means_by_assignment_filtered <- filtered |>
+  dplyr::group_by(assignment) |>
+  dplyr::summarise(mean_earny4 = mean(earny4, na.rm = TRUE), n = dplyr::n(), .groups = "drop")
+
+means_by_female_assignment <- filtered |>
+  dplyr::group_by(female, assignment) |>
+  dplyr::summarise(mean_earny4 = mean(earny4, na.rm = TRUE), n = dplyr::n(), .groups = "drop")
+
+CATEs <- means_by_female_assignment |>
+  tidyr::pivot_wider(names_from = assignment, values_from = mean_earny4, names_prefix = "assign_") |>
+  dplyr::mutate(CATE = assign_1 - assign_0)
+
+female_shares <- filtered |>
+  dplyr::group_by(female) |>
+  dplyr::summarise(share = dplyr::n() / nrow(filtered), .groups = "drop")
+
+CATEs_with_shares <- CATEs |>
+  dplyr::left_join(female_shares, by = "female") |>
+  dplyr::mutate(weighted_CATE = CATE * share)
+
+weighted_CATE_sum <- CATEs_with_shares |> dplyr::summarise(weighted_CATE = sum(weighted_CATE)) 
+
+ATE_unconditional_filtered <- means_by_assignment_filtered |>
+  tidyr::pivot_wider(names_from = assignment, values_from = mean_earny4, names_prefix = "assign_") |>
+  dplyr::mutate(ATE = assign_1 - assign_0) 
+
+list(
+  female_counts = female_counts,
+  means_by_female = means_by_female,
+  means_by_assignment_filtered = means_by_assignment_filtered,
+  means_by_female_assignment = means_by_female_assignment,
+  CATEs = CATEs,
+  female_shares = female_shares,
+  CATEs_with_shares = CATEs_with_shares,
+  weighted_CATE_sum = weighted_CATE_sum,
+  ATE_unconditional_filtered = ATE_unconditional_filtered
+)
 ```
 
-```{r}
-JC_short |> 
-    filter(educmis == 0) |> 
-    group_by(assignment) |> 
-    summarize(EY = mean(earny4))
-```
-
-```{r}
-JC_short |> 
-    filter(educmis == 0) |> 
-    group_by(female, assignment) |> 
-    summarize(EY = mean(earny4)) 
-```
-
-```{r}
-JC_short_TG <- JC_short |>
-  filter(assignment == 1)
-
-JC_short_CG <- JC_short |>
-  filter(assignment == 0)
-```
-
-```{r}
-
-mean_TG <- JC_short_TG |>
-  summarize(mean_earny4 = mean(earny4, na.rm = TRUE)) |>
-  pull(mean_earny4)
-
-mean_CG <- JC_short_CG |>
-  summarize(mean_earny4 = mean(earny4, na.rm = TRUE)) |>
-  pull(mean_earny4)
-
-ATE_diff <- mean_TG - mean_CG
-
-mean_TG
-mean_CG
-ATE_diff
-```
 ...
 
-```{r}
-JC_short |>
-  filter(educmis == 0) |>
-  group_by(female, assignment) |>
-  summarize(EY = mean(earny4), .groups = "drop")
-```
-
-```{r}
-JC_short |>
-  filter(educmis == 0) |>
-  group_by(female, assignment) |>
-  summarize(EY = mean(earny4), .groups = "drop") |>
-  pivot_wider(names_from = assignment,
-              values_from = EY,
-              names_prefix = "assign_") |>
-  mutate(CATE = assign_1 - assign_0)
-```
-
-In the first step, nothing happened. We just indicated to R, that we will group by female. In the second step, we saw that the expected earnings for males is 236 and 171 for females. This indicates that females earn less 65 less than males, annually. 
-
-In the second step, we see that those in the control group earn 198 and in the treatment group earning are 214. Here, we filter for only those with education. 
-
-In the third step, we group by treatment assignment and sex. We see that for males with the treatment, they earn 246 and for males without the treatment, they earn 223. For females with the treatment they earn 177 adn for females without the treatment they earn 160. Males earn more both with and without the treatment. If this is a RCT, we say that the gap is caused by the treatment. Males and females do not have the same treatment effect. The effect is 23 for men and 17 for women. Previously, we said that the overall effect is 16. The difference ATE_diff = mean_TG − mean_CG is the (unadjusted) estimated average treatment effect of assignment to Job Corps on fourth-year weekly earnings. 
-
-Fourth, This table reports mean fourth-year earnings separately by gender (female) and treatment status (assignment).
-For each gender, the conditional average treatment effect (CATE) is the difference in mean earnings between the treatment group (assignment = 1) and the control group (assignment = 0).
-
-The CATE for men is the treatment–control difference among individuals with female = 0.
-
-The CATE for women is the analogous difference among individuals with female = 1.
-
-Comparing the two CATEs shows whether the Job Corps program had heterogeneous effects by gender. If the CATEs differ, this indicates that the impact of the program is not the same for men and women.
-
-The unconditional ATE (computed earlier without conditioning on gender) is a weighted average of these two CATEs, where the weights are the proportions of men and women in the sample. Therefore, the unconditional ATE will generally not equal the simple average of the male and female CATEs unless the two groups are the same size.
-
-This finding highlights that unconditional treatment effects can mask important heterogeneity across subgroups, and that policy conclusions may differ depending on which population is emphasized.
-
-
-{{< pagebreak >}} 
-
-## Piping and `group_by`
-
-This question will be demonstrated in class.
-
-You will practice how to use a sequence of `pipes`, use `group_by`.
-You continue with the `JC_short` data that we created in the previous question. 
-
-First, use `group_by` to group the observations in `JC_short` by `female`, and comment on the result.
-
-Second, pipe the result from `group_by` into a `summarize` command to see the means for each group in one table. Interpret the result.
-
-Third, start with a `filter` command that keeps only those with education information available, then group by `assignment`, then compute the mean of `earny4` for each group. Interpret the result.
-
-Fourth, repeat this, grouping by `female` **and** `assignment`.
-Interpret your result, discussing the conditional average treatment effect (CATE) for men and for women.
-Compare it to the unconditional ATE. Is the unconditional ATE an average of the two CATEs? Comment on this finding.
-
-### Answer
-
-```{r}
-JC_short |> 
-    group_by(female) |> 
-
-
-    summarize(EY = mean(earny4))
-```
-
-```{r}
-JC_short |> 
-    filter(educmis == 0) |> 
-    group_by(assignment) |> 
-    summarize(EY = mean(earny4))
-```
-
-```{r}
-JC_short |> 
-    filter(educmis == 0) |> 
-    group_by(female, assignment) |> 
-    summarize(EY = mean(earny4)) 
-```
-
-```{r}
-JC_short_TG <- JC_short |>
-  filter(assignment == 1)
-
-JC_short_CG <- JC_short |>
-  filter(assignment == 0)
-```
-
-```{r}
-
-mean_TG <- JC_short_TG |>
-  summarize(mean_earny4 = mean(earny4, na.rm = TRUE)) |>
-  pull(mean_earny4)
-
-mean_CG <- JC_short_CG |>
-  summarize(mean_earny4 = mean(earny4, na.rm = TRUE)) |>
-  pull(mean_earny4)
-
-ATE_diff <- mean_TG - mean_CG
-
-mean_TG
-mean_CG
-ATE_diff
-```
-...
-
-```{r}
-JC_short |>
-  filter(educmis == 0) |>
-  group_by(female, assignment) |>
-  summarize(EY = mean(earny4), .groups = "drop")
-```
-
-```{r}
-JC_short |>
-  filter(educmis == 0) |>
-  group_by(female, assignment) |>
-  summarize(EY = mean(earny4), .groups = "drop") |>
-  pivot_wider(names_from = assignment,
-              values_from = EY,
-              names_prefix = "assign_") |>
-  mutate(CATE = assign_1 - assign_0)
-```
-
-In the first step, nothing happened. We just indicated to R, that we will group by female. In the second step, we saw that the expected earnings for males is 236 and 171 for females. This indicates that females earn less 65 less than males, annually. 
-
-In the second step, we see that those in the control group earn 198 and in the treatment group earning are 214. Here, we filter for only those with education. 
-
-In the third step, we group by treatment assignment and sex. We see that for males with the treatment, they earn 246 and for males without the treatment, they earn 223. For females with the treatment they earn 177 adn for females without the treatment they earn 160. Males earn more both with and without the treatment. If this is a RCT, we say that the gap is caused by the treatment. Males and females do not have the same treatment effect. The effect is 23 for men and 17 for women. Previously, we said that the overall effect is 16. The difference ATE_diff = mean_TG − mean_CG is the (unadjusted) estimated average treatment effect of assignment to Job Corps on fourth-year weekly earnings. 
-
-Fourth, This table reports mean fourth-year earnings separately by gender (female) and treatment status (assignment).
-For each gender, the conditional average treatment effect (CATE) is the difference in mean earnings between the treatment group (assignment = 1) and the control group (assignment = 0).
-
-The CATE for men is the treatment–control difference among individuals with female = 0.
-
-The CATE for women is the analogous difference among individuals with female = 1.
-
-Comparing the two CATEs shows whether the Job Corps program had heterogeneous effects by gender. If the CATEs differ, this indicates that the impact of the program is not the same for men and women.
-
-The unconditional ATE (computed earlier without conditioning on gender) is a weighted average of these two CATEs, where the weights are the proportions of men and women in the sample. Therefore, the unconditional ATE will generally not equal the simple average of the male and female CATEs unless the two groups are the same size.
-
-This finding highlights that unconditional treatment effects can mask important heterogeneity across subgroups, and that policy conclusions may differ depending on which population is emphasized.
-
-
-{{< pagebreak >}} 
+{{< pagebreak >}}
 
 ## Weeks worked
 
-You may be interested in the effect of the program on variables other than earnings.
-This question focuses on the proportion of weeks employed in fourth year after assignment.
+You may be interested in the effect of the program on variables other than earnings. This question focuses on the proportion of weeks employed in fourth year after assignment.
 
-First, modify the code in the previous question to answer this question using the `JC` data.
-This question is about the ATE, so do not split out by another variable.
-Interpret your findings.
+First, modify the code in the previous question to answer this question using the `JC` data. This question is about the ATE, so do not split out by another variable. Interpret your findings.
 
-Second, using `group_by` and `summarise` to split out results separately by `educ_high`.
-Here, `educ_high` plays the role of `female` in the first two parts of the previous question.
+Second, using `group_by` and `summarise` to split out results separately by `educ_high`. Here, `educ_high` plays the role of `female` in the first two parts of the previous question.
 
-Finally, explore whether the effect differs depending on whether individuals have at least one child at assignment.
-Group only by "one child" variable, do not continue to condition on education.
+Finally, explore whether the effect differs depending on whether individuals have at least one child at assignment. Group only by "one child" variable, do not continue to condition on education.
 
 ### Answer
 
@@ -485,24 +332,17 @@ JC |>
 
 For individuals without children at assignment ('haschild' = 0), the estimated CATE is 2.76 weeks of employment in the fourth year, while for those with at least one child at assignment ('haschild' = 1), the effect is substantially larger at 5.76 weeks (for a difference of 3 weeks). These results indicate that the treatment has a stronger impact on employment for parents, suggesting that the program may be particularly beneficial for individuals with children.
 
-
-{{< pagebreak >}} 
+{{< pagebreak >}}
 
 ## Boxplots
 
 This exercise will be demonstrated in class.
 
-You will practice using `ggplot` to create data visualizations.
-Learning to work with `ggplot` could be its own course. 
-In this course, it will be sufficient to modify the code discussed in class.
-For a deeper dive, [start with these resources](https://ggplot2.tidyverse.org/#learning-ggplot2).
+You will practice using `ggplot` to create data visualizations. Learning to work with `ggplot` could be its own course. In this course, it will be sufficient to modify the code discussed in class. For a deeper dive, [start with these resources](https://ggplot2.tidyverse.org/#learning-ggplot2).
 
-You will continue with the `JC` data.
-A useful data summary for our purpose is the [boxplot](https://openintro-ims.netlify.app/explore-numerical#sec-boxplots).
+You will continue with the `JC` data. A useful data summary for our purpose is the [boxplot](https://openintro-ims.netlify.app/explore-numerical#sec-boxplots).
 
-First, make a boxplot of `earny4`.
-Second, make a boxplot of log earnings for those with positive earnings.
-Third, split out each of the two boxplots by `assignment`. 
+First, make a boxplot of `earny4`. Second, make a boxplot of log earnings for those with positive earnings. Third, split out each of the two boxplots by `assignment`.
 
 ### Answer
 To code our boxplot we use 'ggplot'. Using 'ggplot' allows us to build the plot step by step using JC data. Withing our 'ggplot' bracket, we indicate that the y axis should show the category for earnings after the fourth year of the program. Following 'ggplot', we use 'geom_boxplot'. This tells R to put the JC data into a boxplot. In the last step of the code, we set the titles. We repeated this code skeleton for all of the following boxplots, changing the variables to either be in logs, sorted by assignment or both. In the second step, these changes are made by indicating under 'ggplot' to filter earny4>0, this ensures that only positive values are included, essential when taking a logarithim. To split out each of the boxplots by 'assignment', we type factor(assignment, ...) in the first line of 'ggplot' code.
@@ -561,24 +401,19 @@ This final boxplot shows the positive earnings by assignment. It compares the di
 
 There is substantial overlap between the distributions of the treatment and control group. This suggests that the programs effects were moderate and there may be other characteristics driving certain individuals to earn higher wages. 
 
-{{< pagebreak >}} 
+...
+
+{{< pagebreak >}}
 
 ## Scatterplots
 
-You are going to use scatterplots to visualize the relationship between pre-program earnings, post-program earnings, and treatment assignment. 
-This question will require you to figure out how `geom_point` works. 
-Use the sources provided in the instructions.
+You are going to use scatterplots to visualize the relationship between pre-program earnings, post-program earnings, and treatment assignment. This question will require you to figure out how `geom_point` works. Use the sources provided in the instructions.
 
-First, create a scatterplot with average weekly gross earnings at assignment on the horizontal axis,
-and weekly earnings in fourth year after assignment on the vertical axis.
-Use only individuals that have positive earnings at both of those moments.
-Use log earnings in your plot.
-Hint: scatter plots use `geom_point` instead of `geom_boxplot`.
+First, create a scatterplot with average weekly gross earnings at assignment on the horizontal axis, and weekly earnings in fourth year after assignment on the vertical axis. Use only individuals that have positive earnings at both of those moments. Use log earnings in your plot. Hint: scatter plots use `geom_point` instead of `geom_boxplot`.
 
 Second, add a least squares fit by using `geom_smooth`.
 
-Third, split the results out by `assignment`, by setting `colour = assignment`.
-Interpret your findings.
+Third, split the results out by `assignment`, by setting `colour = assignment`. Interpret your findings.
 
 ### Answer
 
@@ -658,36 +493,26 @@ JC |>
 
 The control group’s line (denoted in orange) is relatively flat, suggesting that initial earnings have little effect on year-4 earnings for this group. In contrast, the treated group’s line (denoted in blue) is slightly steeper, indicating that higher initial earnings are associated with higher year-4 earnings, and that the treatment amplifies earnings growth. Overall, this suggests that the treatment has a slightly larger positive impact on earnings, particularly for individuals who started with higher earnings, while individual variation remains substantial.
 
-{{< pagebreak >}} 
-...
+{{< pagebreak >}}
 
 # HIV information experiment
 
 ## Loading data
 
-From the `causaldata` package, load the `thornton_hiv` data, and then turn it into a tibble
-after removing all missing data using `drop_na`.
-You can use `?thornton_hiv` to find the variable descriptions.
-This exercise is based on the replication in [The Mixtape, Chapter 4](https://mixtape.scunning.com/04-potential_outcomes).
+From the `causaldata` package, load the `thornton_hiv` data, and then turn it into a tibble after removing all missing data using `drop_na`. You can use `?thornton_hiv` to find the variable descriptions. This exercise is based on the replication in [The Mixtape, Chapter 4](https://mixtape.scunning.com/04-potential_outcomes).
 
-You can read Chapter 4 as a secondary source about the material we discussed this week. 
-Please read [Section 4.1.5](https://mixtape.scunning.com/04-potential_outcomes#4-1-5-sutva) before attempting this exercise, 
-to read the necessary background about this experiment.
-Reading this section is also part of your self-study about SUTVA.
+You can read Chapter 4 as a secondary source about the material we discussed this week. Please read [Section 4.1.5](https://mixtape.scunning.com/04-potential_outcomes#4-1-5-sutva) before attempting this exercise, to read the necessary background about this experiment. Reading this section is also part of your self-study about SUTVA.
 
-> Respondents in rural Malawi were offered a free door-to-door HIV test and randomly assigned no voucher or vouchers ranging from $1–$3. These vouchers were redeemable once they visited a nearby voluntary counseling and testing center (VCT).
+> Respondents in rural Malawi were offered a free door-to-door HIV test and randomly assigned no voucher or vouchers ranging from \$1–\$3. These vouchers were redeemable once they visited a nearby voluntary counseling and testing center (VCT).
 
-In this data set, which variable corresponds to $D$?
-Which variable corresponds to $Y$?
+In this data set, which variable corresponds to $D$? Which variable corresponds to $Y$?
 
-First, use `group_by` and `summarize` to compute the group-specific means. Friendly reminder to use `drop_na()`!
-Second, repeat this exercise to compute a group-specific mean for each value of `tinc`.
-Third, take the resulting table and plot it using `geom_point` and/or `geom_line`.
-Interpret the results.
+First, use `group_by` and `summarize` to compute the group-specific means. Friendly reminder to use `drop_na()`! Second, repeat this exercise to compute a group-specific mean for each value of `tinc`. Third, take the resulting table and plot it using `geom_point` and/or `geom_line`. Interpret the results.
 
 ### Answer
 
 ```{r}
+install.packages("causaldata")
 # Packages
 library(causaldata)
 library(dplyr)
@@ -733,16 +558,13 @@ ggplot(by_amount, aes(x = tinc, y = mean_got)) +
 
 ...
 
-
-{{< pagebreak >}} 
+{{< pagebreak >}}
 
 ## Treatment effects by age
 
 You will now analyze the effect of `age` by adapting the approach we used for `educ`.
 
-First, create a binarized variable, cutting off `age` at a value that you can determine. 
-Second, compute the means for control and treatment group for each value of the binarized variable.
-Interpret your results.
+First, create a binarized variable, cutting off `age` at a value that you can determine. Second, compute the means for control and treatment group for each value of the binarized variable. Interpret your results.
 
 ### Answer
 
@@ -751,6 +573,7 @@ median(JC$age, na.rm = TRUE)
 ```
 
 To choose an age of the cutoff range, we use the sample median age. To determine this we ran the code above. The output is that the sample median age is 18. Thus, those in the older group are those aged 18 or older and those in the younger group are 17 and below. 
+
 
 ```{r}
 age_cut <- median(JC$age, na.rm = TRUE)
@@ -789,4 +612,3 @@ For older individuals (age_high = TRUE), the control mean is 214 and the treatme
 Sys.info()
 Sys.time()
 ```
-
