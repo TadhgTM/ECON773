@@ -1,6 +1,6 @@
 ---
 title: "ECON 773: Assignment 1"
-author: "The BLUE Team, Jeneta Ljutic (400138420), Tadhg Taylor-McGreal (400330297), Stella Till (400364649)"
+author: "The BLUE Team, Jeneta Ljutic (400138620), Tadhg Taylor-McGreal (400330297), Stella Till (400364649)"
 date: "January 12th 2026"
 format:
   typst: 
@@ -115,34 +115,56 @@ To bring up a description of the variables, ask:
 
 Answer the following questions, using one `dplyr` verb each:
 
-
 1.  using `arrange`, sort the observations by age (first) and years of education at assignment (second)
+2.  make a new, binarized, variable `educ_high` that equals `TRUE` if the years of education at assignment is 12 or greater, and `FALSE` otherwise. Use:
+    -   `mutate`
+    -   `ifelse`
+    -   the pipe operator `|>` to pass `JC` to `mutate`
+    -   `-> JC` to overwrite the original `tibble`  
+3.  use `select` to keep only the 5 variables: `assignment`; the weekly earnings in fourth year after assignment; the variable indicating `female`; the education variable that you just created; the variable that indicates whether education is missing at assignment. Save the result in a new tibble called `JC_short`
+4.  starting from `JC_short`, use `filter` to keep only the observations for which `assignment` equals 1 and save the results as `JC_short_TG`. Create an analogous `JC_short_CG`.
+5.  compute the mean weekly earnings in fourth year in the `JC_short_TG` tibble, and compare it to the analogous mean in `JC_short_CG`.
 
-To answer this question we will use the dplyr `arrange` tool to sort the data as directed within the question.
+Interpret the final result, and compare it to the result on H, p. 21.
+
+### Answer
+
+1. To answer this question we will use the dplyr `arrange` tool to sort the data as directed within the question.
+
 ```{r}
 JC <- JC |>
   dplyr::arrange(age, educ)
 ```
 
-2.  make a new, binarized, variable `educ_high` that equals `TRUE` if the years of education at assignment is 12 or greater, and `FALSE` otherwise. Use:
-    -   `mutate`
-    -   `ifelse`
-    -   the pipe operator `|>` to pass `JC` to `mutate`
-    -   `-> JC` to overwrite the original `tibble`
-    
+JC is now sorted in descending order by age and years of education at assignment. We checked this by visually inspecting the table.
+
+2. Using 'mutate', we will create the new variale called “educ_high”, where we use 'ifelse' so that
+'educ_high' returns TRUE if 'educ' >= 12 and FALSE otherwise.
+
 ```{r}
 JC |>
   dplyr::mutate(educ_high = ifelse(educ >= 12, TRUE, FALSE)) -> JC
+
+#Check
+JC |> select(educ, educ_high) |> head()
 ```
 
-3.  use `select` to keep only the 5 variables: `assignment`; the weekly earnings in fourth year after assignment; the variable indicating `female`; the education variable that you just created; the variable that indicates whether education is missing at assignment. Save the result in a new tibble called `JC_short`
+We have overwritten the original tibble so that JC now includes this new binarized variable. We verified our new variable by only selecting a some observations of 'educ' and 'educ_high' - it checks out. 
+
+3. Using 'select', we will keep only the 5 variables of interest in our new table JC_short.
 
 ```{r}
 JC_short <- JC |>
-  dplyr::select(age, assignment, earny4, female, educ, educmis)
+  dplyr::select(assignment, earny4, female, educ_high, educmis)
+
+#Check
+JC_short |> head()
 ```
 
-4.  starting from `JC_short`, use `filter` to keep only the observations for which `assignment` equals 1 and save the results as `JC_short_TG`. Create an analogous `JC_short_CG`.
+We now have a new table with only these 5 variables. We've checked to make sure our table is accurate by printing the first 6 rows.
+
+4. Using 'filter' from JC_short, we will create two separate frames, one with treatment group
+observations only and the other with control group observations.
 
 ```{r}
 JC_short_TG <- JC_short |>
@@ -152,9 +174,9 @@ JC_short_CG <- JC_short |>
   dplyr::filter(assignment == 0)
 ```
 
-This works and we checked by visually analyzing the data set. We invite you to confirm this by seeing the printout in the appendix. 
+This works and we checked by visually analyzing the data set. We now have two tables for the treated and control groups: JC_short_TG and JC_short_CG. We invite you to confirm this by seeing the printout in the appendix.
 
-5.  compute the mean weekly earnings in fourth year in the `JC_short_TG` tibble, and compare it to the analogous mean in `JC_short_CG`.
+5. To compute the mean weekly earnings in the fourth year for both tables created in part 4 above, we will use 'summarise'.
 
 ```{r}
 TG_mean <- JC_short_TG |>
@@ -163,18 +185,20 @@ TG_mean <- JC_short_TG |>
 CG_mean <- JC_short_CG |>
   dplyr::summarise(mean_earny4 = mean(earny4, na.rm = TRUE))
 
+#Check values
 TG_mean
 CG_mean
+
+#Compute difference
+(as.numeric(TG_mean$mean_earny4) - as.numeric(CG_mean$mean_earny4))
 ```
 
-Interpret the final result, and compare it to the result on H, p. 21.
-
-### Answer
-
-```{r}
-as.numeric(TG_mean$mean_earny4) - as.numeric(CG_mean$mean_earny4)
-```
-...
+The mean weekly earnings in the treatment group is $214 USD, compared to $198 USD in the
+control group. Taking the difference yields a value of $16.05513, which matches exactly the ATE
+reported in H, p. 21. This confirms that our findings are consistent with those in the
+handbook and suggests that access to Job Corps increases weekly earnings in the fourth year
+after assignment by approximately $16 USD on average, indicating a positive earnings effect of the
+program.
 
 {{< pagebreak >}}
 
@@ -194,54 +218,83 @@ Fourth, repeat this, grouping by `female` **and** `assignment`. Interpret your r
 
 ### Answer
 
+1. Using 'groupby', we will group all observations in our JC_short table by 'female'.
+
 ```{r}
-# 1) Group by female (create grouped object and also show counts)
 grouped_by_female <- JC_short |> dplyr::group_by(female)
-female_counts <- grouped_by_female |> dplyr::summarise(n = dplyr::n(), .groups = "drop")
-
-means_by_female <- JC_short |>
-  dplyr::group_by(female) |>
-  dplyr::summarise(mean_earny4 = mean(earny4, na.rm = TRUE), n = dplyr::n(), .groups = "drop")
-
-filtered <- JC_short |> dplyr::filter(!is.na(educ))
-means_by_assignment_filtered <- filtered |>
-  dplyr::group_by(assignment) |>
-  dplyr::summarise(mean_earny4 = mean(earny4, na.rm = TRUE), n = dplyr::n(), .groups = "drop")
-
-means_by_female_assignment <- filtered |>
-  dplyr::group_by(female, assignment) |>
-  dplyr::summarise(mean_earny4 = mean(earny4, na.rm = TRUE), n = dplyr::n(), .groups = "drop")
-
-CATEs <- means_by_female_assignment |>
-  tidyr::pivot_wider(names_from = assignment, values_from = mean_earny4, names_prefix = "assign_") |>
-  dplyr::mutate(CATE = assign_1 - assign_0)
-
-female_shares <- filtered |>
-  dplyr::group_by(female) |>
-  dplyr::summarise(share = dplyr::n() / nrow(filtered), .groups = "drop")
-
-CATEs_with_shares <- CATEs |>
-  dplyr::left_join(female_shares, by = "female") |>
-  dplyr::mutate(weighted_CATE = CATE * share)
-
-weighted_CATE_sum <- CATEs_with_shares |> dplyr::summarise(weighted_CATE = sum(weighted_CATE)) 
-
-ATE_unconditional_filtered <- means_by_assignment_filtered |>
-  tidyr::pivot_wider(names_from = assignment, values_from = mean_earny4, names_prefix = "assign_") |>
-  dplyr::mutate(ATE = assign_1 - assign_0) 
-
-list(
-  female_counts = female_counts,
-  means_by_female = means_by_female,
-  means_by_assignment_filtered = means_by_assignment_filtered,
-  means_by_female_assignment = means_by_female_assignment,
-  CATEs = CATEs,
-  female_shares = female_shares,
-  CATEs_with_shares = CATEs_with_shares,
-  weighted_CATE_sum = weighted_CATE_sum,
-  ATE_unconditional_filtered = ATE_unconditional_filtered
-)
+(female_counts <- grouped_by_female |> dplyr::summarise(n = dplyr::n(), .groups = "drop"))
 ```
+
+We’ve partitioned the dataset into two groups based on gender (male and female). This does
+not change the values in the data but allows subsequent summary statistics or transformations to
+be calculated separately for males and females. We also checked the counts for men vs women in the dataset.
+
+2. Next, we pipe the result using 'summarize' to caluclate the means for each variable across our
+partitioned sample.
+
+```{r}
+(means_by_female <- JC_short |>
+  dplyr::group_by(female) |>
+  dplyr::summarise(mean_earny4 = mean(earny4, na.rm = TRUE), n = dplyr::n(), .groups = "drop"))
+```
+
+The resulting output reports average earnings (earny4) for each gender in a single table. The average weekly earnings in the fourth year after assignment is $171 for women and $236 for men. Therefore, earnings are about $65 USD smaller for women than for men on average.
+
+3. Next, we will filter our original JC_short table so that only those with education available are
+included (where educmis = 0). Restricting the sample to individuals with non-missing educa-
+tion information, we then compute mean earnings (earny4) separately by assignment status.
+
+```{r}
+filtered <- JC_short |>
+  dplyr::filter(educmis == 0)
+
+(means_by_assignment_filtered <- filtered |>
+  dplyr::group_by(assignment) |>
+  dplyr::summarise(
+    mean_earny4 = mean(earny4, na.rm = TRUE),
+    n = dplyr::n(),
+    .groups = "drop"
+  ))
+
+#Check count & percent of educmis
+JC_short |>
+  dplyr::summarise(
+    n_educ_mis_1 = sum(educmis == 1, na.rm = TRUE),
+    n_total = dplyr::n(),
+    pct_educ_mis_1 = 100 * mean(educmis == 1, na.rm = TRUE)
+  )
+```
+
+The results show that mean earnings continue to differ between the treatment and control groups by about $16 USD. There are only a small number of observations with education missing at assignment (we verified this, only about 1.7% missing).
+
+4. Next, we repeat this but group by female and assignment. Perform these operations on the filtered table created in part 3.
+
+```{r}
+#Group by female and assignment
+(means_table <- filtered %>%
+group_by(female, assignment) %>%
+summarise(
+mean_earny4 = mean(earny4, na.rm = TRUE),
+.groups =
+"drop"
+))
+
+#Calculate difference in means by gender
+(CATEs <- means_table %>%
+group_by(female) %>%
+summarise(
+CATE = mean_earny4[assignment == 1] -
+mean_earny4[assignment == 0]
+))
+
+#Take average of CATEs
+mean(CATEs$CATE)
+
+```
+
+Grouping by both gender and assignment reveals heterogeneous treatment effects, as the CATE
+for men is $23.1 and the CATE for women is $17.6. Therefore, the conditional average treatment
+effect differs between men and women, indicating that the impact of the treatment is not uniform across genders. Recall from above that the unconditional ATE is $16, which is not equal to the average of the CATEs (at about $20). The unconditional ATE is therefore not simply the average of the two CATEs, but rather a weighted average that reflects the relative proportions of men and women in the sample.
 
 ...
 
@@ -264,7 +317,7 @@ year after assignment, 'pworky4'. The code below returns the average values for 
 as well as the ATE in a table. First, 'group_by' splits the data into groups based on the value of the assignment variable. Next, 'summarise' collapses each group into a single row by computing the average of pworky4 within each assignment group. The 'pivot_wider' step reshapes the data from a long format into a wide format, creating separate columns for each value of assignment (prefixed with "assignment_") and filling them with the corresponding group means. Finally, 'mutate' adds the ATE variable.
 
 ```{r}
-JC |>
+(JC |>
   group_by(assignment) |>
   summarise(
     mean_pworky4 = mean(pworky4, na.rm = TRUE),
@@ -278,7 +331,7 @@ JC |>
   ))() |>
   mutate(
     ATE = assignment_1 - assignment_0
-  )
+  ))
 ```
 
 The estimated ATE is 3.27, indicating that assignment to the treatment increased proportion of weeks employed in the fourth year after assignment by approximately three weeks on average,
@@ -289,7 +342,7 @@ relative to the control group.
 based on education level. The logic is very similar to the part 1, but this time we are grouping by 'educ_high' and 'assignment'.
 
 ```{r}
-JC |>
+(JC |>
   group_by(educ_high, assignment) |>
   summarise(
     mean_pworky4 = mean(pworky4, na.rm = TRUE),
@@ -303,7 +356,7 @@ JC |>
   ))() |>
   mutate(
     CATE = assignment_1 - assignment_0
-  )
+  ))
 
 ```
 
@@ -313,7 +366,7 @@ educated individuals, although the difference is relatively small (0.44 weeks).
 3. Using 'haschild' ('haschild' = 1 indicates at least one child, 'haschild' = 0 indicates no children at assignment), we’ll explore the effect of the program conditional on whether individuals have at least one child at assignment.
 
 ```{r}
-JC |>
+(JC |>
   group_by(haschild, assignment) |>
   summarise(
     mean_pworky4 = mean(pworky4, na.rm = TRUE),
@@ -327,7 +380,7 @@ JC |>
   ))() |>
   mutate(
     CATE = assignment_1 - assignment_0
-  )
+  ))
 ```
 
 For individuals without children at assignment ('haschild' = 0), the estimated CATE is 2.76 weeks of employment in the fourth year, while for those with at least one child at assignment ('haschild' = 1), the effect is substantially larger at 5.76 weeks (for a difference of 3 weeks). These results indicate that the treatment has a stronger impact on employment for parents, suggesting that the program may be particularly beneficial for individuals with children.
@@ -442,7 +495,7 @@ JC |>
 ```
 
 The scatterplot of log earnings at assignment versus log earnings in the fourth year shows that
-most individuals are concentrated in the middle of the earnings distribution (between log earnings of 4 and 6 in year 4 and at assignment). There is only a slight upward-right trend, indicating a weak positive relationship between initial and later earnings. This suggests that while higher earnings at assignment are somewhat associated with higher earnings in year 4, there is substantial variation in earnings growth across individuals.
+most individuals have moderate earnings in both periods (points are concentrated between log earnings of 4 and 6 at assignment and in year 4). There is only a slight upward-right trend, indicating a weak positive relationship between initial and later earnings. This suggests that while higher earnings at assignment are somewhat associated with higher earnings in year 4, starting at a higher earnings level does not necessarily translate into systematically higher earnings four years later, and that there is variation in earnings growth across individuals.
 
 2. Next, we will use geom_smooth() to add a least-squares regression line to our scatterplot to
 show the overall trend in log earnings. The code is similar to above, but overlays a least-squares regression line with a confidence band using geom_smooth(method = "lm").
@@ -469,10 +522,9 @@ JC |>
 The scatterplot with a least-squares fit shows that earnings at assignment are only weakly predic-
 tive of earnings in the fourth year. The slope of the regression line is slightly upward, indicating
 that higher initial earnings are associated with slightly higher later earnings, but the relationship
-is modest. Most individuals cluster near the middle of the distribution, and there is considerable
-variation in earnings growth across individuals.
+is modest. Most individuals cluster near the middle of the distribution in more of a flat line, and there is considerable variation in earnings growth across individuals.
 
-3. Lastly, we will add color by treatment group to see separate trends for treated and control
+3. Lastly, we will add colour by treatment group to see separate trends for treated and control
 groups and their fitted lines. This is again similar to the code above, but adds colours to points by treatment group ('assignment') using 'factor' to treat assignment as a categorical variable rather than a numeric one. This ensures that each group gets a separate colour and that geom_smooth() draws separate regression lines with confidence bands for each group.
 
 ```{r}
