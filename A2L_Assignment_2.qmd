@@ -128,7 +128,6 @@ coin1_df |>
 Next, we repeated this experiment twice more; three times total. 
 ```{r}
 Coin <- bind_rows(coin1_df, coin2_df, coin3_df)
-
 Coin |> 
     ggplot() + 
         geom_line(aes(x=i, y=Xbar_in, colour=factor(experiment))) +
@@ -136,6 +135,16 @@ Coin |>
         geom_line(aes(x=i, y=Xbar_in, colour=factor(experiment)))
 ```
 
+```{r}
+bigger_coin <- gen_coin_cm(1000000, 4)
+
+bigger_coin |> 
+    ggplot() + 
+        geom_line(aes(x=i, y=Xbar_in)) 
+
+```
+
+Suprisngly the biggest sample has ~fully converged to the population mean. 
 ...
 
 
