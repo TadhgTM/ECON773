@@ -576,50 +576,128 @@ First, use `group_by` and `summarize` to compute the group-specific means. Frien
 
 ### Answer
 
+In the potential outcomes framework:
+- Y (outcome) is got: an indicator for whether the respondent
+collected their HIV test results.
+- D (treatment) can be defined as:
+* any: a binary indicator for receiving any voucher
+* tinc: the dollar value of the voucher (0–3 USD)
+
+Because assignment is randomized, differences in mean outcomes
+across treatment groups can be interpreted causally, subject
+to SUTVA.
+
 ```{r}
+#| eval: false
 install.packages("causaldata")
+```
+
+```{r}
 # Packages
 library(causaldata)
 library(dplyr)
 library(tidyr)
 library(ggplot2)
 library(tibble)
-
 data("thornton_hiv")
-
 thornton <- thornton_hiv |>
-  drop_na() |>
-  as_tibble()
+drop_na() |>
+as_tibble()
+```
 
-thornton |>
-  group_by(any) |>
-  summarize(
-    mean_got = mean(got),
-    n = n(),
-    .groups = "drop"
-  )
+Remove missing observations and convert to tibble
 
+We next compute group-specific means of the outcome got by the binary treatment indicator any. This estimates the intent-to-treat (ITT) effect of being offered any voucher.
+
+```{r}
+by_any <- thornton |>
+group_by(any) |>
+summarize(
+mean_got = mean(got),
+n = n(),
+.groups = "drop"
+)
+```
+
+Display the group means
+
+```{r}
+by_any
+```
+
+The table reports mean HIV testing uptake (got) by voucher
+assignment (any).
+
+The difference in means is:
+0.791 − 0.340 = 0.451
+
+Interpretation:
+Being offered any voucher increases the probability of HIV testing by approximately 45.1 percentage points. Because voucher assignment was randomized, this difference is the ntent-to-treat (ITT) effect of financial incentives on testing uptake.
+
+
+# Mean outcomes by voucher amount (dose-response)
+
+We now compute group-specific mean outcomes for each voucher amount (tinc). This allows us to assess whether testing uptake increases with the size of the incentive.
+
+```{r}
 by_amount <- thornton |>
-  group_by(tinc) |>
-  summarize(
-    mean_got = mean(got),
-    n = n(),
-    .groups = "drop"
-  )
+group_by(tinc) |>
+summarize(
+mean_got = mean(got),
+n = n(),
+.groups = "drop"
+)
+```
 
+```{r}
 by_amount
+```
 
+Interpretation of dose–response results
+
+The table reports mean HIV testing uptake by the dollar value of the voucher.
+
+Baseline (tinc = 0):
+- Mean uptake = 0.340 (34.0%)
+- This is the control group with no financial incentive.
+
+Low incentive range (approximately $0.10 – $0.30):
+- Mean uptake rises sharply to about 0.63–0.65.
+
+Moderate incentive range (approximately $0.38 – $0.57):
+- Mean uptake increases further, reaching roughly 0.70–0.78.
+- The increase remains positive but is smaller than the jump from zero to very small incentives.
+
+Higher incentive values:
+- Mean uptake remains high (often above 0.70).
+- These irregularities are potentially as some incentive levels have very small sample sizes (e.g., n = 7 at tinc ≈ 0.76), making the corresponding means noisy.
+
+Overall:
+Because voucher amounts were randomly assigned, differences in mean uptake across tinc values can be interpreted causally, subject to SUTVA and random assignment assumptions.
+
+Practically, the results imply that relatively small incentives generate most of the increase in testing uptake, with larger incentives yielding smaller incremental gains.
+
+Graphical visualization of the dose-response relationship:
+We plot the mean probability of testing against voucher amount to visually assess the relationship. 
+```{r}
 ggplot(by_amount, aes(x = tinc, y = mean_got)) +
-  geom_point(size = 3) +
-  geom_line() +
-  labs(
-    x = "Voucher amount (tinc, USD)",
-    y = "Pr(got tested)",
-    title = "HIV Testing Uptake by Incentive Amount"
-  ) +
-  theme_minimal()
+geom_point(size = 3) +
+geom_line() +
+labs(
+x = "Voucher amount (USD)",
+y = "Pr(got tested)",
+title = "HIV Testing Uptake by Incentive Amount"
+) +
+theme_minimal()
 
 ```
+
+Moving from no incentive (tinc = 0) to even very small incentives
+produces a sharp jump in testing uptake (from ~0.34 to above 0.60).
+This indicates that the primary behavioral response is driven by
+the presence of any incentive rather than its size.
+
+This interpretation relies on SUTVA: each individual's outcome depends only on their own voucher assignment, with no spillovers or interference across respondents.
 
 ...
 
