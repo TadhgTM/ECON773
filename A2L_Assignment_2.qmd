@@ -45,6 +45,15 @@ n <- 10
 We will use a large set of packages for this assignment, loaded in the next chunk. Do you recognize them?
 
 ```{r}
+#| eval: false
+install.packages("gtsummary")
+install.packages("gt")
+install.packages("gtsummary")
+install.packages("estimatr")
+install.packages("AER")
+```
+
+```{r}
 library(tidyverse)
 library(gt)
 library(gtsummary)
