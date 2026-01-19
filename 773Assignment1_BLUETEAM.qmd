@@ -1,7 +1,7 @@
 ---
 title: "ECON 773: Assignment 1"
 author: "The BLUE Team, Jeneta Ljutic (400138620), Tadhg Taylor-McGreal (400330297), Stella Till (400364649)"
-date: "January 12th 2026"
+date: "January 12, 2026"
 format:
   typst: 
     toc: TRUE
@@ -198,7 +198,7 @@ control group. Taking the difference yields a value of $16.05513, which matches 
 reported in H, p. 21. This confirms that our findings are consistent with those in the
 handbook and suggests that access to Job Corps increases weekly earnings in the fourth year
 after assignment by approximately $16 USD on average, indicating a positive earnings effect of the
-program. Given that in this experiment access to the Job Corps was randomized and therefore intended to be a randomized control trial, this reflects a causal effect of access to Job Corps on earnings.
+program. Given that in this experiment access to the Job Corps was randomized and therefore intended to be a randomized control trial, this reflects a causal effect of access to Job Corps on earnings (assuming SUTVA holds).
 
 {{< pagebreak >}}
 
@@ -367,7 +367,7 @@ based on education level. The logic is very similar to the part 1, but this time
 
 ```
 
-For individuals with 12 years of education or more ('educ_high' = 1), the treatment increases proportion of weeks employed in the fourth year after assignment by 3.35 weeks. For those with 12 years of education or less (educ_high = 0), the estimated effect is slightly smaller, at 2.91 weeks. These results suggest that access to the Job Corps has a slightly larger impact on employment for higher-educated individuals, although the difference is relatively small (0.44 weeks).
+For individuals with 12 years of education or more ('educ_high' = TRUE), the treatment increases proportion of weeks employed in the fourth year after assignment by 3.35 weeks. For those with less than 12 years of education (educ_high = FALSE), the estimated effect is slightly smaller, at 2.91 weeks. These results suggest that access to the Job Corps has a slightly larger impact on employment for higher-educated individuals, although the difference is relatively small (0.44 weeks).
 
 3. Using 'haschild' ('haschild' = 1 indicates at least one child, 'haschild' = 0 indicates no children at assignment), we’ll explore the effect of the program conditional on whether individuals have at least one child at assignment.
 
@@ -556,7 +556,7 @@ JC |>
 
 ```
 
-The control group’s line (denoted in orange) and the treated group’s line (denoted in blue) both have very shallow, slightly positive slopes (although the treatment line is slightly steeper), which indicates that while initial earnings have a positive relationship with future earnings, the effect is relatively weak. Both regression lines are nearly identical and sit almost on top of one another. This suggests that access to the Job Corps did not significantly change the outcome of weekly earnings in Year 4 compared to the control group. Additionally, since the shaded areas (representing the confidence intervals) overlap almost entirely across the whole horizontal axis, suggesting that there is no statistically significant difference between the two groups' earnings outcomes.
+The control group’s line (denoted in orange) and the treated group’s line (denoted in blue) both have very shallow, slightly positive slopes (although the treatment line is slightly steeper), which indicates that while initial earnings have a positive relationship with future earnings, the effect is relatively weak. Both regression lines are nearly identical and sit almost on top of one another. This suggests that access to the Job Corps did not significantly change the outcome of weekly earnings in Year 4 compared to the control group. Additionally, since the shaded areas (representing the confidence intervals) overlap almost entirely across the whole horizontal axis, this suggests that there is no statistically significant difference between the two groups' earnings outcomes, however a formal test would be needed to conclude.
 
 {{< pagebreak >}}
 
@@ -632,7 +632,7 @@ The difference in means is:
 0.791 − 0.340 = 0.451
 
 Interpretation:
-Being offered any voucher increases the probability of HIV testing by approximately 45.1 percentage points. Because voucher assignment was randomized, this difference is the ntent-to-treat (ITT) effect of financial incentives on testing uptake.
+Being offered any voucher increases the probability of HIV testing by approximately 45.1 percentage points. Because voucher assignment was randomized, this difference is the intent-to-treat (ITT) effect of financial incentives on testing uptake.
 
 
 # Mean outcomes by voucher amount (dose-response)
