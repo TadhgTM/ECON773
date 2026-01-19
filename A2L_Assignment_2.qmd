@@ -102,6 +102,40 @@ Interpret your results. Is the phenomenon you observe related to the LLN or the 
 
 ### Answer
 
+```{r}
+coin_df <- gen_coin_cm(10, 1)
+coin1_df <- gen_coin_cm(1000, 1)
+coin2_df <- gen_coin_cm(1000, 2)
+coin3_df <- gen_coin_cm(1000, 3)
+```
+
+In order to see whether this worked we now make the plot requested in the second part of this question. 
+```{r}
+coin_df |> 
+    ggplot() + 
+        geom_point(aes(x=i, y=Xbar_in)) + 
+        geom_line(aes(x=i, y=Xbar_in)) 
+```
+
+To complete the third part of this question we will duplicate our code from above for the new data. 
+```{r}
+coin1_df |> 
+    ggplot() + 
+        geom_line(aes(x=i, y=Xbar_in)) 
+
+```
+
+Next, we repeated this experiment twice more; three times total. 
+```{r}
+Coin <- bind_rows(coin1_df, coin2_df, coin3_df)
+
+Coin |> 
+    ggplot() + 
+        geom_line(aes(x=i, y=Xbar_in, colour=factor(experiment))) +
+        geom_line(aes(x=i, y=Xbar_in, colour=factor(experiment))) +
+        geom_line(aes(x=i, y=Xbar_in, colour=factor(experiment)))
+```
+
 ...
 
 
