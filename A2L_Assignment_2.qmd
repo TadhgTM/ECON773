@@ -102,8 +102,56 @@ Interpret your results. Is the phenomenon you observe related to the LLN or the 
 
 ### Answer
 
+We are going to use the 'gen_coin_cm' function that is given in the question, to simulate 10 coin flips from experiment 1.
 ...
 
+```{r}
+coin_df <- gen_coin_cm(10,1)
+```
+In order to see whether this worked, we now make the plot requested in the second part of this question. 
+
+```{r}
+coin_df |> ggplot() + 
+    geom_point(aes(x=i, y=Xbar_in)) + 
+    geom_line(aes(x=i, y=Xbar_in))
+```
+
+To compelte the third part of this question, we are going to copy, paste and modifiy the code from above. 
+
+```{r}
+coin1_df <- gen_coin_cm(1000,1)
+coin1_df |> ggplot() + 
+    geom_line(aes(x=i, y=Xbar_in))
+```
+
+Next, we repeat this experiment twice more. 
+
+```{r}
+coin2_df <- gen_coin_cm(1000,2)
+coin3_df <- gen_coin_cm(1000,3)
+```
+
+Put all the experimental data on a big pile. 
+
+```{r}
+all_experiments <- bind_rows(
+    coin1_df, coin2_df, coin3_df
+)
+```
+
+Now we are ready to make the final plot of this question. 
+
+```{r}
+all_experiments |> ggplot() + 
+    geom_line(aes(x=i, y=Xbar_in, colour=factor(experiment)))
+```
+
+```{r}
+big_coin_df <- gen_coin_cm
+(10000, 1)
+big_coin_df |> ggplot() + 
+    geom_line(aes(x=i, y=Xbar_in))
+```
 
 ## Monte Carlo 2: dice throws
 
@@ -176,6 +224,7 @@ This question will be solved in class.
 
 We want to understand the properties of different estimators in an RCT.
 We consider a setup where the treatment effect varies with a covariate $X$, and treatment assignment is unbalanced.
+
 -   $X_i \in \{0, 1\}$ with $P(X_i=1) = 0.5$
 -   $D_i \in \{0, 1\}$ with $P(D_i=1 \mid X_i) = 0.2$
 -   Outcomes are generated as:
@@ -274,6 +323,18 @@ Use $S=100$ and $n=1000$.
 
 ### Answer
 
+```{r}
+S <- 1000
+1:S |> map_df(sim_one, n=200)
+test_df <- 1:S |> map_df(sim_one, n = 200)
+
+test_df |> group_by(estimator) |> 
+    summarize(
+        mean_ATE_hat = mean(estimate), 
+        sd_ATE_hat = sd(estimate), 
+        coverage = mean(covered)
+    )
+```
 ...
 
 
