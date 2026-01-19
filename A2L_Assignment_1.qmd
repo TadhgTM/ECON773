@@ -367,7 +367,7 @@ based on education level. The logic is very similar to the part 1, but this time
 
 ```
 
-For individuals with 12 years of education or more ('educ_high' = 1), the treatment increases proportion of weeks employed in the fourth year after assignment by 3.35 weeks. For those with 12 years of education or less (educ_high = 0), the estimated effect is slightly smaller, at 2.91 weeks. These results suggest that access to the Job Corps has a slightly larger impact on employment for higher-educated individuals, although the difference is relatively small (0.44 weeks).
+For individuals with 12 years of education or more ('educ_high' = TRUE), the treatment increases proportion of weeks employed in the fourth year after assignment by 3.35 weeks. For those with less than 12 years of education (educ_high = FALSE), the estimated effect is slightly smaller, at 2.91 weeks. These results suggest that access to the Job Corps has a slightly larger impact on employment for higher-educated individuals, although the difference is relatively small (0.44 weeks).
 
 3. Using 'haschild' ('haschild' = 1 indicates at least one child, 'haschild' = 0 indicates no children at assignment), we’ll explore the effect of the program conditional on whether individuals have at least one child at assignment.
 
