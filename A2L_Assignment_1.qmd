@@ -508,8 +508,7 @@ JC |>
 
 ```
 
-The scatterplot of log earnings at assignment versus log earnings in the fourth year shows that
-most individuals have moderate earnings in both periods (points are concentrated between log earnings of 4 and 6 at assignment and in year 4). There is only a slight upward-right trend, indicating a weak positive relationship between initial and later earnings. This suggests that while higher earnings at assignment are somewhat associated with higher earnings in year 4, starting at a higher earnings level does not necessarily translate into systematically higher earnings four years later, and that there is variation in earnings growth across individuals.
+The scatterplot of log earnings at assignment versus log earnings in the fourth year shows that there is a positive correlation between log weekly earnings at assignment (x-axis) and log weekly earnings in Year 4 (y-axis). Generally, as initial earnings increase, earnings four years later also tend to be higher. However, the distribution of data points is quite dispersed, suggesting that while there is a trend, initial earnings are not necessarily a perfect predictor of future earnings. Additionally, a significant portion of the data points, especially on the left side of the graph (lower initial earnings), sit well above the red line. This suggests that people starting with lower earnings saw substantial relative growth over the four-year period. As you move to the right (higher initial earnings), the data points cluster much closer to the red line, and more points begin to fall below it.
 
 2. Next, we will use geom_smooth() to add a least-squares regression line to our scatterplot to
 show the overall trend in log earnings. The code is similar to above, but overlays a least-squares regression line with a confidence band using geom_smooth(method = "lm").
@@ -536,7 +535,7 @@ JC |>
 The scatterplot with a least-squares fit shows that earnings at assignment are only weakly predic-
 tive of earnings in the fourth year. The slope of the regression line is slightly upward, indicating
 that higher initial earnings are associated with slightly higher later earnings, but the relationship
-is modest. Most individuals cluster near the middle of the distribution in more of a flat line, and there is considerable variation in earnings growth across individuals. Given there is dispersion,  unobserved factors likely matter.
+is modest. Most people, regardless of their starting point, seem to converge toward a similar average log earnings (around 5.5) in Year 4, and there is considerable variation in earnings growth across individuals. Therefore, since the slope is so low, knowing someone's starting log earnings doesn't help much in predicting their future log earnings in this specific context. The thin grey band surrounding the blue line is the confidence interval. Because this band is very narrow, we can be statistically confident that the "true" relationship is indeed this flat.
 
 3. Lastly, we will add colour by treatment group to see separate trends for treated and control
 groups and their fitted lines. This is again similar to the code above, but adds colours to points by treatment group ('assignment') using 'factor' to treat assignment as a categorical variable rather than a numeric one. This ensures that each group gets a separate colour and that geom_smooth() draws separate regression lines with confidence bands for each group.
@@ -557,7 +556,7 @@ JC |>
 
 ```
 
-The control group’s line (denoted in orange) is relatively flat, suggesting that initial average earnings have little effect on year-4 earnings for those who did not recieve access to the Job Corps. In contrast, the treated group’s line (denoted in blue) is a slightly steeper upward sloping line, indicating that higher initial average earnings are associated with higher year-4 earnings, and that the treatment amplifies earnings growth. Overall, this suggests that access to the Job Corps may strengthen the relationship between baseline earnings and later earnings, indicating heterogeneous effects where individuals with higher initial earnings appear to benefit more from the program.
+The control group’s line (denoted in orange) and the treated group’s line (denoted in blue) both have very shallow, slightly positive slopes (although the treatment line is slightly steeper), which indicates that while initial earnings have a positive relationship with future earnings, the effect is relatively weak. Both regression lines are nearly identical and sit almost on top of one another. This suggests that access to the Job Corps did not significantly change the outcome of weekly earnings in Year 4 compared to the control group. Additionally, since the shaded areas (representing the confidence intervals) overlap almost entirely across the whole horizontal axis, suggesting that there is no statistically significant difference between the two groups' earnings outcomes.
 
 {{< pagebreak >}}
 
