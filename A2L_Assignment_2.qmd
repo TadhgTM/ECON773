@@ -1,7 +1,7 @@
 ---
 title: "ECON 773: Assignment 2"
-author: "Team Name and Student IDs"
-date: "Date you started this assignment"
+author: "The BLUE Team, Jeneta Ljutic (400138620), Tadhg Taylor-McGreal (400330297), Stella Till (400364649)"
+date: "January 19 2025"
 format:
   typst: 
     toc: TRUE
