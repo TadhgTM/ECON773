@@ -198,7 +198,7 @@ control group. Taking the difference yields a value of $16.05513, which matches 
 reported in H, p. 21. This confirms that our findings are consistent with those in the
 handbook and suggests that access to Job Corps increases weekly earnings in the fourth year
 after assignment by approximately $16 USD on average, indicating a positive earnings effect of the
-program. Given that in this experiment access to the Job Corps was randomized, this reflects a causal effect of access to Job Corps on earnings.
+program. Given that in this experiment access to the Job Corps was randomized and therefore intended to be a randomized control trial, this reflects a causal effect of access to Job Corps on earnings.
 
 {{< pagebreak >}}
 
@@ -287,14 +287,21 @@ CATE = mean_earny4[assignment == 1] -
 mean_earny4[assignment == 0]
 ))
 
-#Take average of CATEs
-mean(CATEs$CATE)
+#Take weighted average of CATEs
+#mean(CATEs$CATE)
 
+(avg_weighted <- CATEs %>%
+  left_join(
+    filtered %>% count(female),
+    by = "female"
+  ) %>%
+  summarise(ATE = weighted.mean(CATE, n)) %>%
+  pull(ATE))
 ```
 
 Grouping by both gender and assignment reveals heterogeneous treatment effects, as the CATE
 for men is $23.1 and the CATE for women is $17.6. Therefore, the conditional average treatment
-effect differs between men and women, indicating that the impact of the treatment is not uniform across genders. Recall from above that the unconditional ATE is $16, which is not equal to the average of the CATEs (at about $20). The unconditional ATE is therefore not simply the average of the two CATEs, but rather a weighted average that reflects the relative proportions of men and women in the sample.
+effect differs between men and women, indicating that the impact of the treatment is not uniform across genders. Recall from above that the unconditional ATE is $16, which is not equal to the weighted average of the CATEs (at about $20.6). Theoretically, the unconditional ATE should be equal to the weighted average of the CATEs that reflects the relative proportions of men and women in the sample. This does not match the expected results, which indicates that further investigation is needed on the characteristics of the data.
 
 ...
 
