@@ -1,5 +1,8 @@
 # ECON773
 
+
+Hello Professor Muris, & Keith. 
+
 Repository Purpose
 This repository is the single shared workspace for this assignment. All analysis, data processing, and writing must happen inside this folder. No files should be edited, created, or stored outside the repository. 
 
