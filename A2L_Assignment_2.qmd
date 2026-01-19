@@ -1,0 +1,430 @@
+---
+title: "ECON 773: Assignment 2"
+author: "Team Name and Student IDs"
+date: "Date you started this assignment"
+format:
+  typst: 
+    toc: TRUE
+---
+
+{{< pagebreak >}} 
+
+# Preface
+
+## Goal
+
+The goals of this assignment are to: 
+
+- explore the properties of the OLS estimator using Monte Carlo experiments
+- analyze data from an RCT using `lm_robust` and `lm_lin`
+
+## Instructions
+
+See assignment 1.
+
+# Monte Carlo experiments
+
+## Monte Carlo 1: coin flips
+
+This question will be demonstrated in class, as an introduction to Monte Carlo experiments.
+
+Flip a coin once (`1` for heads, `0` for tails), and store in `X_1`:
+
+```{r}
+(X_1 <- sample(0:1, size = 1, replace = TRUE))
+```
+
+The variable `n` will refer to sample size.
+Roll a dice `n` times:
+
+```{r}
+n <- 10
+(X_n <- sample(0:1, size = n, replace = TRUE))
+```
+
+We will use a large set of packages for this assignment, loaded in the next chunk. Do you recognize them?
+
+```{r}
+library(tidyverse)
+library(gt)
+library(gtsummary)
+library(estimatr)
+library(broom)
+```
+
+To compute the mean up to and including the $i$th throw, we can use the `cummean` function from `dplyr`:
+
+```{r}
+Xbar_in <- cummean(X_n)
+cbind(X_n, Xbar_in)
+```
+
+If you only want the mean across all `n` flips, can do:
+
+```{r}
+(Xbar_n <- mean(sample(0:1, size = n, replace = TRUE)))
+```
+
+We can use the following function to generate a tibble that keeps track across flips:
+
+```{r}
+gen_coin_cm <- function(n, experiment) {
+    X_n <- sample(0:1, size = n, replace = TRUE)
+    Xbar_in <- cummean(X_n)
+    return(tibble(i = 1:n, X_n = X_n, Xbar_in = Xbar_in, experiment = experiment))
+}
+```
+
+Once you define a function, you can use it as follows:
+
+```{r}
+gen_coin_cm(20, 3)
+```
+
+First, generate a tibble `coin_df` with `n = 10` and `experiment = 1`.
+Second, make a plot of `coin_df` with `i` on the horizontal and `Xbar_in` on the vertical.
+Third, set `n = 1000`, generate `coin1_df` as in part 1 of this question, and redo the plot in part 2.
+Fourth, generate additional data sets `coin2_df` and `coin3_df` as in part 3 of this question. 
+Join them all together using `bind_rows`.
+Then, make a line plot with a different colour for each experiment, using `colour = factor(experiment)` in `geom_line`.
+Fifth, make one more plot with one experiment and `n = 100000`.
+
+Interpret your results. Is the phenomenon you observe related to the LLN or the CLT?
+
+### Answer
+
+...
+
+
+## Monte Carlo 2: dice throws
+
+In the previous exercise, we fixed `S` and let `n` grow large.
+Let us now slowly grow `n` and see what happens, letting `S` be very large.
+We start with `n = 1`, corresponding to one roll of the die.
+(For this second exercise, we will use a die instead of a coin.)
+
+One roll:
+
+```{r}
+S <- 100
+x <- sample(1:6, S, replace = TRUE)
+die_df <- tibble(s = 1:S, Xbar = x)
+die_df |> ggplot(aes(x = Xbar)) +
+    geom_histogram(binwidth = 1)
+```
+
+Let us redo this with larger `S`.
+
+```{r}
+S <- 100000
+x <- sample(1:6, S, replace = TRUE)
+die_df <- tibble(s = 1:S, Xbar = x)
+die_df |> ggplot(aes(x = Xbar)) +
+    geom_histogram(binwidth = 1)
+```
+
+A large `S` seems to be closer to the population probabilities of $P(X=x) = 1/6$.
+Because our goal is to explore the theoretical properties of random variables, we will stick with large `S`.
+
+Roll twice and average.
+
+```{r}
+n <- 2
+x <- 1 / n * (sample(1:6, S, replace = TRUE) + sample(1:6, S, replace = TRUE))
+die_df <- tibble(s = 1:S, Xbar = x)
+die_df |> ggplot(aes(x = Xbar)) +
+    geom_histogram(binwidth = 1 / n)
+```
+
+Roll three times and average.
+
+```{r}
+n <- 3
+x <- 1 / n * sample(1:6, S, replace = TRUE)
+for (k in 2:n) {
+    x <- x + 1 / n * sample(1:6, S, replace = TRUE)
+}
+die_df <- tibble(s = 1:S, Xbar = x)
+die_df |> ggplot(aes(x = Xbar)) +
+    geom_histogram(binwidth = 1 / n)
+```
+
+Experiment with a few more values of `n` (let `n = 50` be your largest one.)
+
+First: what happens to the variance of the mean as `n` increases?
+Second: what happens to the shape of the distribution as `n` increases? Relate your answer to the Central Limit Theorem (CLT).
+
+### Answer
+
+...
+
+
+{{< pagebreak >}}
+
+## Monte Carlo 3: Inference in RCTs
+
+This question will be solved in class.
+
+We want to understand the properties of different estimators in an RCT.
+We consider a setup where the treatment effect varies with a covariate $X$, and treatment assignment is unbalanced.
+-   $X_i \in \{0, 1\}$ with $P(X_i=1) = 0.5$
+-   $D_i \in \{0, 1\}$ with $P(D_i=1 \mid X_i) = 0.2$
+-   Outcomes are generated as:
+    $$Y_i = 0 + 1 \cdot D_i + 5 \cdot X_i + 5 \cdot (D_i \times X_i) + \epsilon_i$$
+    where $\epsilon_i \sim N(0, (1 + 2X_i)^2)$.
+
+Calculate the ATE and the CATEs for $X=0$ and $X=1$ based on these parameters.
+
+We want to see if the reported standard errors from simple linear regressions are trustworthy.
+We compare two common approaches:
+
+1.  DIM: `lm(Y ~ D)`.
+2.  Additive: `lm(Y ~ D + X)`.
+
+We run a simulation to check:
+
+1.  Bias: Is the average estimate close to the true ATE?
+2.  Efficiency: What is the standard deviation of the estimates?
+3.  Coverage Probability: How often does the 95% Confidence Interval contain the true ATE?
+
+Consider the following function that performs one simulation replication and returns a tibble with the results for both estimators:
+
+```{r}
+dgp_het <- function(n) {
+    D <- rbinom(n, 1, 0.2) # Unbalanced assignment
+    X <- rbinom(n, 1, 0.5)
+    e <- rnorm(n, 0, 1 + 2 * X) # Heteroskedastic errors
+    Y <- 0 + 1 * D + 5 * X + 5 * D * X + e
+    return(tibble(D = D, X = X, Y = Y))
+}
+
+sim_one <- function(s, n) {
+    df <- dgp_het(n)
+    truth <- 3.5
+
+    # 1. DIM
+    fit_dim <- lm(Y ~ D, data = df)
+    res_dim <- tidy(fit_dim, conf.int = TRUE) |>
+        filter(term == "D") |>
+        mutate(estimator = "DIM", covered = (conf.low < truth & conf.high > truth))
+
+    # 2. Additive
+    fit_add <- lm(Y ~ D + X, data = df)
+    res_add <- tidy(fit_add, conf.int = TRUE) |>
+        filter(term == "D") |>
+        mutate(
+            estimator = "Additive",
+            covered = (conf.low < truth & conf.high > truth)
+        )
+
+    bind_rows(res_dim, res_add) |>
+        mutate(s = s)
+}
+
+sim_one(1, 200)
+```
+
+Your task is to:
+
+1. Run this simulation $S=1000$ times with $n=200$.
+2. Summarize the results: calculate the mean estimate, standard deviation of the estimate, and mean coverage probability for each estimator.
+3. Interpret the findings related to bias and efficiency of the estimators: which estimator do you prefer?
+4. Interpret the findings related to coverage probability: do you trust the confidence intervals from these estimators?
+
+### Answer
+
+...
+
+
+{{< pagebreak >}}
+
+## Monte Carlo 4: Lin's estimator
+
+Now it is your turn.
+
+Replicate the simulation from Monte Carlo 3 but add a third estimator: Lin's Estimator.
+Use `lm_lin(Y ~ D, covariates = ~ X)`.
+You should then be able to extract the estimator information using something like:
+
+```{r}
+#| eval: false
+est_lin <- lm_lin(Y ~ D, covariates = ~X, data = df)
+res_lin <- tidy(est_lin) |>
+    filter(term == "D") |>
+    mutate(estimator = "Lin", covered = (conf.low < truth & conf.high > truth))
+```
+
+Questions:
+
+1.  Write a function `sim_lin_ext(s, n)` that returns a tibble with results for DIM, Additive, and Lin.
+2.  Calculate the mean estimate, standard deviation, and coverage probability for all three.
+3.  Does Lin's estimator achieve the correct coverage?
+4.  Which estimator has the lowest variance?
+
+Use $S=100$ and $n=1000$.
+
+### Answer
+
+...
+
+
+{{< pagebreak >}}
+
+## Monte Carlo 5, Bonus: Selection Bias
+
+Imagine a scenario where the probability of treatment depends on $X$.
+
+-   $X \in \{0, 1\}$ with $P(X=1) = 0.5$.
+-   Stratified Assignment:
+    -   If $X=0$, $P(D=1) = 0.2$.
+    -   If $X=1$, $P(D=1) = 0.8$.
+-   Outcome: $Y = 0 + 1 \cdot D + 5 \cdot X + 2 \cdot D \cdot X + \epsilon$.
+    
+So $X=1$ makes you more likely to be treated AND increases your outcome.
+Treatment effect is also larger for $X=1$.
+
+Questions:
+
+1.  Write a function `dgp_selection(n)` for this design.
+2.  Run a simulation ($S=1000, n=200$) comparing:
+
+    -   DIM: `lm(Y ~ D)`
+    -   Lin: `lm_lin(Y ~ D, covariates = ~ X)`
+
+3.  Show that DIM is biased. Calculate the bias.
+4.  Show that Lin recovers the true ATE.
+5.  Why does DIM fail here?
+
+### Answer
+
+...
+
+
+{{< pagebreak >}}
+
+# Linear regression for experiments
+
+## Job corps, reanalysis
+
+This question will be demonstrated in class.
+
+We will use the same data as in the "Job corps" question in Assignment 1:
+
+```{r}
+library(causalweight)
+data(JC)
+JC <- as_tibble(JC)
+```
+
+Here is one way to compute the difference in means of the treatment and control group.
+compare it to the result on H, p. 21.
+
+```{r}
+JC |> filter(assignment == 1) -> JC_short_TG
+JC |> filter(assignment == 0) -> JC_short_CG
+treat_mean <- mean(JC_short_TG$earny4)
+control_mean <- mean(JC_short_CG$earny4)
+(ATE_hat <- treat_mean - control_mean)
+```
+
+That is identical to the estimated effect in H3.1.
+
+Questions:
+
+1.  Estimate the ATE using `lm_robust` and present the results in a regression table using `tbl_regression`.
+2.  Run a regression that reveals whether the effect is different for men and women. Use `lm_lin` with the `covariates` argument.
+
+Interpret all your results.
+
+### Answer
+
+...
+
+
+{{< pagebreak >}}
+
+## HIV RCT, reanalysis
+
+We will analyze the effect of the HIV information campaign in Thornton (2008).
+
+After you complete the data analysis below, please also answer the following substantive questions:
+
+1. What exactly is the specific policy intervention studied in this paper?
+2. Can you think of alternative policy interventions that might achieve similar goals?
+3. Based on the results, is this an effective policy? What would you recommend to the health authority in Malawi?
+4. Would you recommend this policy to the Canadian health authorities?
+5. What is your main criticism of Thornton's study?
+
+We first need to conduct the empirical analysis. 
+Use the same steps as in the previous exercise to analyze the effect of the campaign (`any`). Use `lm_robust` and `tbl_regression`.
+Explore whether the treatment effect differs by age (heterogeneity), by creating a binary variable for age (e.g. median split or `age >= 33`) and using `lm_lin`.
+
+Remember to use `drop_na` after loading the data to remove the missing data.
+
+### Answer
+
+...
+
+
+{{< pagebreak >}} 
+
+## Project STAR
+
+When loading libraries, we sometimes want to suppress messages and warnings to keep our document clean. We can do this by setting `#| message: false` and `#| warning: false` in the chunk options.
+
+Load the `AER` library (install first, if necessary), and the `STAR` data that comes with it:
+
+```{r}
+#| message: false
+#| warning: false
+library(AER)
+data("STAR")
+STAR <- as_tibble(STAR) |> drop_na()
+```
+
+From `?STAR` (which you should look at, to find the variable descriptions):
+
+> Project STAR (Student/Teacher Achievement Ratio) was a four-year longitudinal class-size study funded by the Tennessee General Assembly and conducted in the late 1980s by the State Department of Education. Over 7,000 students in 79 schools were randomly assigned into one of three interventions: small class (13 to 17 students per teacher), regular class (22 to 25 students per teacher), and regular-with-aide class (22 to 25 students with a full-time teacher's aide). Classroom teachers were also randomly assigned to the classes they would teach. The interventions were initiated as the students entered school in kindergarten and continued through third grade.
+
+We will focus on 3rd grade effects. We summarize the treatment variable using `tbl_summary` from the `gtsummary` package for a nicer look:
+
+```{r}
+STAR |>
+    select(star3) |>
+    tbl_summary()
+```
+
+We first define the treatment variable as 0 if class is "regular", 1 if small:
+
+```{r}
+STAR |>
+    filter(star3 %in% c("regular", "small")) |>
+    mutate(D3 = ifelse(star3 == "small", 1, 0)) -> STAR_binary
+```
+
+First, compute the treatment effect of `D3` on total reading scaled score in 3rd grade. 
+Make sure to use heteroskedasticity-robust standard errors throughout. Interpret the results.
+Second, compute the effect on total math scaled score in 3rd grade. Interpret the results.
+
+Third, run the regression for math using "multiple treatments", so using `star3` as the treatment variable. 
+Make sure to use `STAR`, not `STAR_binary`.
+Do you find the same results for the `small` treatment?
+Interpret your results for the `regular+aide` treatment.
+
+Bonus points: can you find evidence of heterogeneity of the treatment effect?
+
+### Answer
+
+...
+
+
+{{< pagebreak >}}
+
+# For troubleshooting: do not edit or remove
+
+```{r}
+#| echo: false
+Sys.info()
+Sys.time()
+```
+
