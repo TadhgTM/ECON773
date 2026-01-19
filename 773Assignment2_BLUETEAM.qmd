@@ -286,6 +286,19 @@ Your task is to:
 
 ### Answer
 
+```{r}
+S <- 1000
+test_df <- 1:S |> map_df(sim_one, n=200)
+
+test_df |> group_by(estimator) |> 
+        summarize(
+            mean_ATE_hat = mean(estimate),
+            sd_ATE_hat = sd(estimate),
+            coverage = mean(covered)
+        )
+```
+
+Commentary on the later part of the questions. 
 ...
 
 
@@ -331,6 +344,7 @@ Imagine a scenario where the probability of treatment depends on $X$.
 -   Stratified Assignment:
     -   If $X=0$, $P(D=1) = 0.2$.
     -   If $X=1$, $P(D=1) = 0.8$.
+
 -   Outcome: $Y = 0 + 1 \cdot D + 5 \cdot X + 2 \cdot D \cdot X + \epsilon$.
     
 So $X=1$ makes you more likely to be treated AND increases your outcome.
