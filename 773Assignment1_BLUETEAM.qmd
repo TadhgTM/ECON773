@@ -1,7 +1,7 @@
 ---
 title: "ECON 773: Assignment 1"
 author: "The BLUE Team, Jeneta Ljutic (400138620), Tadhg Taylor-McGreal (400330297), Stella Till (400364649)"
-date: "January 12, 2026"
+date: "January 19, 2026"
 format:
   typst: 
     toc: TRUE
