@@ -174,7 +174,7 @@ JC_short_CG <- JC_short |>
   dplyr::filter(assignment == 0)
 ```
 
-This works and we checked by visually analyzing the data set. We now have two tables for the treated and control groups: JC_short_TG and JC_short_CG. We invite you to confirm this by seeing the printout in the appendix.
+This works and we checked by visually analyzing the data set. We now have two tables for the treated and control groups: JC_short_TG and JC_short_CG.
 
 5. To compute the mean weekly earnings in the fourth year for both tables created in part 4 above, we will use 'summarise'.
 
@@ -198,7 +198,7 @@ control group. Taking the difference yields a value of $16.05513, which matches 
 reported in H, p. 21. This confirms that our findings are consistent with those in the
 handbook and suggests that access to Job Corps increases weekly earnings in the fourth year
 after assignment by approximately $16 USD on average, indicating a positive earnings effect of the
-program.
+program. Given that in this experiment access to the Job Corps was randomized, this reflects a causal effect of access to Job Corps on earnings.
 
 {{< pagebreak >}}
 
@@ -334,8 +334,8 @@ as well as the ATE in a table. First, 'group_by' splits the data into groups bas
   ))
 ```
 
-The estimated ATE is 3.27, indicating that assignment to the treatment increased proportion of weeks employed in the fourth year after assignment by approximately three weeks on average,
-relative to the control group.
+The estimated ATE is 3.27, indicating that assignment to the Job Corps increased proportion of weeks employed in the fourth year after assignment by approximately three weeks on average,
+relative to the control group, a positive effect.
 
 2. Next, we extend the analysis by estimating the ATE conditional on education group
 (using the 'educ_high' variable created above) to examine whether the impact of the treatment differs
@@ -360,8 +360,7 @@ based on education level. The logic is very similar to the part 1, but this time
 
 ```
 
-For individuals with 12 years of education or more ('educ_high' = 1), the treatment increases proportion of weeks employed in the fourth year after assignment by 3.35 weeks. For those with 12 years of education or less (educ_high = 0), the estimated effect is slightly smaller, at 2.91 weeks. These results suggest that the program has a slightly larger impact on employment for higher-
-educated individuals, although the difference is relatively small (0.44 weeks).
+For individuals with 12 years of education or more ('educ_high' = 1), the treatment increases proportion of weeks employed in the fourth year after assignment by 3.35 weeks. For those with 12 years of education or less (educ_high = 0), the estimated effect is slightly smaller, at 2.91 weeks. These results suggest that access to the Job Corps has a slightly larger impact on employment for higher-educated individuals, although the difference is relatively small (0.44 weeks).
 
 3. Using 'haschild' ('haschild' = 1 indicates at least one child, 'haschild' = 0 indicates no children at assignment), we’ll explore the effect of the program conditional on whether individuals have at least one child at assignment.
 
@@ -383,7 +382,7 @@ educated individuals, although the difference is relatively small (0.44 weeks).
   ))
 ```
 
-For individuals without children at assignment ('haschild' = 0), the estimated CATE is 2.76 weeks of employment in the fourth year, while for those with at least one child at assignment ('haschild' = 1), the effect is substantially larger at 5.76 weeks (for a difference of 3 weeks). These results indicate that the treatment has a stronger impact on employment for parents, suggesting that the program may be particularly beneficial for individuals with children.
+For individuals without children at assignment ('haschild' = 0), the estimated CATE is 2.76 weeks of employment in the fourth year, while for those with at least one child at assignment ('haschild' = 1), the effect is substantially larger at 5.76 weeks (for a difference of 3 weeks). These results indicate that the treatment has a stronger impact on employment for parents, suggesting that access to the Job Corps may be particularly beneficial for individuals with children.
 
 {{< pagebreak >}}
 
@@ -398,7 +397,9 @@ You will continue with the `JC` data. A useful data summary for our purpose is t
 First, make a boxplot of `earny4`. Second, make a boxplot of log earnings for those with positive earnings. Third, split out each of the two boxplots by `assignment`.
 
 ### Answer
-To code our boxplot we use 'ggplot'. Using 'ggplot' allows us to build the plot step by step using JC data. Withing our 'ggplot' bracket, we indicate that the y axis should show the category for earnings after the fourth year of the program. Following 'ggplot', we use 'geom_boxplot'. This tells R to put the JC data into a boxplot. In the last step of the code, we set the titles. We repeated this code skeleton for all of the following boxplots, changing the variables to either be in logs, sorted by assignment or both. In the second step, these changes are made by indicating under 'ggplot' to filter earny4>0, this ensures that only positive values are included, essential when taking a logarithim. To split out each of the boxplots by 'assignment', we type factor(assignment, ...) in the first line of 'ggplot' code.
+
+1. To code our boxplot we use 'ggplot'. Using 'ggplot' allows us to build the plot step by step using JC data. Within our 'ggplot' bracket, we indicate that the y axis should show the category for earnings after the fourth year of the program. Following 'ggplot', we use 'geom_boxplot'. This tells R to put the JC data into a boxplot. In the last step of the code, we set the titles. We repeated this code skeleton for all of the following boxplots, changing the variables to either be in logs, sorted by assignment, or both.
+
 ```{r}
 ggplot(JC, aes(y = earny4)) +
   geom_boxplot() +
@@ -408,9 +409,11 @@ ggplot(JC, aes(y = earny4)) +
   )
 ```
 
-This boxplot shows the weekly earnings in the fourth year after assignment on the y-axis and In this boxplot we see a skew to the right. This indicates that most individuals earn relatively low wages. The high earning individuals appear to be outliers. This suggests that only some individuals benefit largely in the fourth year post Job Corps program which indicates that the treatment did not have the same effect across all participants. 
+This boxplot shows the weekly earnings in the fourth year after assignment on the y-axis and in this boxplot we see a skew to the right. This indicates that most individuals earn relatively low wages. The high earning individuals appear to be outliers. This suggests that only some individuals benefit largely in the fourth year post Job Corps program which indicates that the treatment did not have the same effect across all participants. 
 
-In this plot, the effect of earnings are skewed by the extreme high values. This is because in a chart using levels, the differences are absolute and are thus highly influenced by outliers. This motivates the use of log earnings in the following charts since taking the logs compresses the upper tail of the distribution allow for comparisons which reflect proportional differences in earnings rather than absolute differences. 
+In this plot, the effect of earnings are skewed by the extreme high values. This is because in a chart using levels, the differences are absolute and are thus highly influenced by outliers. This motivates the use of log earnings in the following charts since taking the logs compresses the upper tail of the distribution, allowing for comparisons which reflect proportional differences in earnings rather than absolute differences. 
+
+2. Next, we make a boxplot of log earnings, filtering on positive earnings. To do this, we used 'filter' to keep 'earny4'>0, this ensures that only positive values are included, essential when taking a logarithim, and then took the log of earnings.
 
 ```{r}
 ggplot(
@@ -424,7 +427,9 @@ ggplot(
   )
 ```
 
-The second boxplot shows the distribution of log earnings for those with positive earnings. In this plot, we see that the earnings are more centred. This indicates that once we restrict for positive earnings, measured on a log scale the upper tail one the distribution becomes compressed. There remain some lower outliers, indicating that some individuals continue to have low but positive earnings. Thus, even when separating for positive earnings, heterogeneity of the results remain suggesting that there are other characteristics that influence earnings in the period four years after the program. 
+The second boxplot shows the distribution of log earnings for those with positive earnings. In this plot, we see that the earnings are more centred. This indicates that once we restrict for positive earnings, measured on a log scale the upper tail on the distribution becomes compressed. There remain some lower outliers, indicating that some individuals continue to have low but positive earnings. Thus, even when separating for positive earnings, heterogeneity of the results remain suggesting that there are other characteristics that influence earnings in the period four years after the program. 
+
+3a. Lastly, we will split out the first boxplot (without the log of earnings) by assignment. To do this, we type 'factor'(assignment, ...) in the first line of 'ggplot' code.
 
 ```{r}
 ggplot(JC, aes(x = factor(assignment), y = earny4)) +
@@ -438,6 +443,7 @@ ggplot(JC, aes(x = factor(assignment), y = earny4)) +
 
 The boxplot, shows the  weekly earnings in the fourth year after the treatment and is grouped by assignment on the x-axis. The y-axis shows the level of weekly earnings. In this plot, all earnings are positive. Dividing the earnings distribution by assignment highlights the differences in earnings between the control group (assignment = 0) and the treatment group (assignment = 1). We see a strong right-skew of earnings in both groups. This indicates that most individuals earn relatively low wages. We can note that there are few outliers in the control group with very high earnings. The outliers in both the treatment and the control group suggest that there may be heterogeneous program effects. However, it is important to distinguish that the treatment group has shows a higher median level of earnings. This suggests that there was a positive effect from the Jobs Corps program. 
 
+3b. Lastly, we will split out the second boxplot (with log earnings) by assignment, using very similar code, but filtering and taking the log on earnings. 
 ```{r}
 ggplot(
   JC |> filter(earny4 > 0),
@@ -450,9 +456,10 @@ ggplot(
     title = "Log fourth-year earnings by treatment assignment"
   )
 ```
-This final boxplot shows the positive earnings by assignment. It compares the distribution of log weekly earnings in the fourth year after the assignment between the control group and the (assignment = 0) and the treatment group (assignment = 1). All individuals in this plot are restricted to have positive earnings. On the boxplot, we see that there is a higher median log earnings in the treatment group. This indicates that those assigned to the Jobs Corps training program have higher typical earnings four years after  the treatment assignment. This suggests a positive average treatment effect of Jobs Corps on earnings. 
 
-There is substantial overlap between the distributions of the treatment and control group. This suggests that the programs effects were moderate and there may be other characteristics driving certain individuals to earn higher wages. 
+This final boxplot shows the positive earnings by assignment. It compares the distribution of log weekly earnings in the fourth year after the assignment between the control group (assignment = 0) and the treatment group (assignment = 1). All individuals in this plot are restricted to have positive earnings. On the boxplot, we see that there is a higher median log earnings in the treatment group. This indicates that those assigned to the Jobs Corps training program have higher typical earnings four years after the treatment assignment. This suggests a positive average treatment effect of Jobs Corps on earnings. 
+
+There is substantial overlap between the distributions of the treatment and control group. This suggests that the program's effects were moderate and there may be other characteristics driving certain individuals to earn higher wages. 
 
 ...
 
@@ -522,7 +529,7 @@ JC |>
 The scatterplot with a least-squares fit shows that earnings at assignment are only weakly predic-
 tive of earnings in the fourth year. The slope of the regression line is slightly upward, indicating
 that higher initial earnings are associated with slightly higher later earnings, but the relationship
-is modest. Most individuals cluster near the middle of the distribution in more of a flat line, and there is considerable variation in earnings growth across individuals.
+is modest. Most individuals cluster near the middle of the distribution in more of a flat line, and there is considerable variation in earnings growth across individuals. Given there is dispersion,  unobserved factors likely matter.
 
 3. Lastly, we will add colour by treatment group to see separate trends for treated and control
 groups and their fitted lines. This is again similar to the code above, but adds colours to points by treatment group ('assignment') using 'factor' to treat assignment as a categorical variable rather than a numeric one. This ensures that each group gets a separate colour and that geom_smooth() draws separate regression lines with confidence bands for each group.
@@ -543,7 +550,7 @@ JC |>
 
 ```
 
-The control group’s line (denoted in orange) is relatively flat, suggesting that initial earnings have little effect on year-4 earnings for this group. In contrast, the treated group’s line (denoted in blue) is slightly steeper, indicating that higher initial earnings are associated with higher year-4 earnings, and that the treatment amplifies earnings growth. Overall, this suggests that the treatment has a slightly larger positive impact on earnings, particularly for individuals who started with higher earnings, while individual variation remains substantial.
+The control group’s line (denoted in orange) is relatively flat, suggesting that initial average earnings have little effect on year-4 earnings for those who did not recieve access to the Job Corps. In contrast, the treated group’s line (denoted in blue) is a slightly steeper upward sloping line, indicating that higher initial average earnings are associated with higher year-4 earnings, and that the treatment amplifies earnings growth. Overall, this suggests that access to the Job Corps may strengthen the relationship between baseline earnings and later earnings, indicating heterogeneous effects where individuals with higher initial earnings appear to benefit more from the program.
 
 {{< pagebreak >}}
 
@@ -620,14 +627,11 @@ First, create a binarized variable, cutting off `age` at a value that you can de
 
 ### Answer
 
+1. To choose an age of the cutoff range, we use the sample median age. To determine this we will simply use 'median' to calculate the median of the sample. Then we will split the sample based off the median into a "younger" and "older" group. 
+
 ```{r}
 median(JC$age, na.rm = TRUE)
-```
 
-To choose an age of the cutoff range, we use the sample median age. To determine this we ran the code above. The output is that the sample median age is 18. Thus, those in the older group are those aged 18 or older and those in the younger group are 17 and below. 
-
-
-```{r}
 age_cut <- median(JC$age, na.rm = TRUE)
 
 JC <- JC |>
@@ -636,11 +640,12 @@ JC |>
   count(age_high)
 ```
 
-This splits the sample into a "younger" and "older" group. In the younger group, we have 3740 observations and 5500 observations in the older group. Age_higher = FALSE indicates the younger age group. 
+The output is that the sample median age is 18. Thus, those in the older group are those aged 18 or older and those in the younger group are 17 and below. Therefore, the sample is now split into a "younger" and "older" group. In the younger group, we have 3740 observations and 5500 observations in the older group. Age_higher = FALSE indicates the younger age group. 
+
+2. To compute the means for the control and treatment group for each value of the binarized variable we use 'group_by', which groups by 'age_high' and 'assignment', then 'summarize' calculates the mean of 'earny4' for these groupings.
 
 ```{r}
 JC |>
-  filter(educmis == 0) |>
   group_by(age_high, assignment) |>
   summarize(EY = mean(earny4), .groups = "drop") |>
   pivot_wider(names_from = assignment,
@@ -649,11 +654,11 @@ JC |>
   mutate(CATE = assign_1 - assign_0)
 ```
 
-To compute the means for the control and treatment group for each value of the binarized variable we ran the code above. The CATE is the conditional average treatment effect and shows the different in mean earnings between the treatment and control.  
+The CATE is the conditional average treatment effect and shows the difference in mean earnings between the treatment and control conditional on being in the "younger" or "older" age group. 
 
-Our results show that the CATE for younger individuals is 10.7. This means that assignment to Jobs Corps increases fourth-year earnings by about 10.7 units for younger individuals. The control mean for younger individuals is 177 and the treatment mean is 188. 
+Our results show that the CATE for younger individuals is 11.5. This means that assignment to Jobs Corps increases fourth-year earnings by about 11.5 units for younger individuals. The control mean for younger individuals is about 177 and the treatment mean is about 188. 
 
-For older individuals (age_high = TRUE), the control mean is 214 and the treatment mean is 231. The CATE is 17. Thus, our findings suggest that the increased average earnings is higher for older individuals. This suggests heterogeneous treatment effects by age.  
+For older individuals (age_high = TRUE), the control mean is about 213 and the treatment mean is about 231. The CATE is 17.3. Thus, our findings suggest that the increased average earnings is higher for older individuals. This suggests heterogeneous treatment effects by age.  
 
 {{< pagebreak >}}
 
