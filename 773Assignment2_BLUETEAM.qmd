@@ -102,53 +102,7 @@ Interpret your results. Is the phenomenon you observe related to the LLN or the 
 
 ### Answer
 
-<<<<<<< HEAD:A2L_Assignment_2.qmd
 We are going to use the 'gen_coin_cm' function that is given in the question, to simulate 10 coin flips from experiment 1.
-=======
-```{r}
-coin_df <- gen_coin_cm(10, 1)
-coin1_df <- gen_coin_cm(1000, 1)
-coin2_df <- gen_coin_cm(1000, 2)
-coin3_df <- gen_coin_cm(1000, 3)
-```
-
-In order to see whether this worked we now make the plot requested in the second part of this question. 
-```{r}
-coin_df |> 
-    ggplot() + 
-        geom_point(aes(x=i, y=Xbar_in)) + 
-        geom_line(aes(x=i, y=Xbar_in)) 
-```
-
-To complete the third part of this question we will duplicate our code from above for the new data. 
-```{r}
-coin1_df |> 
-    ggplot() + 
-        geom_line(aes(x=i, y=Xbar_in)) 
-
-```
-
-Next, we repeated this experiment twice more; three times total. 
-```{r}
-Coin <- bind_rows(coin1_df, coin2_df, coin3_df)
-Coin |> 
-    ggplot() + 
-        geom_line(aes(x=i, y=Xbar_in, colour=factor(experiment))) +
-        geom_line(aes(x=i, y=Xbar_in, colour=factor(experiment))) +
-        geom_line(aes(x=i, y=Xbar_in, colour=factor(experiment)))
-```
-
-```{r}
-bigger_coin <- gen_coin_cm(1000000, 4)
-
-bigger_coin |> 
-    ggplot() + 
-        geom_line(aes(x=i, y=Xbar_in)) 
-
-```
-
-Suprisngly the biggest sample has ~fully converged to the population mean. 
->>>>>>> e63d3004728fe6e25783b8fdbe6d98c0ddcbc9c6:773Assignment2_BLUETEAM.qmd
 ...
 
 ```{r}
@@ -382,18 +336,91 @@ Use $S=100$ and $n=1000$.
 
 ### Answer
 
+1. Start off by writing a function that combines reults from the DIM, Additive and the new Lin model. 
 ```{r}
-S <- 1000
-1:S |> map_df(sim_one, n=200)
-test_df <- 1:S |> map_df(sim_one, n = 200)
-
-test_df |> group_by(estimator) |> 
-    summarize(
-        mean_ATE_hat = mean(estimate), 
-        sd_ATE_hat = sd(estimate), 
-        coverage = mean(covered)
+sim_lin_ext <- function(s, n) {
+  df <- dgp_het(n)
+  truth <- 3.5
+  
+  # 1. DIM
+  fit_dim <- lm(Y ~ D, data = df)
+  res_dim <- tidy(fit_dim, conf.int = TRUE) |>
+    filter(term == "D") |>
+    mutate(
+      estimator = "DIM",
+      covered = (conf.low < truth & conf.high > truth)
     )
+  
+  # 2. Additive
+  fit_add <- lm(Y ~ D + X, data = df)
+  res_add <- tidy(fit_add, conf.int = TRUE) |>
+    filter(term == "D") |>
+    mutate(
+      estimator = "Additive",
+      covered = (conf.low < truth & conf.high > truth)
+    )
+  
+  # 3. Lin
+  fit_lin <- lm_lin(Y ~ D, covariates = ~ X, data = df)
+  res_lin <- tidy(fit_lin, conf.int = TRUE) |>
+    filter(term == "D") |>
+    mutate(
+      estimator = "Lin",
+      covered = (conf.low < truth & conf.high > truth)
+    )
+  
+  bind_rows(res_dim, res_add, res_lin) |>
+    mutate(s = s)
+}
 ```
+
+When called, this function will return a simulation of each model that returns a tibble with results for DIM, Additive, and Lin.
+
+2. We will run the simulation S= 100 times with n = 1000 and calculate the mean estimate, standard deviation, and coverage probability for all three model versions.
+
+```{r}
+S <- 100     # number of replications
+n <- 1000    # sample size per replication
+
+set.seed(123)
+
+sim_results <- 1:S |> 
+  map_df(sim_lin_ext, n = n)
+
+summary_results <- sim_results |>
+  group_by(estimator) |>
+  summarise(
+    mean_ATE_hat = mean(estimate),
+    sd_ATE_hat = sd(estimate),
+    coverage = mean(covered),
+    .groups = "drop"
+  )
+
+summary_resultsS <- 100     # number of Monte Carlo replications
+n <- 1000    # sample size per replication
+
+set.seed(123)
+
+sim_results <- 1:S |> 
+  map_df(sim_lin_ext, n = n)
+
+summary_results <- sim_results |>
+  group_by(estimator) |>
+  summarise(
+    mean_ATE_hat = mean(estimate),
+    sd_ATE_hat = sd(estimate),
+    coverage = mean(covered),
+    .groups = "drop"
+  )
+
+summary_results
+```
+
+'summary_results' returns a table with the mean estimate, standard deviation, and coverage probability for all three models. 
+
+3. Lin’s coverage is 0.92, which is still slightly below the nominal 0.95, technically it does not achieve correct coverage. This is however likely due to the unbalanced assignment (20% treated) and the heteroskedasticity: the combination of unbalanced groups and high noise means that n=1000 is actually still a "small" sample for these robust calculations. In larger simulations (here we only have S=100) or larger samples, Lin's estimator consistently hits the 95% target.
+
+4. Lin’s estimator has the lowest variance at 0.188. Lin’s estimator is therefore the most efficient, producing the most precise ATE estimates among the three versions. 
 ...
 
 
@@ -545,8 +572,116 @@ Bonus points: can you find evidence of heterogeneity of the treatment effect?
 
 ### Answer
 
-...
+Checking the variables of the data set
 
+```{r}
+?STAR
+```
+
+1. Using 'lm_robust' (which builds heteroskedasticity-robust inference in by default), we will compute the treatment effect of 'D3' on the total reading scaled score in the 3rd grade, 'read3'. 
+
+```{r}
+library(estimatr)
+
+read3_mod_robust <- lm_robust(
+  read3 ~ D3,
+  data = STAR_binary,
+  se_type = "HC1"   # heteroskedasticity-robust SEs
+)
+
+summary(read3_mod_robust)
+```
+
+The coefficient on D3 is 5.107 and the p-value is less than 0.05. Therefore, using heteroskedasticity-robust standard errors, assignment to a small class increases 3rd-grade reading scores by about 5 points relative to regular classes, and the effect is statistically significant at the 5% level. 
+
+2. Next, we will compute the effect on total math scale scored in the 3rd grade, 'math3'. This is very similar to the code above.
+
+```{r}
+math3_mod <- lm_robust(
+  math3 ~ D3,
+  data = STAR_binary,
+  se_type = "HC1"
+)
+
+summary(math3_mod)
+```
+
+The coefficient on D3 is 3.075, but the p-value is high at 0.1519. Assignment to a small class therefore increases 3rd-grade math scores by about 3 points, but the effect is not statistically significant, with a 95% confidence interval that includes zero.
+
+3. Lastly, we will run the regression for math using multiple treatments with `star3` as the treatment variable. Each treatment is encoded as a binary indicator (R handles factor variables as binary in regression by default). The intercept corresponds to the omitted (baseline) category ("regular") and each coefficient compares its group to the reference group. 
+
+```{r}
+math3_multi <- lm_robust(
+  math3 ~ star3,
+  data = STAR,
+  se_type = "HC1"
+)
+
+summary(math3_multi)
+```
+
+The effect of being in a small class is positive (3.075 points) and unchanged whether we use the binary or multiple-treatment specification, and the standard error is the same. This is because "regular" remains the omitted reference category in both models. 
+
+The effect of being in a regular class with an aide is small (around 1.3 points) and also not statistically significant, indicating that there is no evidence that adding a full-time aide to a regular-sized class improves 3rd-grade math scores.
+
+Bonus: we can explore whether the effect of small class sizes varies across subgroups (hetergenous treatment effects). For example, we can see whether the effect of small class sizes differs depending on student characteristics like gender, SES or teachers characteristics like experience teaching, etc.
+
+We'll start by observing the effect across gender. 
+
+```{r}
+# Heterogeneity by gender - reading scores
+read3_gender_mod <- lm_robust(
+  read3 ~ D3 * gender,
+  data = STAR_binary,
+  se_type = "HC1"
+)
+
+summary(read3_gender_mod)
+
+# Heterogeneity by gender - math score
+math3_gender_mod <- lm_robust(
+  math3 ~ D3 * gender,
+  data = STAR_binary,
+  se_type = "HC1"
+)
+
+summary(read3_gender_mod)
+summary(math3_gender_mod)
+
+```
+
+There is no evidence of heterogeneity of the small-class effect by gender: small classes increase reading scores by about 5 points for both boys and girls, and the difference in treatment effects across gender is essentially zero and not statistically significant. Additionally, the difference in treatment effects across gender for math scores is negative but not statistically significant.
+
+Next, we'll try by free lunch status, an indiactor of soci-economic status (SES).
+
+```{r}
+# Testing if the effect differs by Free Lunch status (SES) - reading
+model_het <- lm_robust(read3 ~ D3 * lunch3, data = STAR_binary)
+summary(model_het)
+
+# Testing if the effect differs by Free Lunch status (SES) - math
+model_het <- lm_robust(math3 ~ D3 * lunch3, data = STAR_binary)
+summary(model_het)
+```
+
+Here, the interaction is nearly zero, and not statistically significant. This suggests that while free lunch status is a huge predictor of scores (the -19.48 drop), it doesn't actually change how effective the small classroom size is. Math scores for the third grade have a negative effect, again not statistically significant. 
+
+Lastly we'll try by ethnicity using lm_lin.
+
+```{r}
+# Using lm_lin for the ethnicity heterogeneity check
+model_lin_eth <- lm_lin(
+  formula = read3 ~ D3, 
+  covariates = ~ ethnicity, 
+  data = STAR_binary
+)
+
+summary(model_lin_eth)
+```
+
+The coefficient in front of the interaction term for treatment and asian ethnicity is -28, a statistically significant and large negative effect. It suggests the treatment was much less effective on reading scores for the Asian students in this specific sample.
+
+While there is evidence of heterogeneity—specifically a lower observed effect for Asian students (p=0.008)—small subgroup sizes for certain ethnicities (notably Hispanic students) lead to rank deficiency, suggesting that subgroup-specific results should be interpreted with caution.
 
 {{< pagebreak >}}
 
