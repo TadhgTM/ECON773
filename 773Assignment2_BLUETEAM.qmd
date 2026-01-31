@@ -495,8 +495,62 @@ Interpret all your results.
 
 ### Answer
 
-...
+1.  Estimate the ATE using `lm_robust` and present the results in a regression table using `tbl_regression`.
 
+```{r}
+library(estimatr)
+library(gtsummary)
+
+ate_fit <- lm_robust(
+  earny4 ~ assignment,
+  data = JC
+)
+
+tbl_regression(
+  ate_fit,
+  estimate_fun = ~style_sigfig(.x, digits = 3)
+)
+
+```
+
+Step 1 (Load Packages): Loading library(estimatr), loaded "lm_robust", the function that we used to determine the estimator. Loading "gtsummary" puts the regression outputs into tables. This package was used when we ran "tbl_regression. 
+
+Step 2 (store regression results in object called ate_fit): The second step was to use lm_robust() to run a regression. This package uses heteroskedasticity-robust standard errors. Within this function, we regressed the assignment (treatment), onto earny4 (the outcome). The line "data = JC", indicates to R to use the data from the JC dataset. 
+
+Step 3 (express results in a table): Our last step was to put these results into a tabular form. style_sigfig(), indicates for numbers to be formatted using significant figures. We told R to show 3 significant digits. The x in the expression is a placeholder. 
+
+The beta coefficient on assignment is the DIM of fourth-year earnings between individuals randomly assigned to Job Corps (treatment) compared to those who were not assigned to JC (the control). The coefficient equals 16.1 which is close to the naive DIM calculated in Huber, pg.21. Since the treatment is random, we can state that 16 suggests a casual effect of the JC program. 
+
+2.  Run a regression that reveals whether the effect is different for men and women. Use `lm_lin` with the `covariates` argument.
+
+```{r}
+lin_gender <- lm_lin(
+  earny4 ~ assignment,
+  covariates = ~ female,
+  data = JC
+)
+
+tbl_regression(
+  lin_gender,
+  estimate_fun = ~style_sigfig(.x, digits = 3)
+)
+```
+
+Step 1: We ran Lin's estimator and stored the result into a model object named "lin_gender". We first defined the outcome was earnings in year 4, and the treatment assignment. This denotes our standard regression for the ATE.
+
+Lin's estimator is a function in R that uses the methods from Lin (2013). It is used when estimating  treatment effects with pre-treatment covariate data, in this example the pre-treatment covariate data was gender. This method processes the data using the covariates specified in the `covariates` argument (female). It then centers them by subtracting from each covariate its mean, and interacting them with the treatment. This is a form of regression adjustment. This is a useful function because it allows for a strong flexible form in the regression. 
+
+Lastly, we indicate the dataset (JC Corps), using data=JC. 
+
+Step 2: We put the output into a table and express how many figures are to be displayed. 
+
+We can interpret the results of the table as with the following description: 
+
+Job Corps increases year-4 earnings by about 21 at the sample mean of gender. 
+
+Women have lower earnings than men in the control group (about 64 lower, relative to the centered baseline).
+
+The treatment effect for women is about 5.16 smaller than for men, this is displayed in the interaction term. 
 
 {{< pagebreak >}}
 
