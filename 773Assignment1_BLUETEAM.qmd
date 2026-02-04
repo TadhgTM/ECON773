@@ -553,7 +553,6 @@ JC |>
     title = "Scatterplot of Log Earnings by Treatment with Least-Squares Fit"
   ) +
   theme_minimal()
-
 ```
 
 The control group’s line (denoted in orange) and the treated group’s line (denoted in blue) both have very shallow, slightly positive slopes (although the treatment line is slightly steeper), which indicates that while initial earnings have a positive relationship with future earnings, the effect is relatively weak. Both regression lines are nearly identical and sit almost on top of one another. This suggests that access to the Job Corps did not significantly change the outcome of weekly earnings in Year 4 compared to the control group. Additionally, since the shaded areas (representing the confidence intervals) overlap almost entirely across the whole horizontal axis, this suggests that there is no statistically significant difference between the two groups' earnings outcomes, however a formal test would be needed to conclude.
