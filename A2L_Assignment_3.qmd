@@ -86,8 +86,7 @@ It is good practice to inspect the data before doing any modeling. This gives us
 
 ### Answer
 
-...
-
+tbl summary is lalalalala. 
 
 ## Linear regression
 
