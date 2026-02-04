@@ -457,7 +457,7 @@ When called, this function will return a simulation of each model that returns a
 S <- 100     # number of replications
 n <- 1000    # sample size per replication
 
-set.seed(2)
+set.seed(123)
 
 sim_results <- 1:S |> 
   map_df(sim_lin_ext, n = n)
@@ -474,7 +474,7 @@ summary_results <- sim_results |>
 summary_resultsS <- 100     # number of Monte Carlo replications
 n <- 1000    # sample size per replication
 
-set.seed(2)
+set.seed(123)
 
 sim_results <- 1:S |> 
   map_df(sim_lin_ext, n = n)
@@ -577,7 +577,7 @@ sim_selection <- function(s, n) {
 S <- 1000
 n <- 200
 
-set.seed(2)
+set.seed(69)
 
 sim_results <- 1:S |> 
   map_df(sim_selection, n = n)
