@@ -36,6 +36,7 @@ Make sure that they are installed, or use `install.packages` to install them.
 The following code block makes sure these packages are available below, without adding to your page count.
 
 ```{r}
+install.packages("WeightIt")
 #| include: false
 library(tidyverse)
 library(haven)
@@ -58,7 +59,7 @@ For some background on the Catholic school effect, read [this very short overvie
 
 The following code chunk loads the `tidyverse` suite of packages and then loads the data from a CSV file into a tibble `exam_df`.
 ```{r}
-exam_df <- read_csv("examdata.csv")
+exam_df <- read_csv("Assignment 3/examdata.csv")
 ```
 
 We will use 3rd grade scores on a math test as the outcome that measures student achievement. The code chunk below renames this variable as `math_score`, and codes as `catholic` the binary treatment variable that indicates whether a child attends a Catholic school (1) or not (0). It also keeps five possible confounders, described in the comment of the code chunk.
@@ -274,7 +275,7 @@ Previous ECON773 students have remarked that they thought the pilgrimage may not
 Our analysis follows the replication by [Julia de Romemont](https://uclspp.github.io/PUBL0050/7-instrumental-variables-i.html). The following code chunk loads the data prepared by her:
 
 ```{r}
-load("hajjdata.Rdata")
+load("Assignment 3/hajjdata.Rdata")
 hajj_df <- as_tibble(hajj)
 ```
 
@@ -378,7 +379,7 @@ Load the experimental data, from Stata format, using `haven::read_dta`.
 Based on previous results, we are particularly interested in the effects on boys that are 50 months or younger. Therefore, we retain only those observations.
 
 ```{r}
-sesame_df <- read_dta("sesame_experiment.dta") |> 
+sesame_df <- read_dta("Assignment 3/sesame_experiment.dta") |> 
   filter(age < 51, female == 0)
 ```
 
