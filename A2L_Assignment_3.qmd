@@ -1,7 +1,7 @@
 ---
 title: "ECON 773: Assignment 3"
 author: "The BLUE Team, Jeneta Ljutic (400138620), Tadhg Taylor-McGreal (400330297), Stella Till (400364649)"
-date: "Date you started this assignment"
+date: "Febuary 4"
 format:
   typst:
     toc: TRUE
@@ -48,7 +48,7 @@ library(cobalt)
 
 {{< pagebreak >}}
 
-# School choice and student achievement
+# School choice and student achievement ### treat as a delimination. 
 
 ## Introduction
 
@@ -86,7 +86,8 @@ It is good practice to inspect the data before doing any modeling. This gives us
 
 ### Answer
 
-tbl summary is lalalalala. 
+...
+
 
 ## Linear regression
 
@@ -152,7 +153,7 @@ Can you interpret the results?
 
 ### Answer
 
-....
+...
 
 
 ## Overlap
