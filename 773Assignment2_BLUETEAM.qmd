@@ -102,13 +102,15 @@ Interpret your results. Is the phenomenon you observe related to the LLN or the 
 
 ### Answer
 
-We are going to use the 'gen_coin_cm' function that is given in the question, to simulate 10 coin flips from experiment 1.
-...
+1. We are going to use the 'gen_coin_cm' function that is given in the question, to simulate 10 coin flips from experiment 1.
 
 ```{r}
 coin_df <- gen_coin_cm(10,1)
 ```
-In order to see whether this worked, we now make the plot requested in the second part of this question. 
+
+This resulted in a data frame containing 10 coin flips including the trial number, the result of the i-th coin flip, the cumulative mean up to trial i, and a label identifying the experiment.
+
+2. In order to see whether this worked, we now make the plot requested in the second part of this question. 
 
 ```{r}
 coin_df |> ggplot() + 
@@ -116,7 +118,9 @@ coin_df |> ggplot() +
     geom_line(aes(x=i, y=Xbar_in))
 ```
 
-To compelte the third part of this question, we are going to copy, paste and modifiy the code from above. 
+This plot shows the cumulative mean of the coin flips as a function of the trial number, illustrating how the sample mean evolves over time as additional trials are added.
+
+3. To compelte the third part of this question, we are going to copy, paste and modifiy the code from above. 
 
 ```{r}
 coin1_df <- gen_coin_cm(1000,1)
@@ -124,12 +128,16 @@ coin1_df |> ggplot() +
     geom_line(aes(x=i, y=Xbar_in))
 ```
 
-Next, we repeat this experiment twice more. 
+We simulated 1,000 coin flips and plotted how the running average changes over time. With a larger number of trials, we observe some convergence of the sample mean toward 0.5.
+
+4. Next, we repeat this experiment twice more. 
 
 ```{r}
 coin2_df <- gen_coin_cm(1000,2)
 coin3_df <- gen_coin_cm(1000,3)
 ```
+
+Using the same function and number of trials, we have created two independent simulated experiments.
 
 Put all the experimental data on a big pile. 
 
@@ -139,6 +147,8 @@ all_experiments <- bind_rows(
 )
 ```
 
+‘all_experiments’ now contains each of the three simulated experiments.
+
 Now we are ready to make the final plot of this question. 
 
 ```{r}
@@ -146,12 +156,16 @@ all_experiments |> ggplot() +
     geom_line(aes(x=i, y=Xbar_in, colour=factor(experiment)))
 ```
 
+Each colour represents one of the 3 experiments. 1000 trials is not enough for full convergence to 0.5.
+
+5. Using the same function, we will create one more plot with 100000 trials.
 ```{r}
-big_coin_df <- gen_coin_cm
-(10000, 1)
-big_coin_df |> ggplot() + 
-    geom_line(aes(x=i, y=Xbar_in))
+big_coin_df <- gen_coin_cm(100000,1)
+big_coin_df |> ggplot() +
+geom_line(aes(x=i, y=Xbar_in))
 ```
+
+This shows the Law of Large Numbers (LLN). The LLN states that the sample average X, converts to the true mean E[X] = 0.5 as n approaches infinity. We see this as the line graph converges towards 0.5. CLT describes that the distribution of the sample average of X centers around 0.5 for large averages. This is not indicated on the line plot. 
 
 ## Monte Carlo 2: dice throws
 
@@ -213,8 +227,50 @@ Second: what happens to the shape of the distribution as `n` increases? Relate y
 
 ### Answer
 
-...
+We will experiment with a few more values of n. We’ll try values for n=15, n=35 and n=50, using the same code as above. Starting with n=15:
 
+```{r}
+n <- 15
+x <- 1 / n * sample(1:6, S, replace = TRUE)
+for (k in 2:n) {
+x <- x + 1 / n * sample(1:6, S, replace = TRUE)
+}
+die_df <- tibble(s = 1:S, Xbar = x)
+die_df |> ggplot(aes(x = Xbar)) +
+geom_histogram(binwidth = 1 / n)
+```
+
+Next, n=35: 
+
+```{r}
+n <- 35
+x <- 1 / n * sample(1:6, S, replace = TRUE)
+for (k in 2:n) {
+    x <- x + 1 / n * sample(1:6, S, replace = TRUE)
+}
+die_df <- tibble(s = 1:S, Xbar = x)
+die_df |> ggplot(aes(x = Xbar)) +
+    geom_histogram(binwidth = 1 / n)
+```
+
+Lastly, n=50:
+
+```{r}
+n <- 50
+x <- 1 / n * sample(1:6, S, replace = TRUE)
+for (k in 2:n) {
+    x <- x + 1 / n * sample(1:6, S, replace = TRUE)
+}
+die_df <- tibble(s = 1:S, Xbar = x)
+die_df |> ggplot(aes(x = Xbar)) +
+    geom_histogram(binwidth = 1 / n)
+```
+
+1. The variance of the mean shrinks when the number of rolls (n), increases. We can interpret the change in the variance by looking at each plot. First, we see that the distribution of the plot with the smallest n is almost flat, this visually shows the sample mean of the die roll. Because the spread is wide and tightly clustered, the variance is large. The distribution over [1,6] is almost uniform. Here we do not see any effect from CLT. 
+
+2. Next, when n=6, we see that extreme values at the ends of the distribution start to flatten. This trend continues as n increases. This shows the CLT. In a large sample, we see CLT as the shape becomes approximately normal showing a bell shape around the average, 3.5. 
+
+The Law of Large Numbers explains the center moving toward the average value 3.5 showing that the sample mean converges to the theoretical expected value. 
 
 {{< pagebreak >}}
 
@@ -291,10 +347,16 @@ Your task is to:
 
 ### Answer
 
+1. Start by running the simulation 1000 times with n = 200 using ‘sim_one’.
 ```{r}
 S <- 1000
 test_df <- 1:S |> map_df(sim_one, n=200)
+```
 
+We now have a dataframe ‘test_df’ with our simulation of both approaches.
+
+2. Next we will sumamrize the results to calculate the mean estimate, standard deviation of the estimate, and mean coverage probability for each estimator.
+```{r}
 test_df |> group_by(estimator) |> 
         summarize(
             mean_ATE_hat = mean(estimate),
@@ -304,6 +366,18 @@ test_df |> group_by(estimator) |>
 ```
 
 Commentary on the later part of the questions. 
+
+3. Summary of output (Additive): Our ATE is equal to 3.52, a slight upward bias of 0.02. The standard deviation of the ATE is around 0.520. The 95% CI coverage was 0.900. This means that in the 95% confidence interval it only contained the true ATE 90% of the time. Only 90% of the simulations included the ATE = 3.5.  It is likely explained that the average rate of 0.900 for a nominal 95% confidence interval means the interval is systematically too narrow and understates uncertainty. This could likely be due to incorrect standard error assumptions (e.g., ignoring heteroskedasticity).
+
+Summary of output (DIM): Our ATE is equal to 3.53. The standard deviation of the ATE is 0.921. The 95% CI coverage was 0.854. There is a slight upward bias in the DIM (3.53 - 3.5 = 0.03). This could be explained by noise from the Monte Carlo simulation. 
+
+We see that the additive estimator is more efficient. This is because adjusting for X accounts for some of the outcome variation. This is determined by comparing the standard errors in the table (0.520 < 0.921). Therefore, we would prefer the additive estimates because of their lower standard error and stronger coverage in the 95% CI. 
+
+4. Both estimators show undercoverage: the 95% confidence intervals contain the true ATE less than 95% of the time (about 90% for Additive and 85% for DIM). This means that, as reported by lm(), the confidence intervals are too narrow and therefore not fully trustworthy.
+
+The problem is more severe for the DIM estimator, which ignores the covariate X. Because treatment is unbalanced and errors are heteroskedastic, omitting X leads to larger residual variance and standard errors that understate uncertainty.
+
+We do not fully trust the confidence intervals from either estimator as implemented. The Additive model is preferable, but correct coverage would likely require heteroskedasticity-robust standard errors and a specification that includes the interaction term to account for treatment effect heterogeneity (as the model ignores the interaction and the variance structure).
 ...
 
 
@@ -336,7 +410,8 @@ Use $S=100$ and $n=1000$.
 
 ### Answer
 
-1. Start off by writing a function that combines reults from the DIM, Additive and the new Lin model. 
+1. Start off by writing a function that combines reults from the DIM, Additive and the new Lin model. The 'lm_lin' function automatically centers covariates, includes treatment and covariate interactions internally, and uses robust standard errors by default. Therefore, it adjusts for covariates X in a way that gives better precision and correct standard errors. 
+
 ```{r}
 sim_lin_ext <- function(s, n) {
   df <- dgp_het(n)
@@ -689,7 +764,7 @@ tbl_regression(
 
 The coefficient on `any` is positive and statistically significant(CI: .41-.49), indicating that monetary incentives increased the probability of individuals learning their HIV results.
 
-Now we use `lm_lin`. We create a binary age variable using a median split, oo explore heterogeneity.
+Now we use `lm_lin`. We create a binary age variable using a median split, to explore heterogeneity.
 
 ```{r}
 median_age <- median(Thornton$age)
@@ -713,11 +788,11 @@ Answers:
 
 1. The intervention is the randomized monetary incentive to encourage individuals in Malawi to collect their HIV test results. Participants were randomized to receive varying amounts of money (or nothing) for returing to the clinic to learn their results.
 
-2. If the incentive is to encourage individuals to observe/collect their results then the fricton is the effort/ability to go to the testing clininc. Alternatives could be Mailed results, SMS results (However I'm unsure how widespead cellular use was in Malawi in 2008). 
+2. If the incentive is to encourage individuals to observe/collect their results then the fricton is the effort/ability to go to the testing clininc. Alternatives could be mailed results, SMS results (however I'm unsure how widespread cellular use was in Malawi in 2008). 
 
-3. The policy is effective—the ATE is positive and significant. As such we would reccomend implementing the programs in areas with low uptake.
+3. The policy is effective—the ATE is positive and significant. As such we would recommend implementing the programs in areas with low uptake.
 
-4. Recommendation for Canada? No, now this answer is explicity an opinion and not neccesary fact. In Canada, frictions are more about stigma and awareness than poverty. Monetary incentives may be less cost-effective and could reinforce stigma. It could be more efficent to invest in self-testing kits, and targeted outreach to high-risk populations.
+4. Recommendation for Canada? No, now this answer is explicity an opinion and not necessary fact. In Canada, frictions are more about stigma and awareness than poverty. Monetary incentives may be less cost-effective and could reinforce stigma. It could be more efficent to invest in self-testing kits, and targeted outreach to high-risk populations.
 
 5. Our main critisicm is that the external validity is limited (rural Malawi context). The study only measures short-term result collection, not longer-term outcomes like behavior change or treatment initiation. The sample already agreed to be tested, so results may not generalize to convincing untested populations.
 
@@ -809,7 +884,7 @@ summary(math3_mod)
 
 The coefficient on D3 is 3.075, but the p-value is high at 0.1519. Assignment to a small class therefore increases 3rd-grade math scores by about 3 points, but the effect is not statistically significant, with a 95% confidence interval that includes zero.
 
-3. Lastly, we will run the regression for math using multiple treatments with `star3` as the treatment variable. Each treatment is encoded as a binary indicator (R handles factor variables as binary in regression by default). The intercept corresponds to the omitted (baseline) category ("regular") and each coefficient compares its group to the reference group. 
+3. Lastly, we will run the regression for math using multiple treatments with `star3` as the treatment variable. Each treatment is encoded as a binary indicator (R handles factor variables as binary in regression by default). The intercept corresponds to the omitted (baseline) category ('regular') and each coefficient compares its group to the reference group. 
 
 ```{r}
 math3_multi <- lm_robust(
@@ -821,13 +896,13 @@ math3_multi <- lm_robust(
 summary(math3_multi)
 ```
 
-The effect of being in a small class is positive (3.075 points) and unchanged whether we use the binary or multiple-treatment specification, and the standard error is the same. This is because "regular" remains the omitted reference category in both models. 
+The effect of being in a small class is positive (3.075 points) and unchanged whether we use the binary or multiple-treatment specification, and the standard error is the same. This is because 'regular' remains the omitted reference category in both models. 
 
 The effect of being in a regular class with an aide is small (around 1.3 points) and also not statistically significant, indicating that there is no evidence that adding a full-time aide to a regular-sized class improves 3rd-grade math scores.
 
 Bonus: we can explore whether the effect of small class sizes varies across subgroups (hetergenous treatment effects). For example, we can see whether the effect of small class sizes differs depending on student characteristics like gender, SES or teachers characteristics like experience teaching, etc.
 
-We'll start by observing the effect across gender. 
+We'll start by observing the effect across gender (again, keeping our focus to the thrid grade reading and math scores). 
 
 ```{r}
 # Heterogeneity by gender - reading scores
@@ -853,7 +928,7 @@ summary(math3_gender_mod)
 
 There is no evidence of heterogeneity of the small-class effect by gender: small classes increase reading scores by about 5 points for both boys and girls, and the difference in treatment effects across gender is essentially zero and not statistically significant. Additionally, the difference in treatment effects across gender for math scores is negative but not statistically significant.
 
-Next, we'll try by free lunch status, an indiactor of soci-economic status (SES).
+Next, we'll try by free lunch status, an indicator of socio-economic status (SES).
 
 ```{r}
 # Testing if the effect differs by Free Lunch status (SES) - reading
@@ -865,7 +940,7 @@ model_het <- lm_robust(math3 ~ D3 * lunch3, data = STAR_binary)
 summary(model_het)
 ```
 
-Here, the interaction is nearly zero, and not statistically significant. This suggests that while free lunch status is a huge predictor of scores (the -19.48 drop), it doesn't actually change how effective the small classroom size is. Math scores for the third grade have a negative effect, again not statistically significant. 
+Here, the interaction is nearly zero, and not statistically significant. This suggests that while free lunch status is a huge predictor of reading scores (the -19.48 drop), it doesn't actually change how effective the small classroom size is. Math scores for the third grade have a negative effect, again not statistically significant. 
 
 Lastly we'll try by ethnicity using lm_lin.
 
