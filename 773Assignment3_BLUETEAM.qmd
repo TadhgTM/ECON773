@@ -169,7 +169,7 @@ Interpret the result.
 
 ### Answer
 
-...
+The size of the control group (not Catholic school students) has 3569 more observations in the sample. Catholic students have a slightly higher median math score (0.25) than non-Catholic students (0.22). Catholic students are more likely to be white: 77% white in Catholic schools vs 65% in non-Catholic schools. This suggests that there may be correlation between treatment status and race. The mean age of mothers of Cathloic school students are older by 2 years (40 years - 38 years). Catholic school students are more likely to have highly educated mothers (79% compared to 61%). Both mothers age and mothers educational attainment could be a proxy for family stability. The majority of students sampled in both groups are most likely to only "live in one place". However, this is slightly more likley for Catholic school students (91% compared to 93%). Lastly, Catholic school families have higher incomes. The median income for families of Catholic school students is $87,501 compared to $62,501. 
 
 
 ## Regression adjustment
