@@ -123,9 +123,36 @@ Ignoring treatment selection bias, is there a difference between Catholic and pu
 2. Make a boxplot, split and coloured by `catholic`, to visualize the difference in the distribution of outcomes between the two groups. Interpret the result.
 
 ### Answer
+1. Linear Regression to estimate the DIM: 
+```{r}
+library(estimatr)
+library(dplyr)
 
-...
+exam_ols <- lm_robust(math_score ~ catholic, data = exam_df)
 
+summary(exam_ols)
+```
+
+From the summary output table we can observe that the mean math score for non Catholic students is 0.163. The difference in the mean math scores is 0.0566. This suggests that on average, students at Catholic schools score about 0.057 standard deviations higher than students in public schools (ignoring selection bias). We can not state that this DIM is statistically significant at the 10% level since 0 is included in the confidence interval. 
+
+2. Boxplot: 
+
+```{r}
+library(ggplot2)
+library(dplyr)
+
+exam_df |> 
+  ggplot(aes(x = catholic, y = math_score, fill = catholic)) +
+  geom_boxplot() +
+  labs(
+    x = "Catholic school (0 = No, 1 = Yes)",
+    y = "Math score",
+    title = "Math score distribution by Catholic school attendance"
+  )
+
+```
+
+This boxplot shows evidence consistent with the linear regression estimat of the DIM, which finds a small positive difference in mean math scores for Catholic students. The median math score for Catholic students is marginally higher, and the interquartile ranges of the two groups largely overlap. 
 
 ## Covariate balance
 
