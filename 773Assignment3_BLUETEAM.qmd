@@ -210,14 +210,9 @@ income_c = +4.695e−06: higher income → higher scores (very significant)
 
 2. The DIM estimate have a small positive difference (0.0566 SD). After adjusting for confounders, we see a different magnitude. The results become negative and statistically signifigant (−0.138 SD). 
 
-Propsenity Score: 
-The model says Catholic attendance is not random: it is predictably related to SES and demographics (race, mother’s education, mother’s age, income, and possibly mobility). Thus, to derive an accurate estimate, we need to use propensity-score methods or regression adjustment since selection into Catholic school is related to variables that also plausibly affect math scores. 
 
-Each coefficient in log(OR) column is the change in log-odds of attending a Catholic school, holiding the other confounders fixed. For example, Being white is associated with higher odds of attending a Catholic school. To convert this into an odds ration we raise Euler's number (e), to the exponent 0.30 from the table to derive the odds ratio equal to 1.35. Applying the same procedure, we can interpret each regressor as the following: 
 
-Mothers' Education: e^0.56 = 1.75 
-Mothers' Age: e^0.04 = 1.04 per age 
-n_places: e^-0.21 = 0.81. More residental moves are associated with lower odds of Catholic attendance. 
+
 
 3. Looking at income we see that the coeffient on X is +4.695. This means that among non-Catholic students, higher family income is associated with higher math scores. In the interaction term between D x X for income, we see how the income–math slope differs for Catholic students relative to non-Catholic students. This result is -2.397 which is negative and significant. This suggests that the income effect is weaker among Catholic studnets. 
 
@@ -243,7 +238,14 @@ Can you interpret the results?
 
 ### Answer
 
-...
+Propsenity Score: 
+The model says Catholic attendance is not random: it is predictably related to SES and demographics (race, mother’s education, mother’s age, income, and possibly mobility). Thus, to derive an accurate estimate, we need to use propensity-score methods or regression adjustment since selection into Catholic school is related to variables that also plausibly affect math scores. 
+
+Each coefficient in log(OR) column is the change in log-odds of attending a Catholic school, holiding the other confounders fixed. For example, Being white is associated with higher odds of attending a Catholic school. To convert this into an odds ration we raise Euler's number (e), to the exponent 0.30 from the table to derive the odds ratio equal to 1.35. Applying the same procedure, we can interpret each regressor as the following: 
+
+Mothers' Education: e^0.56 = 1.75 
+Mothers' Age: e^0.04 = 1.04 per age 
+n_places: e^-0.21 = 0.81. More residental moves are associated with lower odds of Catholic attendance. 
 
 
 ## Overlap
