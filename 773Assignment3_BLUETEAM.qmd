@@ -87,8 +87,33 @@ It is good practice to inspect the data before doing any modeling. This gives us
 
 ### Answer
 
-...
+1. Display a table of summary statistics: 
+```{r}
+library(gtsummary)
 
+exam_df |> 
+  tbl_summary(
+    statistic = list(
+      all_continuous() ~ "{mean} ({sd})",
+      all_categorical() ~ "{n} ({p}%)"
+    ),
+    digits = all_continuous() ~ 2
+  )
+
+```
+
+To inspect the data we use the package "gtsummary". We first indicate the data set we are pulling from as "exam_df". Within this, we pull  "tbl_summary", and pull a list of statistics. For all continuous variables, we pulled the mean value and indicated for R to compute one standard deviation in each of the brackets. For categorical variables, we pulled n (the number of observations) followed by the percentage of the total sample. 
+
+2. 2. Pick one statistic from the resulting table and comment on it.
+
+The sample size is 5,429. 
+Catholic School Attendence: We see that 17 percent of the sample attends a Catholic school. The remainder of the sample does not attend Catholic school. 
+Math score: The mean math score is 17 standard deviations above average. The standard deviation of 0.96 shows substantial variation in achievement across students. This is the outcome variable of interest. 
+White: 67% of studnets are white. 
+Mothers' age: The mean age of mothers' is 38.13. 
+Mothers' edu: 64% of students have a mother with education above high school (3,473), while 36% are high school or less (1,956). This may suggest that the sample is relatively advantaged on parental education, which is strongly related to achievement and may also relate to Catholic school choice.
+n_places: 91% of the sample has lived in one place. This suggests high family stability. 
+Income: The mean family income is $68,954.74. 
 
 ## Linear regression
 
