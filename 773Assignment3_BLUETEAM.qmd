@@ -89,8 +89,6 @@ It is good practice to inspect the data before doing any modeling. This gives us
 
 1. Display a table of summary statistics: 
 ```{r}
-library(gtsummary)
-
 exam_df |> 
   tbl_summary(
     statistic = list(
@@ -104,7 +102,7 @@ exam_df |>
 
 To inspect the data we use the package "gtsummary". We first indicate the data set we are pulling from as "exam_df". Within this, we pull  "tbl_summary", and pull a list of statistics. For all continuous variables, we pulled the mean value and indicated for R to compute one standard deviation in each of the brackets. For categorical variables, we pulled n (the number of observations) followed by the percentage of the total sample. 
 
-2. 2. Pick one statistic from the resulting table and comment on it.
+2. Pick one statistic from the resulting table and comment on it.
 
 The sample size is 5,429. 
 Catholic School Attendence: We see that 17 percent of the sample attends a Catholic school. The remainder of the sample does not attend Catholic school. 
@@ -125,7 +123,6 @@ Ignoring treatment selection bias, is there a difference between Catholic and pu
 ### Answer
 1. Linear Regression to estimate the DIM: 
 ```{r}
-library(estimatr)
 library(dplyr)
 
 exam_ols <- lm_robust(math_score ~ catholic, data = exam_df)
@@ -139,7 +136,6 @@ From the summary output table we can observe that the mean math score for non Ca
 
 ```{r}
 library(ggplot2)
-library(dplyr)
 
 exam_df |> 
   ggplot(aes(x = catholic, y = math_score, fill = catholic)) +
@@ -152,7 +148,7 @@ exam_df |>
 
 ```
 
-This boxplot shows evidence consistent with the linear regression estimat of the DIM, which finds a small positive difference in mean math scores for Catholic students. The median math score for Catholic students is marginally higher, and the interquartile ranges of the two groups largely overlap. 
+This boxplot shows evidence consistent with the linear regression estimate of the DIM, which finds a small positive difference in mean math scores for Catholic students. The median math score for Catholic students is marginally higher, and the interquartile ranges of the two groups largely overlap. 
 
 ## Covariate balance
 
@@ -183,7 +179,6 @@ Run a linear regression that adjusts for all of the five confounders, using the 
 ### Answer
 
 ```{r}
-library(estimatr)
 
 exam_ra <- lm_lin(
   math_score ~ catholic,
@@ -210,10 +205,6 @@ income_c = +4.695e−06: higher income → higher scores (very significant)
 
 2. The DIM estimate have a small positive difference (0.0566 SD). After adjusting for confounders, we see a different magnitude. The results become negative and statistically signifigant (−0.138 SD). 
 
-
-
-
-
 3. Looking at income we see that the coeffient on X is +4.695. This means that among non-Catholic students, higher family income is associated with higher math scores. In the interaction term between D x X for income, we see how the income–math slope differs for Catholic students relative to non-Catholic students. This result is -2.397 which is negative and significant. This suggests that the income effect is weaker among Catholic studnets. 
 
 
@@ -238,7 +229,7 @@ Can you interpret the results?
 
 ### Answer
 
-Propsenity Score: 
+Propensity Score: 
 The model says Catholic attendance is not random: it is predictably related to SES and demographics (race, mother’s education, mother’s age, income, and possibly mobility). Thus, to derive an accurate estimate, we need to use propensity-score methods or regression adjustment since selection into Catholic school is related to variables that also plausibly affect math scores. 
 
 Each coefficient in log(OR) column is the change in log-odds of attending a Catholic school, holiding the other confounders fixed. For example, Being white is associated with higher odds of attending a Catholic school. To convert this into an odds ration we raise Euler's number (e), to the exponent 0.30 from the table to derive the odds ratio equal to 1.35. Applying the same procedure, we can interpret each regressor as the following: 
@@ -264,8 +255,27 @@ exam_df |> mutate(
 
 ### Answer
 
-...
+1. We will create a boxplot of 'p_hat' grouped by 'catholic' treatment variable to examine the distributions. 
 
+```{r}
+
+ggplot(exam_df, aes(x = catholic, y = p_hat, fill = catholic)) +
+  geom_boxplot(alpha = 0.7) +
+  theme_minimal() +
+  labs(
+    title = "Distribution of Propensity Scores by School Type",
+    subtitle = "Predicted probability of attending a Catholic school",
+    x = "Attends Catholic School (1 = Yes)",
+    y = "Propensity Score (p_hat)",
+    fill = "Catholic"
+  ) +
+  scale_fill_manual(values = c("#E41A1C", "#377EB8"))
+
+```
+
+The output displays two boxplots based on treatment status (red denotes the non Catholic school group, and blue the Catholic school group).
+
+2. Yes, the overlap condition appears to hold based on the distribution of propensity scores. Both groups occupy a very similar range of propensity scores, roughly between 0.05 and 0.45, and there is a significant overlap in the boxes (the middle 50% of the data) between approximately 0.15 and 0.22. This indicates that for many students in the Catholic school group, there are "comparable" students in the public school group who had a similar probability of attending a Catholic school based on their background. There are also no wide regions where propensity scores exist for one group but are completely absent for the other. While the public school group has a few higher-probability outliers reaching up to 0.53, the Catholic group also has density across that general upper range.
 
 ## Covariate balance
 
@@ -294,8 +304,28 @@ This output does not look as nice as our usual tabular output, which is fine for
 
 ### Answer
 
-...
+1. From the balance table, we can see how well Inverse Probability Weighting (IPW) has leveled the playing field between Catholic and non-Catholic school students.The table compares the Unadjusted Difference (Diff.Un) to the Adjusted Difference (Diff.Adj) for each covariate. These differences are typically expressed as standardized mean differences (SMD). 
 
+For every single confounder, the difference between the two groups has shrunk dramatically. For example, the difference in income dropped from 0.4817 to 0.1049, and mother's education dropped from 0.1869 to 0.0358. In causal inference, a standardized difference below 0.10 is generally considered a sign of good balance. After adjustment, almost all variables (white, mother's education, and number of places) are well below this threshold. The variables 'income' and 'mum_age' remain slightly above or right at the 0.10 threshold (0.1049 and 0.0981 respectively). While much better than the unadjusted state, it suggests that even with weighting, some very slight differences in socioeconomic status remain between the groups.
+
+The "Distance" measure represents the overall summary of balance across all covariates. It fell from 0.5613 to 0.0666, indicating that the weighted pseudo-population of public school students now looks very similar to the weighted pseudo-population of Catholic school students.
+
+2. We will construct a 'love.plot' to visualize the balance of the covariates across the two groups before and after reweighting. This plot is a specialized dot plot used to visualize how well a matching or weighting procedure balanced the covariates between the treatment and control groups. It displays the Standardized Mean Difference (SMD) for each variable before and after adjustment, allowing you to see if the weighted groups are comparable.
+
+```{r}
+library(cobalt)
+
+love.plot(W, thresholds = c(m = 0.1), binary = "std", abs = TRUE, 
+          un = TRUE, var.order = "unadjusted", limits = c(0, 1))
+```
+
+This code prints a plot with absolute SMD against the propensity score and confounders on the y axis, for the unadjusted and adjusted samples. 
+
+3. The unadjusted sample had significant imbalances, particularly in income (0.48) and mother's age (0.37). In the plot, all the solid blue dots for the Adjusted sample have moved dramatically toward zero, indicating a large reduction in bias.
+
+All adjusted covariates now are also at or fall below the 0.1 threshold (the vertical dashed line). This is the gold standard in causal inference, indicating that we have successfully created a "pseudo-population" where the treatment and control groups are balanced across all measured confounders.
+
+The best balanced variables are 'n_places' and 'white', as they are nearly perfectly balanced, sitting closest to the zero line. Even income, which was the most unbalanced variable initially, has been brought within acceptable limits.
 
 ## IPW estimator
 
@@ -305,8 +335,21 @@ Interpret the finding.
 
 ### Answer
 
-...
+Lastly, we will compute the IPW estimator using the 'lm_weightit' function and save as 'exam_ipw'. 
 
+```{r}
+# Estimate the IPW model
+exam_ipw <- lm_weightit(
+  math_score ~ catholic, 
+  data = exam_df, 
+  weightit = W
+)
+
+# Print results
+summary(exam_ipw)
+```
+
+The coefficient for 'catholic1' is -0.1007. This represents the ATE. On average, attending a Catholic school causes a student's math score to drop by approximately 0.10 standard deviations compared to what they would have scored in a public school. With a p-value of 0.00245, this result is highly statistically significant. We can confidently reject the null hypothesis that Catholic schooling has no effect on math scores. The Standard Error (0.03324) is robust, meaning the model has accounted for the fact that the weights themselves were estimated in a previous step.
 
 ## Conclusion
 
@@ -315,7 +358,11 @@ What do you conclude about the effect of attending a Catholic school?
 
 ### Answer
 
-...
+The Naive regression suggested there was no real difference between the schools. However, our earlier analysis showed that Catholic school students have a significant head start due to factors like higher family income and maternal education. The fact that they were only scoring the same as public school students was actually a red flag that the school's added value might be lower than expected.
+
+Both the Linear Regression Adjustment and the IPW Estimator yield very similar results (~ -0.10 to -0.11). The linear Regression assumes that the relationship between math scores and income/education is a straight line. IPW is more robust because it doesn't make that strict "straight line" assumption; instead, it re-weights the data so we are comparing students who had a similar probability of attending either school. The fact that both results align reinforces the finding: when you compare a Catholic school student to a demographically identical public school student, the public school student performs better.
+
+Based on these results, we conclude that attending a Catholic school has a statistically significant negative effect on math scores (approximately -0.10 standard deviations). The initial appearance of "equality" between the two school types was created by positive selection bias. Catholic schools enroll students who are predisposed to do well because of their home environment. Once you use Propensity Score Weighting to remove that environmental advantage, the school effect itself is revealed to be negative.
 
 
 # Lalonde
@@ -348,8 +395,94 @@ Based on the table above:
 
 ### Answer
 
-...
+1. To analyze the effect of the National Supported Work (NSW) program on 1978 earnings 're78', we will choose education 'educ' (years of education), race 'race' (black/hispanic/white), and 1974 earnings 're74' as our three confounders.  
 
+2. Next, we'll repeat the steps we took in the previous part to analyze the effect of the NSW program on earnings. 
+
+Starting with summary statistics, we've already printed the descriptive table above, which shows that there is quite a lot of imbalance. Some discrepancies to note are that the treated group is 84% Black (vs. 20% control) and had much lower earnings in 1974, more controls are married (51%) vs. only 19% of treated, and more treated lack a degree (71%) compared to controls (60%). 
+
+The naive regression ignores these differences. We will use 'lm_robust' to calculate the DIM without any adjustment for covariates. 
+
+```{r}
+# Naive Model
+naive_mod <- lm_robust(re78 ~ treat, data = nsw_df)
+summary(naive_mod)
+```
+
+The coefficient is -635. This means that, on average, participants in the program earned $635 less in 1978 than those who did not participate. The p-value is 0.3488, which is much higher than the standard 0.05 threshold. This tells us the negative effect is not statistically significant. Just from looking at these results, one would likely conclude that the program did nothing or was even slightly harmful. However, we know from the summary table that the treated group started with $0 earnings in 1974, while the control group started with over $2,500. The model is currently comparing treatment and control groups that are not similar in background characteristics, introducing bias. 
+
+Now we can add our three confounders to the model to see if the program effect changes. 
+
+```{r}
+# 1. Clean data (drop missing values)
+nsw_df_clean <- nsw_df |> 
+  drop_na(re78, treat, educ, race, re74)
+
+# 2. Run the Regression Adjustment
+# R will automatically create the 'black' and 'hispan' indicators for you
+nsw_ra <- lm_lin(
+  re78 ~ treat, 
+  covariates = ~ educ + race + re74, 
+  data = nsw_df_clean
+)
+
+summary(nsw_ra)
+```
+
+The estimate for treat changed from -$635 to +$797.80. This confirms that the initial negative result was due to selection bias. The program wasn't making people earn less; it was simply working with people who started with much less (like the $0 earnings in 1974). Even though the estimate is now positive, the p-value is 0.4522, which is still not significant at the 0.05 level. This suggests that while the program likely helped, there is a lot of "noise" or variation in how much individuals benefited. Additionally, 're74_c' (centered 1974 earnings) is a massive predictor of 1978 earnings (p-value near zero). 
+
+Next we will run a logit model to predict the probability of being treated based on our confounders.
+
+```{r}
+m_ps <- glm(treat ~ educ + race + re74, 
+            family = binomial(), 
+            data = nsw_df)
+
+summary(m_ps)
+
+# Save propensity scores (p_hat)
+nsw_df <- nsw_df |> 
+  mutate(p_hat = predict(m_ps, type = "response"))
+```
+
+From the summary of 'm_ps', we see that participation was much more likely among Black men and those with low pre-treatment earnings, even after conditioning on education (for example, White men had about 96% lower odds (1- exp(-3.209)) of participating in the program than Black men with the same education and 1974 earnings). This strong selection into treatment explains why naive estimates of program effects are biased and motivates adjustment using the propensity score.
+
+We visualize the distribution of these probabilities to ensure the Overlap condition holds.
+
+```{r}
+ggplot(nsw_df, aes(x = factor(treat), y = p_hat, fill = factor(treat))) +
+  geom_boxplot() +
+  labs(title = "Propensity Score Distribution (NSW Data)",
+       x = "Treatment (NSW Program)", y = "Propensity Score")
+```
+
+The median propensity score for the control group is near 0.1, while for the treated group, it's above 0.6. This means the model can very easily distinguish who was likely to be in the program based on their background (race, education, and the $0 income in 1974). Looking at the outliers, we see there are people in the control group with scores as high as 0.75, and people in the treated group with scores as low as 0.05. The overlap is not perfect but acceptable, many control units have propensity scores below or around the lower end of the treated scores, but there is enough intersection that weighting methods can work. To make these groups comparable, IPW is going to take those few control participants with high propensity scores (the ones who look most like the participants) and give them more weight in the final model.
+
+Next, we use WeightIt to balance the groups and check if the adjusted variables move toward zero.
+
+```{r}
+W <- weightit(treat ~ educ + race + re74, data = nsw_df, method = "glm", estimand = "ATE")
+
+bal <- bal.tab(W, un = TRUE)
+
+print(bal)
+
+love.plot(W, thresholds = c(m = 0.1), binary = "std", abs = TRUE, 
+          un = TRUE, var.order = "unadjusted", limits = c(0, 1))
+```
+
+The love plot shows massive imbalances for 'prop.score', 'race_black', 'race_white', and re74 (when unadjusted, denoted in red), all exceeding the 0.1 threshold. The adjusted points (in blue) show that weighting successfully pulled covariates near or below the typical balance threshold of 0.1, indicating good balance. 're74' is around 0.3, suggesting that earnings still differ somewhat after weighting, but is far less than before. Therefore covariates are greatly improved, creating a much fairer comparison.
+
+Lastly, we use 'lm_weightit' to see if the weighting confirms the positive effect we saw in the lm_lin model ($797.80).
+
+```{r}
+nsw_ipw <- lm_weightit(re78 ~ treat, data = nsw_df, weightit = W)
+summary(nsw_ipw)
+```
+
+This is the ATE. It suggests that, after balancing the groups on education, race, and 1974 earnings, participating in the NSW program is associated with a $505.70 increase in 1978 earnings. However, with a p-value well above 0.05, this specific estimate is not statistically significant. This means that while the best guess is a positive effect, we can't rule out that the difference is due to random chance within this specific sample. The standard error is quite large relative to the estimate, which explains the high p-value. This may be the case because the weights are large (due to the lack of perfect overlap we saw in the boxplots).
+
+To conclude, in the Naive model, the program looked like it was failing because it targeted the most disadvantaged men (those with $0 earnings in 1974). Once we accounted for those starting differences—either through Lin's Regression (lm_lin) or Weighting (IPW)—the sign of the effect flipped from negative to positive. The fact that both advanced causal methods show a positive effect (between $500 and $800) provides evidence that the program may be beneficial, however, this estimate is not statistically significant (p = 0.531), indicating insufficient evidence to conclude a meaningful impact of the program on earnings in this sample (this could be due to variability in weights and the realtively small sample size).
 
 {{< pagebreak >}}
 
