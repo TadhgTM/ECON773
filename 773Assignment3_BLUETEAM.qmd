@@ -36,8 +36,10 @@ Make sure that they are installed, or use `install.packages` to install them.
 The following code block makes sure these packages are available below, without adding to your page count.
 
 ```{r}
+#| eval: false
 install.packages("WeightIt")
-#| include: false
+```
+```{r}
 library(tidyverse)
 library(haven)
 library(gt)
