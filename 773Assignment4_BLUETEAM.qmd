@@ -1,0 +1,290 @@
+---
+title: "ECON 773: Assignment 4"
+author: "The BLUE Team, Jeneta Ljutic (400138620), Tadhg Taylor-McGreal (400330297), Stella Till (400364649)"
+date: "Febuary 11"
+format:
+  typst: 
+    toc: TRUE
+---
+
+{{< pagebreak >}} 
+
+# Preface
+
+## Goal
+
+The goals of this assignment are to:
+
+- use difference-in-differences methods to analyze treatments with unobserved confounders
+- practice DiD mechanics
+- review IV mechanics and interpretation
+
+## Instructions
+
+See assignment 1.
+
+We will use the same tools as in Assignments 1--3:
+
+- `tidyverse` for data manipulation and plotting
+- `haven` to load Stata data files
+- `gt` and `gtsummary` for tables
+- `estimatr` for regression (`lm_robust`)
+
+```{r}
+#| include: false
+library(tidyverse)
+library(haven)
+library(gt)
+library(gtsummary)
+library(estimatr)
+```
+
+{{< pagebreak >}} 
+
+# Card and Krueger (1994)
+
+You will replicate [Card and Krueger, AER, 1994](https://davidcard.berkeley.edu/papers/njmin-aer.pdf). The data are in `CK1994.dta`, which is documented in `CK1994_description.pdf`.
+
+Some context:
+
+- On April 1, 1992, the minimum wage in New Jersey rose from USD 4.25 to USD 5.05, while Pennsylvania’s minimum wage stayed at USD 4.25.
+- The original survey was conducted in February 1992 (pre) and November 1992 (post), covering 331 restaurants in NJ and 79 in PA.
+- We use a long-format panel with two rows per restaurant and therefore cluster by `store`.
+
+```{r}
+ck_df <- read_dta("CK1994.dta") |>
+  as_tibble() |>
+  mutate(
+    nj = state == 1,
+    post = time == 1,
+    emp_fte = empft + 0.5 * emppt + nmgrs,
+    pmeal = meals
+  ) |> 
+  mutate(
+    state = if_else(nj, "New Jersey", "Pennsylvania"),
+    chain = as_factor(chain)
+  )
+```
+
+Note: 
+
+- `mutate(...)` creates a few convenience variables we’ll use throughout:
+  - `nj`: `TRUE` for New Jersey restaurants (`state == 1`), `FALSE` for Pennsylvania.
+  - `post`: `TRUE` for the post-policy survey wave (`time == 1`), `FALSE` for pre (`time == 0`).
+  - `emp_fte`: a "full-time equivalent" employment measure: full-time workers (`empft`) + half of part-time workers (`0.5 * emppt`) + managers (`nmgrs`).
+  - `pmeal`: the meal price variable
+
+## Restaurant chains
+
+For each state, calculate the percentage of Burger King, KFC, Roys, and Wendys in the sample. Is the distribution of restaurant chains comparable across the two states?
+
+### Answer
+
+...
+
+
+## Wage change
+
+Compute the average wage in each state, before and after the minimum wage increase. What does this suggest about the adoption of the minimum-wage policy in NJ?
+
+### Answer
+
+...
+
+
+## DiD for wages
+
+Calculate the DiD estimate for wages manually. Then compute the same estimate using `lm_robust`. Interpret the result.
+
+### Answer
+
+...
+
+
+## Employment effect
+
+Repeat the analysis for employment. Use `emp_fte` (full-time equivalent) as the outcome. Interpret the DiD estimate.
+
+### Answer
+
+...
+
+
+## Interpreting DiD
+
+Under what conditions does this estimate identify the ATT? Do we have any suggestive evidence to support or refute these conditions? Why can we not run a pre-trend test in this application? What would we need to test pre-trends?
+
+### Answer
+
+...
+
+
+## Meal prices
+
+Compute the DiD estimator for the average meal price (`pmeal`). Do restaurants subject to the wage increase raise prices?
+
+### Answer
+
+...
+
+
+## Another outcome
+
+Open `CK1994_description.pdf` and choose another outcome variable (other than wages, employment, or meal prices). Describe the variable and run a DiD analysis for it. Interpret your result.
+
+### Answer
+
+...
+
+
+{{< pagebreak >}} 
+
+# Dinas et al. (2018)
+
+You will replicate some findings from [Dinas et al. (2018)](https://www.cambridge.org/core/journals/political-analysis/article/waking-up-the-golden-dawn-does-exposure-to-the-refugee-crisis-increase-support-for-extremeright-parties/C50A127CC517968F2D0FA42A2A23FF85).
+The data are in `dinas_golden_dawn.Rdata`, via [Harvard dataverse](https://doi.org/10.7910/DVN/3IWTGB).
+
+Context (via [de Rosemont](https://uclspp.github.io/PUBL0050/5-panel-data-and-difference-in-differences.html#refugees-and-support-for-the-far-right-dinas-et.-al.-2018)):
+
+- The setting is Greece during the 2015 refugee crisis, when islands closer to the Turkish coast experienced sudden and unexpected increases in refugee inflows during summer 2015 while other nearby islands saw much smaller inflows.
+- Research question: what is the causal effect of refugee arrivals on support for the far-right Golden Dawn party?
+- Outcome: municipal vote share for Golden Dawn (`gdvote`) in national elections.
+- Identification approach: a DiD comparing treated vs. control municipalities before vs. after the crisis, with the paper focusing on the September 2015 election.
+- Timing: in this file, all elections up to and including 2015 are treated as pre, and the 2016 election is treated as post.
+- Data: 96 municipalities observed in 2012, 2013, 2015, and 2016; we compare exposed vs. non-exposed municipalities before and after 2015.
+- Treatment coding in this file: `treatment` equals 1 only for treated municipalities in 2016 (post), and 0 otherwise; `ever_treated` is 1 for treated municipalities in all years.
+
+Start by loading the data:
+
+```{r}
+load("dinas_golden_dawn.Rdata")
+dinas_df <- as_tibble(muni)
+```
+
+Key variables:
+
+- `treatment`: equals 1 if the observation is treated and in the post period (2016), 0 otherwise
+- `ever_treated`: equals `TRUE` for treated municipalities in all periods, `FALSE` for controls
+- `trarrprop`: per-capita refugee arrivals
+- `gdvote`: Golden Dawn vote share
+- `year`: election year (2012, 2013, 2015, 2016)
+
+## Mapping variables to DiD notation
+
+Which variable corresponds to $D_i$?
+Which corresponds to $Y_{it}$?
+Is this a panel or repeated cross-section?
+
+### Answer
+
+...
+
+
+## Refugee inflows
+
+Use `trarrprop` to document that treated municipalities experienced larger refugee inflows.
+
+### Answer
+
+...
+
+
+## Naive post-period comparison
+
+Using only 2016, compare Golden Dawn vote shares between treated and control municipalities.
+Does this estimate have a causal interpretation?
+
+### Answer
+
+...
+
+
+## DiD (2015 vs 2016)
+
+Compute the DiD estimate comparing 2015 (pre) and 2016 (post).
+Do it manually and via regression.
+
+### Answer
+
+...
+
+
+## Plotting trends
+
+Plot mean `gdvote` for treated and control municipalities across all years. What do you conclude about parallel trends?
+
+### Answer
+
+...
+
+
+## Placebo DiD (2012 vs 2013)
+
+Run a placebo DiD using 2012 and 2013. 
+That means running a DiD using 2012 as pre and 2013 as post.
+What do you find?
+How do you interpret this result?
+
+### Answer
+
+...
+
+
+## Two-way fixed effects
+
+Estimate a TWFE regression using all years. Interpret the coefficient on `treatment`.
+
+### Answer
+
+...
+
+
+## Instrumental variables approach
+
+The paper also uses a cross-sectional IV design. Key points from that setup:
+
+- One observation per municipality (no time dimension in this file); 96 municipalities total.
+- Outcome: change in Golden Dawn vote share between the January and September 2015 elections.
+- Instrument: log distance to the Turkish coast, used to instrument for refugee inflows.
+- First-stage intuition: municipalities closer to the Turkish coast saw larger refugee inflows.
+- Variables in this file:
+  - `treatment` (binary high exposure)
+  - `trarrprop` (arrivals per capita)
+  - `gdvote_change` (Jan–Sept 2015 change)
+  - `logdist` (log distance to coast)
+
+The data are in `dinas_golden_dawn_iv.Rdata`.
+
+```{r}
+load("dinas_golden_dawn_iv.Rdata")
+iv_df <- as_tibble(muni)
+```
+
+## First stage
+
+Estimate the first-stage relationship between the instrument and treatment.
+
+### Answer
+
+...
+
+
+## 2SLS
+
+Use `iv_robust` to estimate the causal effect of refugee exposure on vote share change. Do this for both the binary and continuous treatment measures. Interpret the coefficients and compare them to the DiD estimates above.
+
+### Answer
+
+...
+
+
+## IV assumptions
+
+1. State the exclusion restriction for `logdist`.
+2. Is it plausible in this setting?
+
+### Answer
+
+...
+
+
