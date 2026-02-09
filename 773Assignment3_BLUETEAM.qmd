@@ -582,7 +582,7 @@ summary(first_stage)
 
 ```{r}
 hajj_df <- hajj_df |> 
-  mutate(hajj_hat = predict(first_stage))
+  mutate(hajj_hat = predict(first_stage, newdata = hajj_df))
 ```
 
 ## Intention to treat
