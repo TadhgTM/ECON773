@@ -176,7 +176,7 @@ Interpret the result.
 - **`mum_age`:** Mothers of Catholic school students are older by approximately 2 years (40 vs. 38 years).
 - **`mum_educ_high`:** Catholic school students are more likely to have highly educated mothers (79% vs. 61%). Both maternal age and education could serve as proxies for family stability.
 - **`n_places`:** The majority of students in both groups have lived in one place, though this is slightly more likely for Catholic school students (93% vs. 91%).
-- **`income`:** Catholic school families have substantially higher incomes—median income of \$87,501 compared to \$62,501.
+- **`income`:** Catholic school families have substantially higher incomes, median income of \$87,501 compared to \$62,501.
 
 These imbalances suggest that Catholic school students come from more advantaged backgrounds, motivating the need for regression adjustment or propensity score methods to address selection bias.
 
@@ -212,9 +212,9 @@ summary(exam_ra)
 - **`n_places_c` = −0.0736:** More residential moves are associated with lower scores (marginal; $p \approx 0.068$).
 - **`income_c` = +4.695e−06:** Higher income is associated with higher scores (highly significant).
 
-2. **Comparison with `exam_ols`:** The naive DIM estimate showed a small positive difference (+0.0566 SD). After adjusting for confounders, the estimate becomes negative and statistically significant (**−0.138 SD**). This sign reversal indicates that the raw positive association was driven entirely by selection bias—Catholic school students come from more advantaged backgrounds, which inflated their apparent performance.
+2. **Comparison with `exam_ols`:** The naive DIM estimate showed a small positive difference (+0.0566 SD). After adjusting for confounders, the estimate becomes negative and statistically significant (**−0.138 SD**). This sign reversal indicates that the raw positive association was driven entirely by selection bias, Catholic school students come from more advantaged backgrounds, which inflated their apparent performance.
 
-3. **Income ($X$ = `income`):** The coefficient on $X$ is +4.695e−06. This means that among non-Catholic students, higher family income is associated with higher math scores. The interaction term $D \times X$ for income is −2.397e−06, which is negative and significant. This suggests that the income–math score relationship is **weaker** among Catholic students—possibly because Catholic schools provide a more uniform educational environment that partially compensates for income differences.
+3. **Income ($X$ = `income`):** The coefficient on $X$ is +4.695e−06. This means that among non-Catholic students, higher family income is associated with higher math scores. The interaction term $D \times X$ for income is −2.397e−06, which is negative and significant. This suggests that the income–math score relationship is **weaker** among Catholic students, possibly because Catholic schools provide a more uniform educational environment that partially compensates for income differences.
 
 
 ## Propensity score
@@ -240,7 +240,7 @@ Can you interpret the results?
 
 **Propensity Score Interpretation:**
 
-The logit model reveals that Catholic school attendance is **not random**—it is predictably related to socioeconomic status and demographics. This confirms that selection into Catholic school is correlated with variables that also plausibly affect math scores, motivating the need for propensity-score methods or regression adjustment.
+The logit model reveals that Catholic school attendance is **not random**, it is predictably related to socioeconomic status and demographics. This confirms that selection into Catholic school is correlated with variables that also plausibly affect math scores, motivating the need for propensity-score methods or regression adjustment.
 
 Each coefficient in the log(OR) column represents the change in log-odds of attending a Catholic school, holding the other confounders fixed. Converting to odds ratios:
 
@@ -392,11 +392,11 @@ What do you conclude about the effect of attending a Catholic school?
 | Regression Adjustment (`lm_lin`) | −0.138 SD | Yes |
 | IPW (`lm_weightit`) | −0.101 SD | Yes |
 
-The naive regression suggested no meaningful difference between Catholic and public schools. However, our covariate balance analysis revealed that Catholic school students come from substantially more advantaged backgrounds—higher family income, more educated mothers, and greater residential stability. The fact that these students were only marginally outperforming their public school peers, despite these advantages, already hinted that the school's added value might be lower than expected.
+The naive regression suggested no meaningful difference between Catholic and public schools. However, our covariate balance analysis revealed that Catholic school students come from substantially more advantaged backgrounds, higher family income, more educated mothers, and greater residential stability. The fact that these students were only marginally outperforming their public school peers, despite these advantages, already hinted that the school's added value might be lower than expected.
 
 After adjustment, both the regression adjustment and IPW estimator yield similar negative estimates (approximately **−0.10 to −0.14 SD**). The regression adjustment assumes a linear relationship between math scores and confounders; IPW is more flexible, re-weighting the data so that we compare students with similar propensities of attending either school type. The convergence of both methods reinforces the finding.
 
-**Conclusion:** Attending a Catholic school has a **statistically significant negative effect** on math scores (approximately −0.10 SD). The initial appearance of equality between school types was driven by **positive selection bias**—Catholic schools enroll students predisposed to perform well due to their home environment. Once we remove that environmental advantage through regression adjustment or propensity score weighting, the school effect itself is revealed to be negative.
+**Conclusion:** Attending a Catholic school has a **statistically significant negative effect** on math scores (approximately −0.10 SD). The initial appearance of equality between school types was driven by **positive selection bias**, Catholic schools enroll students predisposed to perform well due to their home environment. Once we remove that environmental advantage through regression adjustment or propensity score weighting, the school effect itself is revealed to be negative.
 
 
 # Lalonde
@@ -448,7 +448,7 @@ naive_mod <- lm_robust(re78 ~ treat, data = nsw_df)
 summary(naive_mod)
 ```
 
-**Interpretation:** The coefficient is **−$635**. On average, participants in the program earned $635 less in 1978 than non-participants. The $p$-value is 0.3488—far above 0.05—so this negative effect is not statistically significant. Based on these results alone, one might conclude the program was ineffective or even harmful. However, the summary table reveals that the treated group started with $0 earnings in 1974, while the control group started with over $2,500. The naive model is comparing fundamentally dissimilar groups, introducing substantial bias.
+**Interpretation:** The coefficient is **−$635**. On average, participants in the program earned $635 less in 1978 than non-participants. The $p$-value is 0.3488, far above 0.05, so this negative effect is not statistically significant. Based on these results alone, one might conclude the program was ineffective or even harmful. However, the summary table reveals that the treated group started with $0 earnings in 1974, while the control group started with over $2,500. The naive model is comparing fundamentally dissimilar groups, introducing substantial bias.
 
 **Step 2 — Regression adjustment:**
 
@@ -467,7 +467,7 @@ nsw_ra <- lm_lin(
 summary(nsw_ra)
 ```
 
-**Interpretation:** The estimate for `treat` changed from **−$635 to +$797.80**. This sign reversal confirms that the initial negative result was driven entirely by selection bias—the program was not making people earn less; it was simply targeting individuals who started with far less (e.g., $0 earnings in 1974). However, the $p$-value is 0.4522, still not significant at the 0.05 level. This suggests that while the program likely helped, there is substantial variation in how much individuals benefited. Additionally, `re74_c` (centered 1974 earnings) is a strong predictor of 1978 earnings ($p$-value near zero).
+**Interpretation:** The estimate for `treat` changed from **−$635 to +$797.80**. This sign reversal confirms that the initial negative result was driven entirely by selection bias, the program was not making people earn less; it was simply targeting individuals who started with far less (e.g., $0 earnings in 1974). However, the $p$-value is 0.4522, still not significant at the 0.05 level. This suggests that while the program likely helped, there is substantial variation in how much individuals benefited. Additionally, `re74_c` (centered 1974 earnings) is a strong predictor of 1978 earnings ($p$-value near zero).
 
 **Step 3 — Propensity score estimation:**
 
@@ -502,7 +502,7 @@ ggplot(nsw_df, aes(x = factor(treat), y = p_hat, fill = factor(treat))) +
 **Key observations:**
 
 - Some control units have propensity scores as high as 0.75, and some treated units as low as 0.05.
-- The overlap is **not perfect but acceptable**—there is enough intersection for weighting methods to function.
+- The overlap is **not perfect but acceptable**, there is enough intersection for weighting methods to function.
 - IPW will upweight the control participants with high propensity scores (those most similar to the treated group) to create a fairer comparison.
 
 **Step 5 — Covariate balance and love plot:**
@@ -520,7 +520,7 @@ love.plot(W, thresholds = c(m = 0.1), binary = "std", abs = TRUE,
           un = TRUE, var.order = "unadjusted", limits = c(0, 1))
 ```
 
-**Interpretation:** The love plot shows massive unadjusted imbalances (red) for `prop.score`, `race_black`, `race_white`, and `re74`, all exceeding the 0.10 threshold. After weighting, the adjusted points (blue) are pulled near or below the balance threshold, indicating improved balance. The variable `re74` remains around 0.3—earnings still differ somewhat after weighting, though far less than before. Overall, covariates are greatly improved, creating a much fairer comparison.
+**Interpretation:** The love plot shows massive unadjusted imbalances (red) for `prop.score`, `race_black`, `race_white`, and `re74`, all exceeding the 0.10 threshold. After weighting, the adjusted points (blue) are pulled near or below the balance threshold, indicating improved balance. The variable `re74` remains around 0.3, earnings still differ somewhat after weighting, though far less than before. Overall, covariates are greatly improved, creating a much fairer comparison.
 
 **Step 6 — IPW estimator:**
 
@@ -531,7 +531,7 @@ nsw_ipw <- lm_weightit(re78 ~ treat, data = nsw_df, weightit = W)
 summary(nsw_ipw)
 ```
 
-**Interpretation:** The coefficient on `treat` is **+$505.70**, representing the ATE. After balancing the groups on education, race, and 1974 earnings, participating in the NSW program is associated with a $505.70 increase in 1978 earnings. However, the $p$-value is well above 0.05, so this estimate is not statistically significant. The standard error is large relative to the estimate—likely because the weights are variable (a consequence of the imperfect overlap observed in the boxplots).
+**Interpretation:** The coefficient on `treat` is **+$505.70**, representing the ATE. After balancing the groups on education, race, and 1974 earnings, participating in the NSW program is associated with a $505.70 increase in 1978 earnings. However, the $p$-value is well above 0.05, so this estimate is not statistically significant. The standard error is large relative to the estimate, likely because the weights are variable (a consequence of the imperfect overlap observed in the boxplots).
 
 **Conclusion:**
 
@@ -541,7 +541,7 @@ summary(nsw_ipw)
 | Regression Adjustment (`lm_lin`) | +$797.80 | No |
 | IPW (`lm_weightit`) | +$505.70 | No |
 
-In the naive model, the program appeared to be failing because it targeted the most disadvantaged men (those with $0 earnings in 1974). Once we accounted for those starting differences—either through Lin's regression or IPW—the sign of the effect flipped from negative to positive. The convergence of both methods on a positive estimate (between $500 and $800) provides evidence that the program may be beneficial. However, neither estimate is statistically significant ($p = 0.531$), indicating insufficient evidence to conclude a meaningful impact in this sample. This is likely attributable to variability in the IPW weights and the relatively small sample size.
+In the naive model, the program appeared to be failing because it targeted the most disadvantaged men (those with $0 earnings in 1974). Once we accounted for those starting differences, either through Lin's regression or IPW, the sign of the effect flipped from negative to positive. The convergence of both methods on a positive estimate (between $500 and $800) provides evidence that the program may be beneficial. However, neither estimate is statistically significant ($p = 0.531$), indicating insufficient evidence to conclude a meaningful impact in this sample. This is likely attributable to variability in the IPW weights and the relatively small sample size.
 
 {{< pagebreak >}}
 
@@ -608,14 +608,14 @@ hajj_df |> tbl_cross(row = success, col = hajj2006)
 
 - **Compliers**: People who go on Hajj if and only if they win the lottery. Their behavior is determined entirely by the instrument. This is the population for whom the LATE applies.
 
-- **Defiers**: People who would go if they *lose* but not if they *win*. This is logically implausible in the Hajj context—why would winning discourage someone from going? The monotonicity assumption rules these out.
+- **Defiers**: People who would go if they *lose* but not if they *win*. This is logically implausible in the Hajj context, why would winning discourage someone from going? The monotonicity assumption rules these out.
 
 4. **Estimating compliance types:**
 
-- **Never-takers among winners**: Very few—only 0.82% (7/855) won but didn't go. This implies the share of never-takers is very low.
+- **Never-takers among winners**: Very few, only 0.82% (7/855) won but didn't go. This implies the share of never-takers is very low.
 - **Always-takers**: 13.73% (103/750) lost but went anyway. This is moderate but not extremely high.
 - **Compliers**: The vast majority! Among winners, 99.2% went. Among losers, 86.3% didn't go. The first-stage coefficient (≈ 0.85) tells us that about 85% of the sample are compliers.
-- **Defiers**: Under the monotonicity assumption, we assume there are none. This is plausible—there is no logical reason why winning a Hajj lottery would *discourage* pilgrimage.
+- **Defiers**: Under the monotonicity assumption, we assume there are none. This is plausible, there is no logical reason why winning a Hajj lottery would *discourage* pilgrimage.
 
 ## First-stage regression
 
@@ -633,7 +633,7 @@ first_stage <- lm_robust(hajj2006 ~ success, data = hajj_df)
 summary(first_stage)
 ```
 
-2. **Consistency with contingency table:** Yes, the results align perfectly. The intercept (0.137) represents $P(D=1|Z=0)$—the probability of going on Hajj among lottery losers. This matches our calculated 103/750 = 13.73%. The coefficient on `success` (0.855) represents the *increase* in probability of going when you win the lottery. This means $P(D=1|Z=1) = 0.137 + 0.855 = 0.992$, or about 99.2%, matching our 848/855 from the table.
+2. **Consistency with contingency table:** Yes, the results align perfectly. The intercept (0.137) represents $P(D=1|Z=0)$, the probability of going on Hajj among lottery losers. This matches our calculated 103/750 = 13.73%. The coefficient on `success` (0.855) represents the *increase* in probability of going when you win the lottery. This means $P(D=1|Z=1) = 0.137 + 0.855 = 0.992$, or about 99.2%, matching our 848/855 from the table.
 
 3. **Is the instrument weak?** Absolutely not! The F-statistic is approximately 4,354, which is astronomically higher than the rule-of-thumb threshold of 10 (or even the stricter threshold of ~104.7 suggested by a some recent literature). The t-statistic on `success` is about 66. This is one of the strongest first-stage relationships you will ever see. The lottery is an *excellent* instrument.
 
@@ -665,7 +665,7 @@ To assess economic significance, we compare to the outcome's standard deviation:
 sd(hajj_df$moderacy)
 ```
 
-The standard deviation is approximately 0.69. The ITT effect of 0.107 represents about 0.15 standard deviations (0.107/0.69 ≈ 0.155). This is a modest but meaningful effect—roughly 15% of a standard deviation shift toward more moderate views.
+The standard deviation is approximately 0.69. The ITT effect of 0.107 represents about 0.15 standard deviations (0.107/0.69 ≈ 0.155). This is a modest but meaningful effect, roughly 15% of a standard deviation shift toward more moderate views.
 
 **Important:** The ITT measures the effect of *being assigned to treatment* (winning the lottery), not the effect of *actually going* on Hajj. Since not everyone who wins goes (and some who lose still go), the ITT understates the effect of actual Hajj participation.
 
@@ -712,7 +712,7 @@ Carefully interpret the 2SLS estimate.
 
 The 2SLS estimate of **0.125** represents the **Local Average Treatment Effect (LATE)** of performing the Hajj pilgrimage on the moderacy index.
 
-**Precise interpretation:** For *compliers*—individuals whose Hajj participation is determined by whether they win the lottery—going on the Hajj increases the moderacy index by 0.125 points (on a 0-4 scale).
+**Precise interpretation:** For *compliers*, individuals whose Hajj participation is determined by whether they win the lottery, going on the Hajj increases the moderacy index by 0.125 points (on a 0-4 scale).
 
 **In context:**
 
@@ -720,7 +720,7 @@ The 2SLS estimate of **0.125** represents the **Local Average Treatment Effect (
 - The moderacy index ranges from 0 to 4, so 0.125 represents a shift of about 3% of the scale's range.
 - This is a substantively meaningful effect: participating in the Hajj leads to measurably more moderate views on Islamic practices.
 
-**Addressing the "mandatory pilgrimage" concern:** Some students worried that because the Hajj is religiously mandated, it might not have an effect. Our evidence suggests otherwise. The Hajj increases moderacy even though it is an obligation. Why? The pilgrimage is a profound, transformative experience—millions of Muslims from diverse backgrounds gathering in unity. This exposure to diversity and the spiritual experience appears to genuinely shift attitudes toward moderation, consistent with the original Clingingsmith et al. (2009) findings.
+**Addressing the "mandatory pilgrimage" concern:** Some students worried that because the Hajj is religiously mandated, it might not have an effect. Our evidence suggests otherwise. The Hajj increases moderacy even though it is an obligation. Why? The pilgrimage is a profound, transformative experience, millions of Muslims from diverse backgrounds gathering in unity. This exposure to diversity and the spiritual experience appears to genuinely shift attitudes toward moderation, consistent with the original Clingingsmith et al. (2009) findings.
 
 **Limitations:**
 
@@ -752,7 +752,7 @@ summary(twosls_cov)
 
 **Interpretation:**
 
-1. The LATE is essentially unchanged (0.123 vs. 0.125 without covariates), indicating the treatment effect estimate is robust to including these controls. This is reassuring—the lottery was truly random, so conditioning on covariates should not change the estimate much.
+1. The LATE is essentially unchanged (0.123 vs. 0.125 without covariates), indicating the treatment effect estimate is robust to including these controls. This is reassuring, the lottery was truly random, so conditioning on covariates should not change the estimate much.
 
 2. Literacy and urban residence both have positive, significant associations with moderacy. Literate respondents score 0.088 points higher on the moderacy index. Urban residents score 0.116 points higher. These may reflect exposure to more diverse ideas and modern interpretations of Islam.
 
@@ -815,7 +815,7 @@ first_stage_sesame <- lm_robust(watched ~ encouraged, data = sesame_df)
 summary(first_stage_sesame)
 ```
 
-The first-stage coefficient is 0.406 (SE = 0.14, p = 0.006). Encouragement increases the probability of watching by about 41 percentage points. The F-statistic is approximately 8.4, which is below the standard threshold of 10 for a strong instrument. This is a concern—the instrument may be somewhat weak, so our standard errors may be slightly understated.
+The first-stage coefficient is 0.406 (SE = 0.14, p = 0.006). Encouragement increases the probability of watching by about 41 percentage points. The F-statistic is approximately 8.4, which is below the standard threshold of 10 for a strong instrument. This is a concer, the instrument may be somewhat weak, so our standard errors may be slightly understated.
 
 **Step 3: Intention to Treat (ITT)**
 
@@ -824,7 +824,7 @@ itt_sesame <- lm_robust(letters ~ encouraged, data = sesame_df)
 summary(itt_sesame)
 ```
 
-The ITT is 11.48 points (SE = 3.30, p = 0.001). Being encouraged to watch Sesame Street increases letter recognition scores by about 11.5 points on average. This is a large effect—about 40% of the control group mean (17 points).
+The ITT is 11.48 points (SE = 3.30, p = 0.001). Being encouraged to watch Sesame Street increases letter recognition scores by about 11.5 points on average. This is a large effect, about 40% of the control group mean (17 points).
 
 **Step 4: 2SLS Estimation**
 
@@ -904,7 +904,7 @@ We do **not** find a statistically significant effect for older boys. The point 
 
 **1. Which are we interested in?**
 
-The primary research question—"Does watching Sesame Street improve educational outcomes?"-is about the effect of **$D$ on $Y$ (LATE)**. We want to know whether the *act of watching* the show improves letter recognition. The LATE (28.28 points for young boys) tells us this.
+The primary research question, "Does watching Sesame Street improve educational outcomes?", is about the effect of **$D$ on $Y$ (LATE)**. We want to know whether the *act of watching* the show improves letter recognition. The LATE (28.28 points for young boys) tells us this.
 
 However, **both** estimates are policy-relevant, depending on the stakeholder.
 
