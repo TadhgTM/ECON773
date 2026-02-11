@@ -569,7 +569,7 @@ summary(first_stage)
 
 2. **Consistency with contingency table:** Yes, the results align perfectly. The intercept (0.137) represents $P(D=1|Z=0)$—the probability of going on Hajj among lottery losers. This matches our calculated 103/750 = 13.73%. The coefficient on `success` (0.855) represents the *increase* in probability of going when you win the lottery. This means $P(D=1|Z=1) = 0.137 + 0.855 = 0.992$, or about 99.2%, matching our 848/855 from the table.
 
-3. **Is the instrument weak?** Absolutely not! The F-statistic is approximately 4,354, which is astronomically higher than the rule-of-thumb threshold of 10 (or even the stricter threshold of ~20 suggested by more recent literature). The t-statistic on `success` is about 66. This is one of the strongest first-stage relationships you will ever see. The lottery is an *excellent* instrument.
+3. **Is the instrument weak?** Absolutely not! The F-statistic is approximately 4,354, which is astronomically higher than the rule-of-thumb threshold of 10 (or even the stricter threshold of ~104.7 suggested by a some recent literature). The t-statistic on `success` is about 66. This is one of the strongest first-stage relationships you will ever see. The lottery is an *excellent* instrument.
 
 4. Adding first-stage predictions to the data:
 
@@ -838,7 +838,7 @@ We do **not** find a statistically significant effect for older boys. The point 
 
 **1. Which are we interested in?**
 
-The primary research question—"Does watching Sesame Street improve educational outcomes?"—is about the effect of **$D$ on $Y$ (LATE)**. We want to know whether the *act of watching* the show improves letter recognition. The LATE (28.28 points for young boys) tells us this.
+The primary research question—"Does watching Sesame Street improve educational outcomes?"-is about the effect of **$D$ on $Y$ (LATE)**. We want to know whether the *act of watching* the show improves letter recognition. The LATE (28.28 points for young boys) tells us this.
 
 However, **both** estimates are policy-relevant, depending on the stakeholder.
 
@@ -869,7 +869,7 @@ However, **both** estimates are policy-relevant, depending on the stakeholder.
 
 {{< pagebreak >}}
 
-# Appendix: Going Above and Beyond
+# Appendix: Going Above and Beyond for Dr. Muris and Keith
 
 This appendix presents advanced extensions to our IV analyses, demonstrating deeper understanding of causal inference methodology and providing additional robustness checks.
 
@@ -888,7 +888,6 @@ We conduct a sensitivity analysis following Conley, Hansen, and Rossi (2012):
 
 ```{r}
 # Assume direct effect of Z on Y is gamma
-
 sensitivity_analysis <- function(gamma_values, data) {
   results <- map_df(gamma_values, function(gamma) {
     # Adjust Y for direct effect of Z
@@ -930,11 +929,10 @@ ggplot(sensitivity_results, aes(x = gamma, y = late)) +
 
 ## A.2 Weak Instrument Diagnostics: Anderson-Rubin Confidence Intervals
 
-The Sesame Street analysis had a relatively weak first stage (F ≈ 8.4). When instruments are weak, standard 2SLS confidence intervals may be unreliable. The Anderson-Rubin (AR) test provides valid inference even with weak instruments.
+The Sesame Street analysis had a relatively weak first stage (F ≈ 8.4). When instruments are weak, standard 2SLS confidence intervals may be unreliable. The Anderson Rubin (AR) test provides valid inference even with weak instruments.
 
 ```{r}
-# Anderson-Rubin confidence set for Sesame Street
-
+# AndersonRubin confidence set for Sesame Street
 anderson_rubin_ci <- function(data, y_var, d_var, z_var, beta_grid, alpha = 0.05) {
   y <- data[[y_var]]
   d <- data[[d_var]]
@@ -1118,16 +1116,16 @@ moderacy_sd <- sd(hajj_df$moderacy)
 effect_in_sd <- hajj_effect / moderacy_sd
 
 # Rough estimates (illustrative)
-hajj_cost_per_person <- 5000  # USD estimate
+hajj_cost_per_person <- 5000  # CAD estimate
 n_pakistani_hajj <- 180000    # Annual Pakistani Hajj pilgrims (approximate)
 
 policy_table <- tibble(
   Metric = c(
     "Effect Size (moderacy points)",
     "Effect Size (standard deviations)",
-    "Approximate cost per pilgrim (USD)",
+    "Approximate cost per pilgrim (CAD)",
     "Annual Pakistani pilgrims",
-    "Total annual program cost (USD millions)",
+    "Total annual program cost (CAD millions)",
     "Moderacy points gained nationally (annual)"
   ),
   Value = c(
@@ -1160,7 +1158,7 @@ This cost-effectiveness explains the long-term success and global expansion of S
 
 ## A.7 Replication Code Summary
 
-For reproducibility, we provide minimal self-contained code to replicate our key findings:
+For reproducibility, we provide self-contained code to replicate our key findings:
 
 ```{r}
 # Load packages
