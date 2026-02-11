@@ -68,12 +68,11 @@ We will use 3rd grade scores on a math test as the outcome that measures student
 exam_df <- exam_df |> mutate(
   math_score = c5r2mtsc_std,
   catholic = factor(catholic),
-  white = factor(race_white),  # is the student white (1) or not (0)
-  mum_age = p5hmage,           # mother's age
+  white = factor(race_white),  
+  mum_age = p5hmage,           
   mum_educ_high = factor(1-w3momed_hsb), 
-    # mother's education, <= high-school (0), >= college (1)
-  n_places = p5numpla, # number of places the student has lived
-  income = w3income,   # family income
+  n_places = p5numpla, 
+  income = w3income,   
   .keep = "none"
   )
 ```
@@ -104,13 +103,19 @@ To inspect the data we use the package "gtsummary". We first indicate the data s
 
 2. Pick one statistic from the resulting table and comment on it.
 
-The sample size is 5,429. 
-Catholic School Attendence: We see that 17 percent of the sample attends a Catholic school. The remainder of the sample does not attend Catholic school. 
-Math score: The mean math score is 17 standard deviations above average. The standard deviation of 0.96 shows substantial variation in achievement across students. This is the outcome variable of interest. 
-White: 67% of studnets are white. 
-Mothers' age: The mean age of mothers' is 38.13. 
-Mothers' edu: 64% of students have a mother with education above high school (3,473), while 36% are high school or less (1,956). This may suggest that the sample is relatively advantaged on parental education, which is strongly related to achievement and may also relate to Catholic school choice.
-n_places: 91% of the sample has lived in one place. This suggests high family stability. 
+**Sample Size** The sample size is 5,429. 
+
+**Catholic School Attendence** We see that 17 percent of the sample attends a Catholic school. The remainder of the sample does not attend Catholic school. 
+
+**Math Score** The mean math score is 17 standard deviations above average. The standard deviation of 0.96 shows substantial variation in achievement across students. This is the outcome variable of interest. 
+
+**White** 67% of studnets are white. 
+
+**Mothers' Age** The mean age of mothers' is 38.13. 
+
+**Mothers' Edu** 64% of students have a mother with education above high school (3,473), while 36% are high school or less (1,956). This may suggest that the sample is relatively advantaged on parental education, which is strongly related to achievement and may also relate to Catholic school choice.
+
+**Residential Moves** 91% of the sample has lived in one place. This suggests high family stability. 
 Income: The mean family income is $68,954.74. 
 
 ## Linear regression
@@ -156,9 +161,7 @@ We can use `tbl_summary` to create a summary table for each value of the treatme
 
 ```{r}
 exam_df |> 
-  tbl_summary(by = catholic)  #|> 
-  # add_overall() |> 
-  # add_p()
+  tbl_summary(by = catholic)  
 ```
 
 Interpret the result.
@@ -193,13 +196,13 @@ summary(exam_ra)
 
 We can see a breakdown of the confounder effects as the following: 
 
-white1_c = +0.308: being white is associated with higher math scores (in the non-Catholic group)
+**White** white1_c = +0.308: being white is associated with higher math scores (in the non-Catholic group)
 
-mum_age_c = +0.0125: older mothers, predict slightly higher math scores
+**Mothers' Age** mum_age_c = +0.0125: older mothers, predict slightly higher math scores
 
-mum_educ_high1_c = +0.325 (large): higher maternal education → higher scores
+**Mothers' Education** mum_educ_high1_c = +0.325 (large): higher maternal education → higher scores
 
-n_places_c = −0.0736: more residential moves → lower scores (weak/marginal here; p ≈ 0.068)
+**Number of residential moves** n_places_c = −0.0736: more residential moves → lower scores (weak/marginal here; p ≈ 0.068)
 
 income_c = +4.695e−06: higher income → higher scores (very significant)
 
@@ -229,7 +232,6 @@ Can you interpret the results?
 
 ### Answer
 
-Propensity Score: 
 The model says Catholic attendance is not random: it is predictably related to SES and demographics (race, mother’s education, mother’s age, income, and possibly mobility). Thus, to derive an accurate estimate, we need to use propensity-score methods or regression adjustment since selection into Catholic school is related to variables that also plausibly affect math scores. 
 
 Each coefficient in log(OR) column is the change in log-odds of attending a Catholic school, holiding the other confounders fixed. For example, Being white is associated with higher odds of attending a Catholic school. To convert this into an odds ration we raise Euler's number (e), to the exponent 0.30 from the table to derive the odds ratio equal to 1.35. Applying the same procedure, we can interpret each regressor as the following: 
@@ -237,7 +239,6 @@ Each coefficient in log(OR) column is the change in log-odds of attending a Cath
 Mothers' Education: e^0.56 = 1.75 
 Mothers' Age: e^0.04 = 1.04 per age 
 n_places: e^-0.21 = 0.81. More residental moves are associated with lower odds of Catholic attendance. 
-
 
 ## Overlap
 
