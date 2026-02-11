@@ -36,10 +36,8 @@ Make sure that they are installed, or use `install.packages` to install them.
 The following code block makes sure these packages are available below, without adding to your page count.
 
 ```{r}
-#| eval: false
 install.packages("WeightIt")
-```
-```{r}
+#| include: false
 library(tidyverse)
 library(haven)
 library(gt)
@@ -323,7 +321,7 @@ love.plot(W, thresholds = c(m = 0.1), binary = "std", abs = TRUE,
 
 This code prints a plot with absolute SMD against the propensity score and confounders on the y axis, for the unadjusted and adjusted samples. 
 
-3. The unadjusted sample had significant imbalances, particularly in income (0.48) and mother's age (0.37). In the plot, all the solid blue dots for the Adjusted sample have moved dramatically toward zero, indicating a large reduction in bias.
+3. The unadjusted sample had significant imbalances, particularly in income (0.48) and mother's age (0.37). In the plot, all the solid blue dots for the adjusted sample have moved dramatically toward zero, indicating a large reduction in bias.
 
 All adjusted covariates now are also at or fall below the 0.1 threshold (the vertical dashed line). This is the gold standard in causal inference, indicating that we have successfully created a "pseudo-population" where the treatment and control groups are balanced across all measured confounders.
 
@@ -362,9 +360,9 @@ What do you conclude about the effect of attending a Catholic school?
 
 The Naive regression suggested there was no real difference between the schools. However, our earlier analysis showed that Catholic school students have a significant head start due to factors like higher family income and maternal education. The fact that they were only scoring the same as public school students was actually a red flag that the school's added value might be lower than expected.
 
-Both the Linear Regression Adjustment and the IPW Estimator yield very similar results (~ -0.10 to -0.11). The linear Regression assumes that the relationship between math scores and income/education is a straight line. IPW is more robust because it doesn't make that strict "straight line" assumption; instead, it re-weights the data so we are comparing students who had a similar probability of attending either school. The fact that both results align reinforces the finding: when you compare a Catholic school student to a demographically identical public school student, the public school student performs better.
+Both the Linear Regression Adjustment and the IPW Estimator yield very similar results (~ -0.10 to -0.11). The linear regression assumes that the relationship between math scores and income/education is a straight line. IPW is more robust because it doesn't make that strict "straight line" assumption; instead, it re-weights the data so we are comparing students who had a similar probability of attending either school. The fact that both results align reinforces the finding: when you compare a Catholic school student to a demographically identical public school student, the public school student performs better.
 
-Based on these results, we conclude that attending a Catholic school has a statistically significant negative effect on math scores (approximately -0.10 standard deviations). The initial appearance of "equality" between the two school types was created by positive selection bias. Catholic schools enroll students who are predisposed to do well because of their home environment. Once you use Propensity Score Weighting to remove that environmental advantage, the school effect itself is revealed to be negative.
+Based on these results, we conclude that attending a Catholic school has a statistically significant negative effect on math scores (by approximately -0.10). The initial appearance of "equality" between the two school types was created by positive selection bias. Catholic schools enroll students who are predisposed to do well because of their home environment. Once you use regression adjustment or propensity score weighting to remove that environmental advantage, the school effect itself is revealed to be negative.
 
 
 # Lalonde
@@ -399,7 +397,7 @@ Based on the table above:
 
 1. To analyze the effect of the National Supported Work (NSW) program on 1978 earnings 're78', we will choose education 'educ' (years of education), race 'race' (black/hispanic/white), and 1974 earnings 're74' as our three confounders.  
 
-2. Next, we'll repeat the steps we took in the previous part to analyze the effect of the NSW program on earnings. 
+2. Next, we'll repeat the steps we took in the previous part to analyze the effect of the NSW program on earnings (assuming we are to only use the 3 confounders chosen in part 1). 
 
 Starting with summary statistics, we've already printed the descriptive table above, which shows that there is quite a lot of imbalance. Some discrepancies to note are that the treated group is 84% Black (vs. 20% control) and had much lower earnings in 1974, more controls are married (51%) vs. only 19% of treated, and more treated lack a degree (71%) compared to controls (60%). 
 
@@ -431,7 +429,7 @@ nsw_ra <- lm_lin(
 summary(nsw_ra)
 ```
 
-The estimate for treat changed from -$635 to +$797.80. This confirms that the initial negative result was due to selection bias. The program wasn't making people earn less; it was simply working with people who started with much less (like the $0 earnings in 1974). Even though the estimate is now positive, the p-value is 0.4522, which is still not significant at the 0.05 level. This suggests that while the program likely helped, there is a lot of "noise" or variation in how much individuals benefited. Additionally, 're74_c' (centered 1974 earnings) is a massive predictor of 1978 earnings (p-value near zero). 
+The estimate for treat changed from -$635 to +$797.80. This confirms that the initial negative result was due to selection bias. The program wasn't making people earn less; it was simply working with people who started with much less (like the $0 earnings in 1974). Even though the estimate is now positive, the p-value is 0.4522, which is still not significant at the 0.05 level. This suggests that while the program likely helped, there is a lot of "noise" or variation in how much individuals benefited. Additionally, 're74_c' (centered 1974 earnings) is a large predictor of 1978 earnings (p-value near zero). 
 
 Next we will run a logit model to predict the probability of being treated based on our confounders.
 
@@ -447,7 +445,7 @@ nsw_df <- nsw_df |>
   mutate(p_hat = predict(m_ps, type = "response"))
 ```
 
-From the summary of 'm_ps', we see that participation was much more likely among Black men and those with low pre-treatment earnings, even after conditioning on education (for example, White men had about 96% lower odds (1- exp(-3.209)) of participating in the program than Black men with the same education and 1974 earnings). This strong selection into treatment explains why naive estimates of program effects are biased and motivates adjustment using the propensity score.
+From the summary of 'm_ps', we see that participation was much more likely among black men and those with low pre-treatment earnings, even after conditioning on education (for example, white men had about 96% lower odds (1- exp(-3.209)) of participating in the program than black men with the same education and 1974 earnings). This strong selection into treatment explains why naive estimates of program effects are biased and motivates adjustment using the propensity score.
 
 We visualize the distribution of these probabilities to ensure the Overlap condition holds.
 
@@ -584,7 +582,7 @@ summary(first_stage)
 
 ```{r}
 hajj_df <- hajj_df |> 
-  mutate(hajj_hat = predict(first_stage, newdata = hajj_df))
+  mutate(hajj_hat = predict(first_stage))
 ```
 
 ## Intention to treat
