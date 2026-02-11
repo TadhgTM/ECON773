@@ -1224,8 +1224,6 @@ This cost-effectiveness explains the long-term success and global expansion of S
 
 ## A.7 Replication Code Summary
 
-For reproducibility, we provide self-contained code to replicate our key findings:
-
 ```{r}
 # Load packages
 library(tidyverse)
