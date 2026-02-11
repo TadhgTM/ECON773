@@ -52,7 +52,7 @@ Some context:
 - We use a long-format panel with two rows per restaurant and therefore cluster by `store`.
 
 ```{r}
-ck_df <- read_dta("CK1994.dta") |>
+ck_df <- read_dta("Assignment 4/CK1994.dta") |>
   as_tibble() |>
   mutate(
     nj = state == 1,
@@ -79,6 +79,12 @@ Note:
 For each state, calculate the percentage of Burger King, KFC, Roys, and Wendys in the sample. Is the distribution of restaurant chains comparable across the two states?
 
 ### Answer
+
+
+
+```{r}
+
+```
 
 ...
 
