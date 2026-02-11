@@ -950,7 +950,7 @@ Could winning the lottery affect moderacy *directly*, beyond its effect through 
 - **Selection into religiosity**: People who apply for the Hajj lottery may already be on a spiritual journey. Winning might reinforce faith even before the pilgrimage.
 - **Disappointment effect**: Lottery losers might become less moderate due to frustration with the system.
 
-We conduct a sensitivity analysis following Conley, Hansen, and Rossi (2012):
+We conduct a sensitivity analysis. 
 
 ```{r}
 # Assume direct effect of Z on Y is gamma
