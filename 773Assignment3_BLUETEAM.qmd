@@ -269,7 +269,7 @@ ggplot(exam_df, aes(x = catholic, y = p_hat, fill = catholic)) +
     y = "Propensity Score (p_hat)",
     fill = "Catholic"
   ) +
-  scale_fill_manual(values = c("#E41A1C", "#377EB8"))
+  scale_fill_manual(values = c("#ff6f00ff", "#008cffff"))
 
 ```
 
