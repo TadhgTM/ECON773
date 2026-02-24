@@ -209,6 +209,7 @@ lm_robust(
 )
 ```
 
+The Difference-in-Differences estimator is given by the coefficient on the interaction term njTRUE:postTRUE, which is approximately −0.0195. This estimate suggests that, after the wage increase, average meal prices in New Jersey changed by about 2 cents less than in Pennsylvania. However, the effect is not statistically significant (p ≈ 0.80), and the confidence interval includes zero. Therefore, there is no evidence that restaurants subject to the wage increase raised their prices.
 
 ## Another outcome
 
