@@ -217,8 +217,68 @@ Open `CK1994_description.pdf` and choose another outcome variable (other than wa
 
 ### Answer
 
-...
+```{r}
+ck_df 
+  group_by(state, post) |> 
+  summarise(
+    mean_open = mean(open, na.rm = TRUE),
+    n = n(),
+    .groups = "drop"
+  )
+```
 
+```{r}
+did_open_clust <- lm_robust(
+  open ~ nj * post,
+  data = ck_df,
+  clusters = store
+)
+
+summary(did_open_clust)
+```
+
+The outcome variable "open", indicates the hour that the restaurant opens. The DiD estimate for the “open” outcome is 0.0105, implying that the probability a restaurant changed their hour of opening in New Jersey as a response to the minimum wage increase. This increased by about 1 percentage point relative to Pennsylvania after the minimum wage increase. However, this effect is not statistically significant (p = 0.886), and the confidence interval includes zero. 
+
+```{r}
+ck_df 
+  group_by(state, post) |> 
+  summarise(
+    mean_open = mean(open, na.rm = TRUE),
+    n = n(),
+    .groups = "drop"
+  )
+```
+
+
+```{r}
+did_open_clust <- lm_robust(
+  emppt ~ nj * post,
+  data = ck_df,
+  clusters = store
+)
+summary(did_open_clust)
+```
+
+Next, we test if the number of part time employees 
+
+```{r}
+ck_df 
+  group_by(state, post) |> 
+  summarise(
+    mean_open = mean(open, na.rm = TRUE),
+    n = n(),
+    .groups = "drop"
+  )
+```
+
+```{r}
+did_open_clust <- lm_robust(
+  emppt ~ nj * post,
+  data = ck_df,
+  clusters = store
+)
+summary(did_open_clust)
+```
 
 {{< pagebreak >}} 
 
