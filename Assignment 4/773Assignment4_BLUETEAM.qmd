@@ -1,7 +1,7 @@
 ---
 title: "ECON 773: Assignment 4"
 author: "The BLUE Team, Jeneta Ljutic (400138620), Tadhg Taylor-McGreal (400330297), Stella Till (400364649)"
-date: "Febuary 11"
+date: "Febuary 24, 2026"
 format:
   typst: 
     toc: TRUE
@@ -83,7 +83,7 @@ For each state, calculate the percentage of Burger King, KFC, Roys, and Wendys i
 ```{r}
 ck_df |> group_by(state) |> summarize(n_obs = n())
 ```
-The number of observations in NK is 662. The number of observations in Pennslyvania is 158. 
+The number of observations in New Jersey is 662. The number of observations in Pennslyvania is 158. 
 
 Next, we will construct a table with counts of the different chains, split by state. 
 
@@ -109,6 +109,8 @@ ck_df |> group_by(state, time) |>
   )
 ```
 
+NJ minium wage increased from \$4.61 to \$5.08. The PA minium wage (the control group), stayed relatively the same increases from \$4.63 to \$4.62. 
+
 ## DiD for wages
 
 Calculate the DiD estimate for wages manually. Then compute the same estimate using `lm_robust`. Interpret the result.
@@ -117,11 +119,9 @@ Calculate the DiD estimate for wages manually. Then compute the same estimate us
 
 ```{r}
 lm_robust(
-  wage_st ~ nj + post + nj:post, data = ck_df
-  |> tbl_regression()
+  wage_st ~ nj + post + nj*post, data = ck_df
 )
 ```
-
 
 ```{r}
 lm_robust(
@@ -129,15 +129,63 @@ lm_robust(
 )
 ```
 
-
 ## Employment effect
 
 Repeat the analysis for employment. Use `emp_fte` (full-time equivalent) as the outcome. Interpret the DiD estimate.
 
 ### Answer
 
-...
+```{r}
+emp_fte <- read_dta("CK1994.dta") |>
+  as_tibble() |>
+  mutate(
+    nj = state == 1,
+    post = time == 1,
+    emp_fte = empft + 0.5 * emppt + nmgrs,
+    pmeal = meals
+  ) |> 
+  mutate(
+    state = if_else(nj, "New Jersey", "Pennsylvania"),
+    chain = as_factor(chain)
+  )
+```
 
+```{r}
+emp_fte |> group_by(state) |> summarize(n_obs = n())
+```
+
+```{r}
+emp_fte |> group_by(state) |> 
+  count(chain) |> 
+  mutate(
+    p = ifelse(state == "New Jersey", n / 662, n / 158)
+  )
+```
+
+## Wage Change
+
+```{r}
+emp_fte |> group_by(state, time) |> 
+  summarize(
+    m_wage = mean(wage_st, na.rm = TRUE)
+  )
+```
+
+## DiD for wages 
+
+## Answer
+
+```{r}
+lm_robust(
+  wage_st ~ nj + post + nj*post, data = ck_df
+)
+```
+
+```{r}
+lm_robust(
+  emp_fte ~ nj*post, data = ck_df
+)
+```
 
 ## Interpreting DiD
 
@@ -145,8 +193,9 @@ Under what conditions does this estimate identify the ATT? Do we have any sugges
 
 ### Answer
 
-...
+The two-period DiD estimate identifies the ATT under the following assumptions. Firstly, parallel trends must hold. This means that absent the minimum wage increase, employment in New Jersey would have followed the same time trend as employment in Pennsylvania  and if there are no spillovers and no differential changes in sample composition across states over time (SUTVA). In this application we can provide only suggestive evidence: NJ and PA have similar pre-policy wages and are in the same industry and region, and wages increase sharply in NJ post-policy but not in PA, indicating the policy was implemented. We cannot test the parallel-trends assumption directly because there is only one pre-treatment period, so there is no pre-trend to estimate. Testing pre-trends would require employment outcomes in multiple pre-policy periods, enabling an event-study (lead) test or comparisons of pre-period changes between NJ and PA.
 
+The DiD estimate also relies on a no-anticipation assumption: restaurants in New Jersey must not have adjusted employment prior to the policy in response to the expected minimum wage increase. If firms reduced staffing before April 1992, the pre-treatment period would already reflect treatment effects, biasing the estimate. In this study, the pre survey occurred in February 1992, only about two months before implementation, suggesting limited time for adjustment. However, because there is only one pre-treatment observation, we cannot test for anticipatory behavior directly. Doing so would require employment data from earlier pre-policy periods to determine whether NJ outcomes began diverging from PA before the law took effect.
 
 ## Meal prices
 
