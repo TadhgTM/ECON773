@@ -109,6 +109,8 @@ ck_df |>
   select(-n)
 ```
 
+These results show the distribution of restaurant chains in the sample for New Jersey and Pennsylvania, expressed as percentages within each state. In both states, Burger King makes up the largest share (about 41% in New Jersey and 44% in Pennsylvania), while Wendy’s has the smallest share in New Jersey but a somewhat larger share in Pennsylvania. Roy’s and KFC account for moderate portions of the sample, with Roy’s slightly more common in New Jersey and KFC less common in Pennsylvania. Overall, the distributions are fairly similar across the two states, suggesting the samples are reasonably comparable in terms of restaurant chain composition.
+
 ### Answer
 
 ```{r}
