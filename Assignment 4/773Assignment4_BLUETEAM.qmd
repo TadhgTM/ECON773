@@ -78,6 +78,8 @@ Note:
 
 For each state, calculate the percentage of Burger King, KFC, Roys, and Wendys in the sample. Is the distribution of restaurant chains comparable across the two states?
 
+### Answer
+
 ```{r}
 library(dplyr)
 
@@ -111,23 +113,10 @@ ck_df |>
 
 These results show the distribution of restaurant chains in the sample for New Jersey and Pennsylvania, expressed as percentages within each state. In both states, Burger King makes up the largest share (about 41% in New Jersey and 44% in Pennsylvania), while Wendy’s has the smallest share in New Jersey but a somewhat larger share in Pennsylvania. Roy’s and KFC account for moderate portions of the sample, with Roy’s slightly more common in New Jersey and KFC less common in Pennsylvania. Overall, the distributions are fairly similar across the two states, suggesting the samples are reasonably comparable in terms of restaurant chain composition.
 
-### Answer
-
 ```{r}
 ck_df |> group_by(state) |> summarize(n_obs = n())
 ```
 The number of observations in New Jersey is 662. The number of observations in Pennslyvania is 158. 
-
-Next, we will construct a table with counts of the different chains, split by state. 
-
-```{r}
-ck_df |> group_by(state) |> 
-  count(chain) |> 
-  mutate(
-    p = ifelse(state == "New Jersey", n / 662, n / 158)
-  )
-```
-
 
 ## Wage change
 
@@ -142,7 +131,7 @@ ck_df |> group_by(state, time) |>
   )
 ```
 
-NJ minium wage increased from \$4.61 to \$5.08. The PA minium wage (the control group), stayed relatively the same increases from \$4.63 to \$4.62. 
+NJ minium wage increased from \$4.61 to \$5.08. The PA minium wage (the control group), stayed relatively the same increases from \$4.63 to \$4.62. This sharp increase in New Jersey but not in Pennsylvania is consistent with the implementation of the minimum-wage increase in NJ only. Therefore, the results suggest that the policy was successfully adopted and had a clear effect on wages in New Jersey.
 
 ## DiD for wages
 
