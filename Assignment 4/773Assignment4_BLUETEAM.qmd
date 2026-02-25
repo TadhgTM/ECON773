@@ -151,51 +151,13 @@ lm_robust(
 )
 ```
 
+The minimum-wage increase raised average wages in New Jersey by about $0.48 more than in Pennsylvania. This effect is large and highly statistically significant. Therefore, the results indicate that the policy substantially increased wages in New Jersey relative to the control state.
+
 ## Employment effect
 
 Repeat the analysis for employment. Use `emp_fte` (full-time equivalent) as the outcome. Interpret the DiD estimate.
 
 ### Answer
-
-```{r}
-emp_fte <- read_dta("CK1994.dta") |>
-  as_tibble() |>
-  mutate(
-    nj = state == 1,
-    post = time == 1,
-    emp_fte = empft + 0.5 * emppt + nmgrs,
-    pmeal = meals
-  ) |> 
-  mutate(
-    state = if_else(nj, "New Jersey", "Pennsylvania"),
-    chain = as_factor(chain)
-  )
-```
-
-```{r}
-emp_fte |> group_by(state) |> summarize(n_obs = n())
-```
-
-```{r}
-emp_fte |> group_by(state) |> 
-  count(chain) |> 
-  mutate(
-    p = ifelse(state == "New Jersey", n / 662, n / 158)
-  )
-```
-
-## Wage Change
-
-```{r}
-emp_fte |> group_by(state, time) |> 
-  summarize(
-    m_wage = mean(wage_st, na.rm = TRUE)
-  )
-```
-
-## DiD for wages 
-
-## Answer
 
 ```{r}
 lm_robust(
@@ -208,6 +170,8 @@ lm_robust(
   emp_fte ~ nj*post, data = ck_df
 )
 ```
+
+The Difference-in-Differences estimate for employment is the coefficient on njTRUE:postTRUE, which is approximately 2.75. This suggests that, after the minimum wage increase, employment in New Jersey restaurants rose by about 2.75 full-time equivalent workers per restaurant relative to Pennsylvania. However, this estimate is not statistically significant (p ≈ 0.13), and the confidence interval includes zero. Therefore, there is no strong evidence that the minimum wage increase had a meaningful effect on employment.
 
 ## Interpreting DiD
 
@@ -227,11 +191,17 @@ Compute the DiD estimator for the average meal price (`pmeal`). Do restaurants s
 
 ```{r}
 lm_robust(
+  wage_st ~ nj + post + nj*post, data = ck_df
+)
+```
+
+```{r}
+lm_robust(
   pmeal ~ nj*post, data = ck_df
 )
 ```
 
-The Difference-in-Differences estimator is given by the coefficient on the interaction term njTRUE:postTRUE, which is approximately −0.0195. This estimate suggests that, after the wage increase, average meal prices in New Jersey changed by about 2 cents less than in Pennsylvania. However, the effect is not statistically significant (p ≈ 0.80), and the confidence interval includes zero. Therefore, there is no evidence that restaurants subject to the wage increase raised their prices.
+The DiD estimator for the average meal price (pmeal) is approximately −0.0195. This indicates that meal prices in New Jersey restaurants decreased slightly relative to those in Pennsylvania after the minimum wage increase. This contradicts standard economic theory that would suggest for prices to rise after a wage change. However, since the estimate is very small and not statistically significant, as the confidence interval includes zero we can conclude that there is no evidence that restaurants subject to the wage increase raised prices.
 
 ## Another outcome
 
@@ -242,36 +212,10 @@ Open `CK1994_description.pdf` and choose another outcome variable (other than wa
 We first chose the variable "open", to test if the hour which a restaurant opens changes after the minimum wage increase in NJ. We follow the same steps as in the secitons above. 
 
 ```{r}
-ck_df <- read_dta("CK1994.dta") |>
-  as_tibble() |>
-  mutate(
-    nj = state == 1,
-    post = time == 1,
-    emp_fte = empft + 0.5 * emppt + nmgrs,
-    pmeal = meals
-  ) |> 
-  mutate(
-    state = if_else(nj, "New Jersey", "Pennsylvania"),
-    chain = as_factor(chain)
-  )
-```
-
-```{r}
-open 
-  group_by(state, post) |> 
-  summarise(
-    mean_open = mean(open, na.rm = TRUE),
-    n = n(),
-    .groups = "drop"
-  )
-```
-
-```{r}
 lm_robust(
   wage_st ~ nj + post + nj*post, data = ck_df
 )
 ```
-
 
 ```{r}
 lm_robust(
