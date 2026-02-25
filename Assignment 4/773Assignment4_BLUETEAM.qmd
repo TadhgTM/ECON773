@@ -217,8 +217,25 @@ Open `CK1994_description.pdf` and choose another outcome variable (other than wa
 
 ### Answer
 
+We first chose the variable "open", to test if the hour which a restaurant opens changes after the minimum wage increase in NJ. We follow the same steps as in the secitons above. 
+
 ```{r}
-ck_df 
+ck_df <- read_dta("CK1994.dta") |>
+  as_tibble() |>
+  mutate(
+    nj = state == 1,
+    post = time == 1,
+    emp_fte = empft + 0.5 * emppt + nmgrs,
+    pmeal = meals
+  ) |> 
+  mutate(
+    state = if_else(nj, "New Jersey", "Pennsylvania"),
+    chain = as_factor(chain)
+  )
+```
+
+```{r}
+open 
   group_by(state, post) |> 
   summarise(
     mean_open = mean(open, na.rm = TRUE),
@@ -228,57 +245,51 @@ ck_df
 ```
 
 ```{r}
-did_open_clust <- lm_robust(
-  open ~ nj * post,
-  data = ck_df,
-  clusters = store
+lm_robust(
+  wage_st ~ nj + post + nj*post, data = ck_df
 )
-
-summary(did_open_clust)
-```
-
-The outcome variable "open", indicates the hour that the restaurant opens. The DiD estimate for the “open” outcome is 0.0105, implying that the probability a restaurant changed their hour of opening in New Jersey as a response to the minimum wage increase. This increased by about 1 percentage point relative to Pennsylvania after the minimum wage increase. However, this effect is not statistically significant (p = 0.886), and the confidence interval includes zero. 
-
-```{r}
-ck_df 
-  group_by(state, post) |> 
-  summarise(
-    mean_open = mean(open, na.rm = TRUE),
-    n = n(),
-    .groups = "drop"
-  )
 ```
 
 
 ```{r}
-did_open_clust <- lm_robust(
-  emppt ~ nj * post,
-  data = ck_df,
-  clusters = store
+lm_robust(
+  open ~ nj*post, data = ck_df
 )
-summary(did_open_clust)
 ```
 
-Next, we test if the number of part time employees 
+The Difference-in-Differences estimate for restaurant opening time is approximately 0.015 hours, indicating that New Jersey restaurants opened about one minute later relative to Pennsylvania after the minimum wage increase. However, this effect is extremely small and statistically insignificant (p ≈ 0.97), with a confidence interval that includes zero. Therefore, there is no evidence that the policy affected opening hours. This suggests that restaurants did not adjust operating schedules in response to the wage increase.
+
+Next, we test if the number of part time employees changed as a result of the minimum wage change in NJ.
 
 ```{r}
-ck_df 
-  group_by(state, post) |> 
-  summarise(
-    mean_open = mean(open, na.rm = TRUE),
-    n = n(),
-    .groups = "drop"
-  )
-```
-
-```{r}
-did_open_clust <- lm_robust(
-  emppt ~ nj * post,
-  data = ck_df,
-  clusters = store
+lm_robust(
+  wage_st ~ nj + post + nj*post, data = ck_df
 )
-summary(did_open_clust)
 ```
+
+```{r}
+lm_robust(
+  emppt ~ nj*post, data = ck_df
+)
+```
+
+The Difference-in-Differences estimate for part-time employment is −0.77, indicating that New Jersey restaurants employed slightly fewer part-time workers relative to Pennsylvania after the minimum wage increase. However, this effect is not statistically significant (p ≈ 0.67), and the confidence interval includes zero. Therefore, there is no evidence that the policy reduced part-time employment. Overall, the results suggest that the minimum wage increase did not meaningfully affect part-time staffing levels.
+
+Lastly, we test if the number of cash registers in the store changed as a result of the minium wage increase. This channel tests if the restaurants moved employees to the back of the store for production and reduced the number of employees needed to fill the spot at a cashregister. 
+
+```{r}
+lm_robust(
+  wage_st ~ nj + post + nj*post, data = ck_df
+)
+```
+
+```{r}
+lm_robust(
+ nregisters  ~ nj*post, data = ck_df
+)
+```
+
+The Difference-in-Differences estimate for the number of registers is −0.13, indicating that New Jersey restaurants had slightly fewer registers relative to Pennsylvania after the minimum wage increase. However, this effect is not statistically significant (p ≈ 0.53), and the confidence interval includes zero. Therefore, there is no evidence that the policy affected the number of registers. This suggests that restaurants did not adjust their capital equipment in response to the wage increase.
 
 {{< pagebreak >}} 
 
