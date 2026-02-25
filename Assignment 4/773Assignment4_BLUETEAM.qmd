@@ -78,6 +78,37 @@ Note:
 
 For each state, calculate the percentage of Burger King, KFC, Roys, and Wendys in the sample. Is the distribution of restaurant chains comparable across the two states?
 
+```{r}
+library(dplyr)
+
+ck_df |> 
+  mutate(
+    chain = factor(chain,
+                   levels = 1:4,
+                   labels = c("Burger King", "KFC", "Roys", "Wendys")),
+    state = factor(state)
+  ) |> 
+  group_by(state, chain) |> 
+  summarise(n = n(), .groups = "drop") |> 
+  group_by(state) |> 
+  mutate(percent = 100 * n / sum(n)) |> 
+  arrange(state, desc(percent))
+```
+
+```{r}
+ck_df |> 
+  mutate(
+    chain = factor(chain,
+                   levels = 1:4,
+                   labels = c("Burger King", "KFC", "Roys", "Wendys"))
+  ) |> 
+  group_by(state, chain) |> 
+  summarise(n = n(), .groups = "drop") |> 
+  group_by(state) |> 
+  mutate(percent = round(100 * n / sum(n), 1)) |> 
+  select(-n)
+```
+
 ### Answer
 
 ```{r}
