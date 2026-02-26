@@ -448,7 +448,7 @@ ggplot(plot_data_ci, aes(x = year, y = mean_gdvote, color = ever_treated, group 
   theme_minimal()
 ```
 
-This plot provides strong visual support for the difference-in-differences identification strategy. Prior to the refugee crisis in 2016 (the three pre-treatment elections), treated and control municipalities evolve in roughly parallel trends in Golden Dawn support, with overlapping confidence intervals indicating no statistically significant differences in pre-treatment trajectories. Following the crisis, treated municipalities experienced a pronounced increase in vote share, diverging sharply from control municipalities. This suggests that the parallel trends assumption is reasonable, and the additional increase in Golden Dawn vote share in treated municipalities is plausibly due to the refugee crisis, not pre-existing differences. 
+This plot provides strong visual support for the DiD identification strategy. Prior to the refugee crisis in 2016 (the three pre-treatment elections), treated and control municipalities evolve in roughly parallel trends in Golden Dawn support, with overlapping confidence intervals indicating no statistically significant differences in pre-treatment trajectories. Following the crisis, treated municipalities experienced a pronounced increase in vote share, diverging sharply from control municipalities. This suggests that the parallel trends assumption is reasonable, and the additional increase in Golden Dawn vote share in treated municipalities is plausibly due to the refugee crisis, not pre-existing differences. 
 
 ## Placebo DiD (2012 vs 2013)
 
