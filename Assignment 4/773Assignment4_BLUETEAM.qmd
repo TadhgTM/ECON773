@@ -163,6 +163,8 @@ lm_robust(
 )
 ```
 
+We follow a similar approach to our code from above to repeat the analysis for full-time equivalent 
+
 The Difference-in-Differences estimate for employment is the coefficient on njTRUE:postTRUE, which is approximately 2.75. This suggests that, after the minimum wage increase, employment in New Jersey restaurants rose by about 2.75 full-time equivalent workers per restaurant relative to Pennsylvania. However, this estimate is not statistically significant (p ≈ 0.13), and the confidence interval includes zero. Therefore, there is no strong evidence that the minimum wage increase had a meaningful effect on employment.
 
 ## Interpreting DiD
