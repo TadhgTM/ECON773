@@ -119,6 +119,8 @@ ck_df |> group_by(state, time) |>
   )
 ```
 
+In the code block we first take the dataset "ck_df" and pass it down to the next operation using the pipe operator. Then, we group the data by state and time. This means that all calculations are done separately for each state-time combination (i.e. NJ before, NJ after, PA before, PA after). Then, using "summarize(m_wage = mean(wage_st, na.rm = TRUE))", we collapse each group into a single row by computing the average of the variable wage_st within each group. na.rm = TRUE tells R to ignore missing values when calculating the mean.
+
 NJ minium wage increased from \$4.61 to \$5.08. The PA minium wage (the control group), stayed relatively the same increases from \$4.63 to \$4.62. This sharp increase in New Jersey but not in Pennsylvania is consistent with the implementation of the minimum-wage increase in NJ only. Therefore, the results suggest that the policy was successfully adopted and had a clear effect on wages in New Jersey.
 
 ## DiD for wages
