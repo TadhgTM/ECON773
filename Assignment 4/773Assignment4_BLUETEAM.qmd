@@ -97,19 +97,7 @@ ck_df |>
   arrange(state, desc(percent))
 ```
 
-```{r}
-ck_df |> 
-  mutate(
-    chain = factor(chain,
-                   levels = 1:4,
-                   labels = c("Burger King", "KFC", "Roys", "Wendys"))
-  ) |> 
-  group_by(state, chain) |> 
-  summarise(n = n(), .groups = "drop") |> 
-  group_by(state) |> 
-  mutate(percent = round(100 * n / sum(n), 1)) |> 
-  select(-n)
-```
+In this set of code, we first load dplyr. Then we use the dataset ck_df. We then use "mutate", to convert the data into labeled categories and the state variable. The command "chain", groups the data by state and chain to count observations. Then, we direct the code to once again "group_by" state and compute each chain's percentage share within that state using "mutate". Lastly, "arrage" sorts the results to appear from the highest to lowest share in each state.
 
 These results show the distribution of restaurant chains in the sample for New Jersey and Pennsylvania, expressed as percentages within each state. In both states, Burger King makes up the largest share (about 41% in New Jersey and 44% in Pennsylvania), while Wendy’s has the smallest share in New Jersey but a somewhat larger share in Pennsylvania. Roy’s and KFC account for moderate portions of the sample, with Roy’s slightly more common in New Jersey and KFC less common in Pennsylvania. Overall, the distributions are fairly similar across the two states, suggesting the samples are reasonably comparable in terms of restaurant chain composition.
 
