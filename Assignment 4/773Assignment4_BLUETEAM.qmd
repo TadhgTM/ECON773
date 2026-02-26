@@ -1,7 +1,7 @@
 ---
 title: "ECON 773: Assignment 4"
 author: "The BLUE Team, Jeneta Ljutic (400138620), Tadhg Taylor-McGreal (400330297), Stella Till (400364649)"
-date: "Febuary 24, 2026"
+date: "February 24, 2026"
 format:
   typst: 
     toc: TRUE
@@ -116,7 +116,7 @@ These results show the distribution of restaurant chains in the sample for New J
 ```{r}
 ck_df |> group_by(state) |> summarize(n_obs = n())
 ```
-The number of observations in New Jersey is 662. The number of observations in Pennslyvania is 158. 
+The number of observations in New Jersey is 662. The number of observations in Pennsylvania is 158. 
 
 ## Wage change
 
@@ -209,7 +209,7 @@ Open `CK1994_description.pdf` and choose another outcome variable (other than wa
 
 ### Answer
 
-We first chose the variable "open", to test if the hour which a restaurant opens changes after the minimum wage increase in NJ. We follow the same steps as in the secitons above. 
+We first chose the variable "open", to test if the hour which a restaurant opens changes after the minimum wage increase in NJ. We follow the same steps as in the sections above. 
 
 ```{r}
 lm_robust(
