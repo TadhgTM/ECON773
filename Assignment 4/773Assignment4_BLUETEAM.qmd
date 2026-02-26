@@ -297,8 +297,28 @@ Is this a panel or repeated cross-section?
 
 ### Answer
 
-...
+Start by exploring the variables in the data set. 
 
+```{r}
+names(dinas_df)
+glimpse(dinas_df)
+```
+
+1. The variable that corresponds to $D_i$ is `ever_treated`, which is the indicator for belonging to the treatment group and is time-invariant (it equals 'TRUE' for treated municipalities in all years and 'FALSE' for control municipalities in all years). 
+
+2. The variable that corresponds to $Y_{it}$ is `gdvote`, the outcome variable, which is the Golden Dawn vote share for a specific municipality in a specific year. 
+
+3. This is a panel dataset, as the same units (in this case, the same 96 Greek municipalities) are observed repeatedly over multiple time points (2012, 2013, 2015, and 2016). The municipalities are fixed units, and `ever_treated` is constant within each municipality, so each municipality can be tracked over time. A repeated cross-section would instead involve different units sampled each year and no consistent unit identifier across time. 
+
+As a check, each municipality should appear exactly four times (once for each election year).
+
+```{r}
+dinas_df |>
+  group_by(municipality) |>
+  summarize(count = n())
+```
+
+This is indeed the case, confirming a panel dataset. 
 
 ## Refugee inflows
 
@@ -306,8 +326,15 @@ Use `trarrprop` to document that treated municipalities experienced larger refug
 
 ### Answer
 
-...
+Using refugee arrivals per capita, `trarrprop`, we will compare the average refugee arrivals between the two groups across the election years. 
 
+```{r}
+dinas_df |>
+  group_by(year, ever_treated) |>
+  summarize(avg_arrivals = mean(trarrprop, na.rm = TRUE))
+```
+
+In 2012, 2013, and 2015, the average refugee arrivals per capita (avg_arrivals) were effectively 0 for both groups. This suggests that there was no pre-existing refugee crisis that might have skewed political attitudes beforehand. In 2016, the control group (FALSE) remained at 0, while the treated group (TRUE) spiked to 2.85 mean arrivals per capita. Therefore, the treated municipalities experienced a sharp increase in refugee inflows in 2016, whereas the control municipalities and all pre-treatment periods saw zero arrivals, confirming the validity of the treatment classification.
 
 ## Naive post-period comparison
 
@@ -316,8 +343,21 @@ Does this estimate have a causal interpretation?
 
 ### Answer
 
-...
+We will perform a simple comparison of the average vote shares for the treated and control municipalities in 2016.
 
+```{r}
+library(dplyr)
+
+dinas_df |>
+  filter(year == 2016) |>
+  summarise(
+    treated_mean  = mean(gdvote[ever_treated == TRUE], na.rm = TRUE),
+    control_mean  = mean(gdvote[ever_treated == FALSE], na.rm = TRUE),
+    difference    = treated_mean - control_mean
+  )
+```
+
+In 2016, treated municipalities had Golden Dawn vote shares that were 2.74 percentage points higher than control municipalities (8.40% vs. 5.66%). However, this estimate does not have a causal interpretation because it does not account for pre-treatment differences between treated and control municipalities (treatment was not assigned at random). The observed gap may reflect baseline political differences rather than the effect of refugee inflows (potential selection bias).
 
 ## DiD (2015 vs 2016)
 
@@ -326,8 +366,52 @@ Do it manually and via regression.
 
 ### Answer
 
-...
+1. We will start by computing the relevant differences manually, using the mean function to construct the pre-treatment and post-treatment comparisons between treated and control groups.
 
+```{r}
+did_manual <- dinas_df |>
+  filter(year %in% c(2015, 2016)) |>
+  summarise(
+    treat_2015 = mean(gdvote[ever_treated & year == 2015], na.rm = TRUE),
+    treat_2016 = mean(gdvote[ever_treated & year == 2016], na.rm = TRUE),
+    control_2015 = mean(gdvote[!ever_treated & year == 2015], na.rm = TRUE),
+    control_2016 = mean(gdvote[!ever_treated & year == 2016], na.rm = TRUE)
+  ) |>
+  mutate(
+    did = (treat_2016 - treat_2015) -
+          (control_2016 - control_2015)
+  )
+
+did_manual
+```
+
+The DiD estimate is about 2.12 percentage points.
+
+2. Next, we will compute the DiD estimate via regression. We start by creating a subset for the 2015/2016 comparison, a binary `post` indicator (1 if the year is 2016), then run the DiD on this subset using the lm() function. Recall that `treatment` is already the interaction (ever_treated * post).
+
+```{r}
+did_data <- dinas_df |> 
+  filter(year %in% c(2015, 2016)) |>
+  mutate(post = ifelse(year == 2016, 1, 0))
+
+did_model <- lm(gdvote ~ ever_treated + post + treatment, data = did_data)
+
+did_model |> 
+  tbl_regression(
+    intercept = TRUE,
+    # This forces 2 decimal places for coefficients and CI
+    estimate_fun = function(x) style_number(x, digits = 2),
+    pvalue_fun = function(x) style_pvalue(x, digits = 2),
+    label = list(
+      ever_treated ~ "Treated Group (Di)",
+      post ~ "Post-Period (Tt)",
+      treatment ~ "DiD Estimate"
+    )
+  ) |>
+  bold_labels()
+```
+
+The DiD estimate (coefficient for `treatment`) is 2.12, the same as computed above in the manual DiD. Therefore, using a DiD approach, we estimate that municipalities exposed to high refugee inflows experienced an additional 2.12 percentage point increase in Golden Dawn vote share in 2016 relative to control municipalities. This effect is statistically significant at the 5% level (p = 0.029).
 
 ## Plotting trends
 
@@ -335,8 +419,36 @@ Plot mean `gdvote` for treated and control municipalities across all years. What
 
 ### Answer
 
-...
+We will plot mean `gdvote` for both the treatment and control observations over time, along with the confidence intervals around each estimate. 
 
+```{r}
+library(ggplot2)
+
+plot_data_ci <- dinas_df |>
+  group_by(year, ever_treated) |>
+  summarize(
+    mean_gdvote = mean(gdvote, na.rm = TRUE),
+    sd_gdvote = sd(gdvote, na.rm = TRUE),
+    n = n(),
+    .groups = 'drop'
+  ) |>
+  mutate(se = sd_gdvote / sqrt(n))
+
+ggplot(plot_data_ci, aes(x = year, y = mean_gdvote, color = ever_treated, group = ever_treated)) +
+  geom_line(size = 1) +
+  geom_point(size = 2) +
+  geom_errorbar(aes(ymin = mean_gdvote - 1.96 * se, ymax = mean_gdvote + 1.96 * se), 
+                width = 0.1) +
+  geom_vline(xintercept = 2015.5, linetype = "dashed", color = "gray50") +
+  scale_color_discrete(name = "Municipality Group", 
+                       labels = c("FALSE" = "Control", "TRUE" = "Treatment")) +
+  labs(title = "Golden Dawn Vote Share (95% CI)",
+       subtitle = "Parallel Trends: Control vs. Treated Municipalities",
+       x = "Year", y = "Average Vote Share (%)") +
+  theme_minimal()
+```
+
+This plot provides strong visual support for the difference-in-differences identification strategy. Prior to the refugee crisis in 2016 (the three pre-treatment elections), treated and control municipalities evolve in roughly parallel trends in Golden Dawn support, with overlapping confidence intervals indicating no statistically significant differences in pre-treatment trajectories. Following the crisis, treated municipalities experienced a pronounced increase in vote share, diverging sharply from control municipalities. This suggests that the parallel trends assumption is reasonable, and the additional increase in Golden Dawn vote share in treated municipalities is plausibly due to the refugee crisis, not pre-existing differences. 
 
 ## Placebo DiD (2012 vs 2013)
 
@@ -347,8 +459,31 @@ How do you interpret this result?
 
 ### Answer
 
-...
+We will run a placebo DiD test on 2012 vs. 2013 as another check to see if there were any false “treatment effects” before the refugee crisis, which would cast doubt on the parallel trends assumption.
 
+```{r}
+placebo_df <- dinas_df |>
+  filter(year %in% c(2012, 2013)) |>
+  mutate(post = ifelse(year == 2013, 1, 0))
+
+placebo_did <- lm(gdvote ~ ever_treated * post, data = placebo_df)
+
+tbl_placebo <- tbl_regression(
+  placebo_did,
+  intercept = TRUE,
+  label = list(
+    ever_treated = "Treated municipality",
+    post = "Post period (2013)",
+    `ever_treated:post` = "Placebo DiD (Treated × Post)"
+  )
+) 
+
+tbl_placebo
+```
+
+The interaction term has an estimate of 0.0155 (~0.02), with a very large standard error and a p-value of 0.99, not statistically significant. There is no evidence of a differential change in Golden Dawn vote share between treated and control municipalities from 2012 to 2013. The near-zero estimate suggests treated and control municipalities followed parallel trends in this pre-treatment period.
+
+This placebo test therefore supports the key parallel trends assumption in the main DiD analysis. Since no “effect” is found in the placebo period, it increases confidence that the observed treatment effect in 2016 reflects a true causal impact of refugee inflows, rather than pre-existing differences or divergent trends between treated and control municipalities.
 
 ## Two-way fixed effects
 
@@ -356,8 +491,26 @@ Estimate a TWFE regression using all years. Interpret the coefficient on `treatm
 
 ### Answer
 
-...
+We will estimate a TWFE model, which uses municipality fixed effects and year fixed effects. This controls for all permanent differences between municipalities (like geography or local culture) and all common shocks over time (like national economic shifts).
 
+We will use the fixest package, a standard way to run fixed effects in R. 
+
+```{r}
+library(modelsummary)
+library(fixest)
+
+twfe_reg <- feols(gdvote ~ treatment | municipality + year, data = dinas_df)
+
+modelsummary(
+  twfe_reg,
+  stars = TRUE,
+  statistic = c("std.error", "p.value"),
+  fmt = 3,
+  estimate = "{estimate}"
+)
+```
+
+The coefficient on treatment is 2.087, which is very close to our earlier 2-period DiD estimate of 2.12. This result suggests that exposure to the refugee inflows caused a 2.09 percentage point increase in Golden Dawn vote share (t = 5.31, p < 0.001). This confirms that the effect remains strong and significant when using the full panel of data and controlling for all fixed characteristics.
 
 ## Instrumental variables approach
 
@@ -386,8 +539,21 @@ Estimate the first-stage relationship between the instrument and treatment.
 
 ### Answer
 
-...
+To estimate the first stage of this IV design, we need to regress our endogenous regressor (treatment) on our instrument (logdist).
 
+```{r}
+first_stage <- lm(treatment ~ logdist, data = iv_df)
+
+first_stage |> 
+  tbl_regression(
+    label = list(logdist ~ "Log Distance to Turkish Coast"),
+    estimate_fun = function(x) style_number(x, digits = 2)
+  ) |>
+  add_glance_source_note(label = list(statistic = "F-statistic")) |>
+  bold_labels()
+```
+
+A one-unit increase in log distance from the Turkish coast reduces refugee arrivals per capita by about 0.21 units (p-value < 0.001), with an F-statistic value of about 137, far above the conventional threshold of 10. Therefore, municipalities farther from the Turkish coast received significantly fewer refugees, this matches the identification logic of the paper. 
 
 ## 2SLS
 
@@ -395,8 +561,49 @@ Use `iv_robust` to estimate the causal effect of refugee exposure on vote share 
 
 ### Answer
 
-...
+To estimate the IV model with robust standard errors, we use the iv_robust function from the estimatr package. This performs Two-Stage Least Squares (2SLS), using logdist to extract the exogenous variation in refugee exposure. We will do this for both the binary `treatment` variable and the continuous `trarrprop` variable. 
 
+Starting with the binary treatment regression.
+
+```{r}
+iv_binary <- iv_robust(
+  gdvote_change ~ treatment | logdist,
+  data = iv_df
+)
+
+cm = c("treatment" = "Refugee Treatment (Binary)", "(Intercept)" = "Constant")
+
+msummary(iv_binary,
+         stars = TRUE,
+         fmt = 2,
+         coef_map = cm,
+         gof_omit = 'AIC|BIC|Log.Lik|F|RMSE',
+         title = "Table: Causal Effect of Refugee Exposure (IV Design)")
+```
+
+Municipalities with high refugee exposure experienced a 2.08 percentage point larger increase in Golden Dawn vote share (Jan–Sept 2015), causally attributable to refugee inflows. This is statistically significant at the 1% level.
+
+Next, continuous treatment regression.
+
+```{r}
+iv_continuous <- iv_robust(
+  gdvote_change ~ trarrprop | logdist,
+  data = iv_df
+)
+
+cm_cont = c("trarrprop" = "Arrivals per Capita", "(Intercept)" = "Constant")
+
+msummary(iv_continuous,
+         stars = TRUE,
+         fmt = 2,
+         coef_map = cm_cont,
+         gof_omit = 'AIC|BIC|Log.Lik|F|RMSE',
+         title = "Table: Causal Effect of Refugee Arrival Intensity (IV Design)")
+```
+
+A one-unit increase in refugee arrivals per capita increased Golden Dawn vote share by approximately 0.74 percentage points (statistically significant at the 1% level). This gives a marginal causal effect rather than a treatment-group contrast.
+
+The IV identifies a Local Average Treatment Effect (LATE), therefore these estimates reflect the causal effect for municipalities whose refugee exposure was influenced by their distance to the Turkish coast, rather than necessarily the effect for all municipalities. Notably, the binary IV estimate at 2.08 is nearly identical to the DiD estimate at 2.09 (the LATE and ATT are numerically very close), providing strong and consistent evidence that refugee inflows causally increased support for the far-right Golden Dawn party. The similarity between the IV and DiD results suggests limited bias from selection, supports the plausibility of the parallel trends assumption in the panel analysis, and reinforces the credibility of distance to the coast as a valid geographic instrument.
 
 ## IV assumptions
 
@@ -405,6 +612,9 @@ Use `iv_robust` to estimate the causal effect of refugee exposure on vote share 
 
 ### Answer
 
-...
+1. For log distance to the Turkish coast (logdist) to be a valid instrument, it must satisfy the following: the distance between a Greek municipality and the Turkish coast must affect the change in Golden Dawn’s vote share only through its impact on refugee arrivals, and not through any other direct or indirect channel.
+
+2. This assumption is plausible because refugee arrivals were geographically driven and largely determined by proximity to Turkey (the "assignment" of refugees to specific islands was a matter of proximity, not local political leanings). Additionally, the strong first stage confirms that distance predicts refugee exposure, it is difficult to think of another factor that is perfectly correlated with distance to Turkey and changed so drastically in those exact 9 months to produce a 2-point swing in voting. However, the restriction could be violated if municipalities closer to Turkey experienced other concurrent shocks that independently affected far-right support (for example, border/island municipalities may differ economically (tourism, trade, migration history) and proximity to Turkey might influence national identity or security attitudes even absent refugee inflows). Therefore, while plausible, the assumption is not directly testable and must be justified substantively.
+
 
 
