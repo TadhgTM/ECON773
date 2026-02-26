@@ -141,6 +141,8 @@ lm_robust(
 )
 ```
 
+Both lines estimate Difference-in-Differences regressions using lm_robust(), which fits linear models with robust standard errors on the dataset ck_df. The first model examines how the policy affected starting wages (wage_st), while the second examines its effect on full-time-equivalent employment (emp_fte), using New Jersey, the post-policy period, and their interaction. We use lm_robust() since it fits a linear regression with robust standard errors (from the estimatr package), which makes inference less sensitive to heteroskedasticity.
+
 The minimum-wage increase raised average wages in New Jersey by about $0.48 more than in Pennsylvania. This effect is large and highly statistically significant. Therefore, the results indicate that the policy substantially increased wages in New Jersey relative to the control state.
 
 ## Employment effect
