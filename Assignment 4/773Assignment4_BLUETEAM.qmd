@@ -163,7 +163,7 @@ lm_robust(
 )
 ```
 
-We follow a similar approach to our code from above to repeat the analysis for full-time equivalent 
+We follow the same structure with our code from above to repeat the analysis using full-time equivalent as the outcome. 
 
 The Difference-in-Differences estimate for employment is the coefficient on njTRUE:postTRUE, which is approximately 2.75. This suggests that, after the minimum wage increase, employment in New Jersey restaurants rose by about 2.75 full-time equivalent workers per restaurant relative to Pennsylvania. However, this estimate is not statistically significant (p ≈ 0.13), and the confidence interval includes zero. Therefore, there is no strong evidence that the minimum wage increase had a meaningful effect on employment.
 
@@ -195,6 +195,8 @@ lm_robust(
 )
 ```
 
+We run the same two regressions to find the DiD estimate for the average meal price.
+
 The DiD estimator for the average meal price (pmeal) is approximately −0.0195. This indicates that meal prices in New Jersey restaurants decreased slightly relative to those in Pennsylvania after the minimum wage increase. This contradicts standard economic theory that would suggest for prices to rise after a wage change. However, since the estimate is very small and not statistically significant, as the confidence interval includes zero we can conclude that there is no evidence that restaurants subject to the wage increase raised prices.
 
 ## Another outcome
@@ -202,6 +204,8 @@ The DiD estimator for the average meal price (pmeal) is approximately −0.0195.
 Open `CK1994_description.pdf` and choose another outcome variable (other than wages, employment, or meal prices). Describe the variable and run a DiD analysis for it. Interpret your result.
 
 ### Answer
+
+We repeat the regressions above and change the outcome variables to test the effect of the minium wage increase. 
 
 We first chose the variable "open", to test if the hour which a restaurant opens changes after the minimum wage increase in NJ. We follow the same steps as in the sections above. 
 
