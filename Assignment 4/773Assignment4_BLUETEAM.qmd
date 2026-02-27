@@ -247,12 +247,23 @@ We first chose the variable "open", to test if the hour which a restaurant opens
 lm_robust(
   wage_st ~ nj + post + nj*post, data = ck_df
 )
+wage |>
+  tbl_regression(
+    intercept = TRUE,
+    estimate_fun = function(x) style_number(x, digits = 2),
+    pvalue_fun   = function(x) style_pvalue(x, digits = 2),
+    label = list(
+      nj        ~ "Treated Group (Di)",
+      post      ~ "Post-Period (Tt)",
+      `nj:post` ~ "DiD Estimate"
+    )
+  ) |>
+  bold_labels()
 ```
 
 ```{r}
 lm_robust(
   open ~ nj*post, data = ck_df
-)
 ```
 
 The DiD estimate for restaurant opening time is approximately 0.015 hours, indicating that New Jersey restaurants opened about one minute later relative to Pennsylvania after the minimum wage increase. However, this effect is extremely small and statistically insignificant (p ≈ 0.97), with a confidence interval that includes zero. Therefore, there is no evidence that the policy affected opening hours. This suggests that restaurants did not adjust operating schedules in response to the wage increase.
