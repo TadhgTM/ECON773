@@ -80,6 +80,8 @@ For each state, calculate the percentage of Burger King, KFC, Roys, and Wendys i
 
 ### Answer
 
+In this set of code, we first load dplyr. Then we use the dataset ck_df. We then use "mutate", to convert the data into labeled categories and the state variable. The command "chain", groups the data by state and chain to count observations. Then, we direct the code to once again "group_by" state and compute each chain's percentage share within that state using "mutate". Lastly, "arrage" sorts the results to appear from the highest to lowest share in each state.
+
 ```{r}
 library(dplyr)
 
@@ -97,13 +99,12 @@ ck_df |>
   arrange(state, desc(percent))
 ```
 
-In this set of code, we first load dplyr. Then we use the dataset ck_df. We then use "mutate", to convert the data into labeled categories and the state variable. The command "chain", groups the data by state and chain to count observations. Then, we direct the code to once again "group_by" state and compute each chain's percentage share within that state using "mutate". Lastly, "arrage" sorts the results to appear from the highest to lowest share in each state.
-
 These results show the distribution of restaurant chains in the sample for New Jersey and Pennsylvania, expressed as percentages within each state. In both states, Burger King makes up the largest share (about 41% in New Jersey and 44% in Pennsylvania), while Wendy’s has the smallest share in New Jersey but a somewhat larger share in Pennsylvania. Roy’s and KFC account for moderate portions of the sample, with Roy’s slightly more common in New Jersey and KFC less common in Pennsylvania. Overall, the distributions are fairly similar across the two states, suggesting the samples are reasonably comparable in terms of restaurant chain composition.
 
 ```{r}
 ck_df |> group_by(state) |> summarize(n_obs = n())
 ```
+
 The number of observations in New Jersey is 662. The number of observations in Pennsylvania is 158. 
 
 ## Wage change
@@ -112,14 +113,14 @@ Compute the average wage in each state, before and after the minimum wage increa
 
 ### Answer
 
+In the code block we first take the dataset "ck_df" and pass it down to the next operation using the pipe operator. Then, we group the data by state and time. This means that all calculations are done separately for each state-time combination (i.e. NJ before, NJ after, PA before, PA after). Then, using "summarize(m_wage = mean(wage_st, na.rm = TRUE))", we collapse each group into a single row by computing the average of the variable wage_st within each group. na.rm = TRUE tells R to ignore missing values when calculating the mean.
+
 ```{r}
 ck_df |> group_by(state, time) |> 
   summarize(
     m_wage = mean(wage_st, na.rm = TRUE)
   )
 ```
-
-In the code block we first take the dataset "ck_df" and pass it down to the next operation using the pipe operator. Then, we group the data by state and time. This means that all calculations are done separately for each state-time combination (i.e. NJ before, NJ after, PA before, PA after). Then, using "summarize(m_wage = mean(wage_st, na.rm = TRUE))", we collapse each group into a single row by computing the average of the variable wage_st within each group. na.rm = TRUE tells R to ignore missing values when calculating the mean.
 
 NJ minium wage increased from \$4.61 to \$5.08. The PA minium wage (the control group), stayed relatively the same increases from \$4.63 to \$4.62. This sharp increase in New Jersey but not in Pennsylvania is consistent with the implementation of the minimum-wage increase in NJ only. Therefore, the results suggest that the policy was successfully adopted and had a clear effect on wages in New Jersey.
 
@@ -129,6 +130,8 @@ Calculate the DiD estimate for wages manually. Then compute the same estimate us
 
 ### Answer
 
+Both lines estimate Difference-in-Differences (DiD) regressions using lm_robust(), which fits linear models with robust standard errors on the dataset ck_df. The first model examines how the policy affected starting wages (wage_st), while the second examines its effect on full-time-equivalent employment (emp_fte), using New Jersey, the post-policy period, and their interaction. We use lm_robust() since it fits a linear regression with robust standard errors (from the estimatr package), which makes inference less sensitive to heteroskedasticity.
+
 ```{r}
 lm_robust(
   wage_st ~ nj + post + nj*post, data = ck_df
@@ -140,8 +143,6 @@ lm_robust(
   emp_fte ~ nj*post, data = ck_df
 )
 ```
-
-Both lines estimate Difference-in-Differences regressions using lm_robust(), which fits linear models with robust standard errors on the dataset ck_df. The first model examines how the policy affected starting wages (wage_st), while the second examines its effect on full-time-equivalent employment (emp_fte), using New Jersey, the post-policy period, and their interaction. We use lm_robust() since it fits a linear regression with robust standard errors (from the estimatr package), which makes inference less sensitive to heteroskedasticity.
 
 The minimum-wage increase raised average wages in New Jersey by about $0.48 more than in Pennsylvania. This effect is large and highly statistically significant. Therefore, the results indicate that the policy substantially increased wages in New Jersey relative to the control state.
 
@@ -151,6 +152,8 @@ Repeat the analysis for employment. Use `emp_fte` (full-time equivalent) as the 
 
 ### Answer
 
+We follow the same structure with our code from above to repeat the analysis using full-time equivalent as the outcome. 
+
 ```{r}
 lm_robust(
   wage_st ~ nj + post + nj*post, data = ck_df
@@ -161,11 +164,9 @@ lm_robust(
 lm_robust(
   emp_fte ~ nj*post, data = ck_df
 )
-```
+``` 
 
-We follow the same structure with our code from above to repeat the analysis using full-time equivalent as the outcome. 
-
-The Difference-in-Differences estimate for employment is the coefficient on njTRUE:postTRUE, which is approximately 2.75. This suggests that, after the minimum wage increase, employment in New Jersey restaurants rose by about 2.75 full-time equivalent workers per restaurant relative to Pennsylvania. However, this estimate is not statistically significant (p ≈ 0.13), and the confidence interval includes zero. Therefore, there is no strong evidence that the minimum wage increase had a meaningful effect on employment.
+The DiD estimate for employment is the coefficient on njTRUE:postTRUE, which is approximately 2.75. This suggests that, after the minimum wage increase, employment in New Jersey restaurants rose by about 2.75 full-time equivalent workers per restaurant relative to Pennsylvania. However, this estimate is not statistically significant (p ≈ 0.13), and the confidence interval includes zero. Therefore, there is no strong evidence that the minimum wage increase had a meaningful effect on employment.
 
 ## Interpreting DiD
 
@@ -183,6 +184,8 @@ Compute the DiD estimator for the average meal price (`pmeal`). Do restaurants s
 
 ### Answer
 
+We run the same two regressions to find the DiD estimate for the average meal price.
+
 ```{r}
 lm_robust(
   wage_st ~ nj + post + nj*post, data = ck_df
@@ -194,8 +197,6 @@ lm_robust(
   pmeal ~ nj*post, data = ck_df
 )
 ```
-
-We run the same two regressions to find the DiD estimate for the average meal price.
 
 The DiD estimator for the average meal price (pmeal) is approximately −0.0195. This indicates that meal prices in New Jersey restaurants decreased slightly relative to those in Pennsylvania after the minimum wage increase. This contradicts standard economic theory that would suggest for prices to rise after a wage change. However, since the estimate is very small and not statistically significant, as the confidence interval includes zero we can conclude that there is no evidence that restaurants subject to the wage increase raised prices.
 
@@ -221,7 +222,7 @@ lm_robust(
 )
 ```
 
-The Difference-in-Differences estimate for restaurant opening time is approximately 0.015 hours, indicating that New Jersey restaurants opened about one minute later relative to Pennsylvania after the minimum wage increase. However, this effect is extremely small and statistically insignificant (p ≈ 0.97), with a confidence interval that includes zero. Therefore, there is no evidence that the policy affected opening hours. This suggests that restaurants did not adjust operating schedules in response to the wage increase.
+The DiD estimate for restaurant opening time is approximately 0.015 hours, indicating that New Jersey restaurants opened about one minute later relative to Pennsylvania after the minimum wage increase. However, this effect is extremely small and statistically insignificant (p ≈ 0.97), with a confidence interval that includes zero. Therefore, there is no evidence that the policy affected opening hours. This suggests that restaurants did not adjust operating schedules in response to the wage increase.
 
 Next, we test if the number of part time employees changed as a result of the minimum wage change in NJ.
 
@@ -237,7 +238,7 @@ lm_robust(
 )
 ```
 
-The Difference-in-Differences estimate for part-time employment is −0.77, indicating that New Jersey restaurants employed slightly fewer part-time workers relative to Pennsylvania after the minimum wage increase. However, this effect is not statistically significant (p ≈ 0.67), and the confidence interval includes zero. Therefore, there is no evidence that the policy reduced part-time employment. Overall, the results suggest that the minimum wage increase did not meaningfully affect part-time staffing levels.
+The DiD estimate for part-time employment is −0.77, indicating that New Jersey restaurants employed slightly fewer part-time workers relative to Pennsylvania after the minimum wage increase. However, this effect is not statistically significant (p ≈ 0.67), and the confidence interval includes zero. Therefore, there is no evidence that the policy reduced part-time employment. Overall, the results suggest that the minimum wage increase did not meaningfully affect part-time staffing levels.
 
 Lastly, we test if the number of cash registers in the store changed as a result of the minium wage increase. This channel tests if the restaurants moved employees to the back of the store for production and reduced the number of employees needed to fill the spot at a cashregister. 
 
@@ -253,7 +254,7 @@ lm_robust(
 )
 ```
 
-The Difference-in-Differences estimate for the number of registers is −0.13, indicating that New Jersey restaurants had slightly fewer registers relative to Pennsylvania after the minimum wage increase. However, this effect is not statistically significant (p ≈ 0.53), and the confidence interval includes zero. Therefore, there is no evidence that the policy affected the number of registers. This suggests that restaurants did not adjust their capital equipment in response to the wage increase.
+The DiD estimate for the number of registers is −0.13, indicating that New Jersey restaurants had slightly fewer registers relative to Pennsylvania after the minimum wage increase. However, this effect is not statistically significant (p ≈ 0.53), and the confidence interval includes zero. Therefore, there is no evidence that the policy affected the number of registers. This suggests that restaurants did not adjust their capital equipment in response to the wage increase.
 
 {{< pagebreak >}} 
 
