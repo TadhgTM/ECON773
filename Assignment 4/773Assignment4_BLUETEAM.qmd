@@ -130,21 +130,54 @@ Calculate the DiD estimate for wages manually. Then compute the same estimate us
 
 ### Answer
 
-Both lines estimate Difference-in-Differences (DiD) regressions using lm_robust(), which fits linear models with robust standard errors on the dataset ck_df. The first model examines how the policy affected starting wages (wage_st), while the second examines its effect on full-time-equivalent employment (emp_fte), using New Jersey, the post-policy period, and their interaction. We use lm_robust() since it fits a linear regression with robust standard errors (from the estimatr package), which makes inference less sensitive to heteroskedasticity.
-
+1. First we run the DiD estimate for wages manually. 
 ```{r}
-lm_robust(
-  wage_st ~ nj + post + nj*post, data = ck_df
-)
+did_manual <- ck_df |>
+  filter(post %in% c(0, 1)) |>
+  summarise(
+    treat_pre  = mean(wage_st[nj == 1 & post == 0], na.rm = TRUE),
+    treat_post = mean(wage_st[nj == 1 & post == 1], na.rm = TRUE),
+    control_pre  = mean(wage_st[nj == 0 & post == 0], na.rm = TRUE),
+    control_post = mean(wage_st[nj == 0 & post == 1], na.rm = TRUE)
+  ) |>
+  mutate(
+    did = (treat_post - treat_pre) -
+          (control_post - control_pre)
+  )
+
+did_manual
 ```
 
+The average starting wage in New Jersey increased from $4.61 before the policy to $5.08 after the policy, a rise of $0.47. In Pennsylvania (the control group), wages changed only slightly from $4.63 to $4.62, a decrease of about $0.01. The Difference-in-Differences estimate is therefore $0.481, meaning wages rose by about 48 cents more in New Jersey than in Pennsylvania after the minimum wage increase. This suggests that the policy substantially increased wages in the treated state relative to the control state.
+
+
+2. Next, we will compute the DiD estimate via regression. We create a binary `post` indicator (1 after the NJ minimum wage increase), then run the DiD using `lm()` (or `lm_robust`). Recall that `treatment` is the interaction (`nj * post`).
+
+
 ```{r}
-lm_robust(
-  emp_fte ~ nj*post, data = ck_df
-)
+did_data <- ck_df |>
+  filter(post %in% c(0, 1)) |>
+  mutate(treatment = nj * post)
+
+did_model <- lm(wage_st ~ nj + post + treatment, data = did_data)
+
+did_model |>
+  tbl_regression(
+    intercept = TRUE,
+    estimate_fun = function(x) style_number(x, digits = 2),
+    pvalue_fun = function(x) style_pvalue(x, digits = 2),
+    label = list(
+      nj ~ "Treated Group (Di)",
+      post ~ "Post-Period (Tt)",
+      treatment ~ "DiD Estimate"
+    )
+  ) |>
+  bold_labels()
 ```
 
-The minimum-wage increase raised average wages in New Jersey by about $0.48 more than in Pennsylvania. This effect is large and highly statistically significant. Therefore, the results indicate that the policy substantially increased wages in New Jersey relative to the control state.
+The coefficient on the interaction term (“DiD Estimate”) is 0.48, which represents the causal effect of the New Jersey minimum wage increase on starting wages. This indicates that wages in New Jersey rose by about 48 cents more than in Pennsylvania after the policy change. The 95% confidence interval (0.38, 0.58) does not include zero and the p-value is less than 0.001, showing that the effect is statistically significant. Therefore, the results provide strong evidence that the minimum wage increase substantially raised wages in New Jersey fast-food restaurants relative to the control state.
+
+The close agreement between the manual estimate (0.481) and the regression estimate (0.48) demonstrates that the DiD regression recovers the same treatment effect as the two-by-two mean comparison. The regression additionally provides standard errors and confidence intervals, allowing formal statistical inference. The positive and statistically significant interaction coefficient indicates that New Jersey’s minimum wage increase caused a substantial rise in wages relative to Pennsylvania. Thus, both methods lead to the same substantive conclusion.
 
 ## Employment effect
 
