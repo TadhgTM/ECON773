@@ -131,6 +131,7 @@ Calculate the DiD estimate for wages manually. Then compute the same estimate us
 ### Answer
 
 1. First we run the DiD estimate for wages manually. 
+
 ```{r}
 did_manual <- ck_df |>
   filter(post %in% c(0, 1)) |>
@@ -152,7 +153,6 @@ The average starting wage in New Jersey increased from $4.61 before the policy t
 
 
 2. Next, we will compute the DiD estimate via regression. We create a binary `post` indicator (1 after the NJ minimum wage increase), then run the DiD using `lm()` (or `lm_robust`). Recall that `treatment` is the interaction (`nj * post`).
-
 
 ```{r}
 did_data <- ck_df |>
@@ -187,17 +187,42 @@ Repeat the analysis for employment. Use `emp_fte` (full-time equivalent) as the 
 
 We follow the same structure with our code from above to repeat the analysis using full-time equivalent as the outcome. 
 
-```{r}
-lm_robust(
-  wage_st ~ nj + post + nj*post, data = ck_df
-)
-```
+We will print the original model for reference.
 
 ```{r}
-lm_robust(
-  emp_fte ~ nj*post, data = ck_df
-)
-``` 
+did_model |>
+  tbl_regression(
+    intercept = TRUE,
+    estimate_fun = function(x) style_number(x, digits = 2),
+    pvalue_fun = function(x) style_pvalue(x, digits = 2),
+    label = list(
+      nj ~ "Treated Group (Di)",
+      post ~ "Post-Period (Tt)",
+      treatment ~ "DiD Estimate"
+    )
+  ) |>
+  bold_labels()
+```
+
+Regression with full-time equivalent employment. 
+
+```{r}
+fte_model <- lm_robust(emp_fte ~ nj * post, data = ck_df)
+
+fte_model %>%
+  tbl_regression(
+    label = list(
+      nj = "New Jersey",
+      post = "After Policy Change",
+      `nj:post` = "Interaction (DiD Estimate)"
+    ),
+    intercept = TRUE,
+    estimate_fun = function(x) style_number(x, digits = 2)
+  ) %>%
+  bold_labels() %>%
+  italicize_levels() %>%
+  modify_caption("**Regression Results: Full Time Equivalent (Robust SE)**")
+```
 
 The DiD estimate for employment is the coefficient on njTRUE:postTRUE, which is approximately 2.75. This suggests that, after the minimum wage increase, employment in New Jersey restaurants rose by about 2.75 full-time equivalent workers per restaurant relative to Pennsylvania. However, this estimate is not statistically significant (p ≈ 0.13), and the confidence interval includes zero. Therefore, there is no strong evidence that the minimum wage increase had a meaningful effect on employment.
 
@@ -219,16 +244,41 @@ Compute the DiD estimator for the average meal price (`pmeal`). Do restaurants s
 
 We run the same two regressions to find the DiD estimate for the average meal price.
 
-```{r}
-lm_robust(
-  wage_st ~ nj + post + nj*post, data = ck_df
-)
-```
+Original model for reference.
 
 ```{r}
-lm_robust(
-  pmeal ~ nj*post, data = ck_df
-)
+did_model |>
+  tbl_regression(
+    intercept = TRUE,
+    estimate_fun = function(x) style_number(x, digits = 2),
+    pvalue_fun = function(x) style_pvalue(x, digits = 2),
+    label = list(
+      nj ~ "Treated Group (Di)",
+      post ~ "Post-Period (Tt)",
+      treatment ~ "DiD Estimate"
+    )
+  ) |>
+  bold_labels()
+```
+
+Regression on average meal price. 
+
+```{r}
+pmeal_model <- lm_robust(pmeal ~ nj * post, data = ck_df)
+
+pmeal_model %>%
+  tbl_regression(
+    label = list(
+      nj = "New Jersey",
+      post = "After Policy Change",
+      `nj:post` = "Interaction (DiD Estimate)"
+    ),
+    intercept = TRUE,
+    estimate_fun = function(x) style_number(x, digits = 4)
+  ) %>%
+  bold_labels() %>%
+  italicize_levels() %>%
+  modify_caption("**Regression Results: Price of Meals (Robust SE)**")
 ```
 
 The DiD estimator for the average meal price (pmeal) is approximately −0.0195. This indicates that meal prices in New Jersey restaurants decreased slightly relative to those in Pennsylvania after the minimum wage increase. This contradicts standard economic theory that would suggest for prices to rise after a wage change. However, since the estimate is very small and not statistically significant, as the confidence interval includes zero we can conclude that there is no evidence that restaurants subject to the wage increase raised prices.
@@ -243,62 +293,128 @@ We repeat the regressions above and change the outcome variables to test the eff
 
 We first chose the variable "open", to test if the hour which a restaurant opens changes after the minimum wage increase in NJ. We follow the same steps as in the sections above. 
 
+Original model for reference. 
+
 ```{r}
-lm_robust(
-  wage_st ~ nj + post + nj*post, data = ck_df
-)
-wage |>
+did_model |>
   tbl_regression(
     intercept = TRUE,
     estimate_fun = function(x) style_number(x, digits = 2),
-    pvalue_fun   = function(x) style_pvalue(x, digits = 2),
+    pvalue_fun = function(x) style_pvalue(x, digits = 2),
     label = list(
-      nj        ~ "Treated Group (Di)",
-      post      ~ "Post-Period (Tt)",
-      `nj:post` ~ "DiD Estimate"
+      nj ~ "Treated Group (Di)",
+      post ~ "Post-Period (Tt)",
+      treatment ~ "DiD Estimate"
     )
   ) |>
   bold_labels()
 ```
 
+Regression on opening time. 
+
 ```{r}
-lm_robust(
-  open ~ nj*post, data = ck_df
+open_model <- lm_robust(open ~ nj * post, data = ck_df)
+
+open_model %>%
+  tbl_regression(
+    label = list(
+      nj = "New Jersey",
+      post = "After Policy Change",
+      `nj:post` = "Interaction (DiD Estimate)"
+    ),
+    intercept = TRUE,
+    estimate_fun = function(x) style_number(x, digits = 4)
+  ) %>%
+  bold_labels() %>%
+  italicize_levels() %>%
+  modify_caption("**Regression Results: Store Operational Status (Robust SE)**")
 ```
 
-The DiD estimate for restaurant opening time is approximately 0.015 hours, indicating that New Jersey restaurants opened about one minute later relative to Pennsylvania after the minimum wage increase. However, this effect is extremely small and statistically insignificant (p ≈ 0.97), with a confidence interval that includes zero. Therefore, there is no evidence that the policy affected opening hours. This suggests that restaurants did not adjust operating schedules in response to the wage increase.
+The DiD estimate for restaurant opening time is approximately 0.0105 hours, indicating that New Jersey restaurants opened about one minute later relative to Pennsylvania after the minimum wage increase. However, this effect is extremely small and statistically insignificant (p ≈ 0.97), with a confidence interval that includes zero. Therefore, there is no evidence that the policy affected opening hours. This suggests that restaurants did not adjust operating schedules in response to the wage increase.
 
 Next, we test if the number of part time employees changed as a result of the minimum wage change in NJ.
 
-```{r}
-lm_robust(
-  wage_st ~ nj + post + nj*post, data = ck_df
-)
-```
+Original model for reference. 
 
 ```{r}
-lm_robust(
-  emppt ~ nj*post, data = ck_df
-)
+did_model |>
+  tbl_regression(
+    intercept = TRUE,
+    estimate_fun = function(x) style_number(x, digits = 2),
+    pvalue_fun = function(x) style_pvalue(x, digits = 2),
+    label = list(
+      nj ~ "Treated Group (Di)",
+      post ~ "Post-Period (Tt)",
+      treatment ~ "DiD Estimate"
+    )
+  ) |>
+  bold_labels()
 ```
 
-The DiD estimate for part-time employment is −0.77, indicating that New Jersey restaurants employed slightly fewer part-time workers relative to Pennsylvania after the minimum wage increase. However, this effect is not statistically significant (p ≈ 0.67), and the confidence interval includes zero. Therefore, there is no evidence that the policy reduced part-time employment. Overall, the results suggest that the minimum wage increase did not meaningfully affect part-time staffing levels.
+Regression on number of part-time employment.
+
+```{r}
+emppt_model <- lm_robust(emppt ~ nj * post, data = ck_df)
+
+emppt_table <- emppt_model %>%
+  tbl_regression(
+    label = list(
+      nj = "New Jersey",
+      post = "After Policy Change",
+      `nj:post` = "Interaction (DiD Estimate)"
+    ),
+    intercept = TRUE,
+    estimate_fun = function(x) style_number(x, digits = 4)
+  ) %>%
+  bold_labels() %>%
+  italicize_levels() %>%
+  modify_caption("**Regression Results: Part-Time Employment (Robust SE)**")
+
+emppt_table
+```
+
+The DiD estimate for part-time employment is −0.7696, indicating that New Jersey restaurants employed slightly fewer part-time workers relative to Pennsylvania after the minimum wage increase. However, this effect is not statistically significant (p ≈ 0.67), and the confidence interval includes zero. Therefore, there is no evidence that the policy reduced part-time employment. Overall, the results suggest that the minimum wage increase did not meaningfully affect part-time staffing levels.
 
 Lastly, we test if the number of cash registers in the store changed as a result of the minium wage increase. This channel tests if the restaurants moved employees to the back of the store for production and reduced the number of employees needed to fill the spot at a cashregister. 
 
-```{r}
-lm_robust(
-  wage_st ~ nj + post + nj*post, data = ck_df
-)
-```
+Original model for reference. 
 
 ```{r}
-lm_robust(
- nregisters  ~ nj*post, data = ck_df
-)
+did_model |>
+  tbl_regression(
+    intercept = TRUE,
+    estimate_fun = function(x) style_number(x, digits = 2),
+    pvalue_fun = function(x) style_pvalue(x, digits = 2),
+    label = list(
+      nj ~ "Treated Group (Di)",
+      post ~ "Post-Period (Tt)",
+      treatment ~ "DiD Estimate"
+    )
+  ) |>
+  bold_labels()
 ```
 
-The DiD estimate for the number of registers is −0.13, indicating that New Jersey restaurants had slightly fewer registers relative to Pennsylvania after the minimum wage increase. However, this effect is not statistically significant (p ≈ 0.53), and the confidence interval includes zero. Therefore, there is no evidence that the policy affected the number of registers. This suggests that restaurants did not adjust their capital equipment in response to the wage increase.
+Regression on number of cash registers. 
+
+```{r}
+nreg_model <- lm_robust(nregisters ~ nj * post, data = ck_df)
+
+nreg_model %>%
+  tbl_regression(
+    label = list(
+      nj = "New Jersey",
+      post = "After Policy Change",
+      `nj:post` = "Interaction (DiD Estimate)"
+    ),
+    intercept = TRUE,
+    estimate_fun = function(x) style_number(x, digits = 4)
+  ) %>%
+  bold_labels() %>%
+  italicize_levels() %>%
+  modify_caption("**Regression Results: Number of Cash Registers (Robust SE)**")
+```
+
+The DiD estimate for the number of registers is −0.1314, indicating that New Jersey restaurants had slightly fewer registers relative to Pennsylvania after the minimum wage increase. However, this effect is not statistically significant (p ≈ 0.53), and the confidence interval includes zero. Therefore, there is no evidence that the policy affected the number of registers. This suggests that restaurants did not adjust their capital equipment in response to the wage increase.
 
 {{< pagebreak >}} 
 
@@ -389,8 +505,6 @@ Does this estimate have a causal interpretation?
 We will perform a simple comparison of the average vote shares for the treated and control municipalities in 2016.
 
 ```{r}
-library(dplyr)
-
 dinas_df |>
   filter(year == 2016) |>
   summarise(
