@@ -113,7 +113,7 @@ Compute the average wage in each state, before and after the minimum wage increa
 
 ### Answer
 
-In the code block we first take the dataset "ck_df" and pass it down to the next operation using the pipe operator. Then, we group the data by state and time. This means that all calculations are done separately for each state-time combination (i.e. NJ before, NJ after, PA before, PA after). Then, using "summarize(m_wage = mean(wage_st, na.rm = TRUE))", we collapse each group into a single row by computing the average of the variable wage_st within each group. na.rm = TRUE tells R to ignore missing values when calculating the mean.
+In the code block we first take the dataset "ck_df" and pass it down to the next operation using the pipe operator. Then, we group the data by state and time. This means that all calculations are done separately for each state-time combination (i.e. New Jersey before, New Jersey after, Pennsylvania before, Pennsylvania after). Then, using "summarize(m_wage = mean(wage_st, na.rm = TRUE))", we collapse each group into a single row by computing the average of the variable wage_st within each group. na.rm = TRUE tells R to ignore missing values when calculating the mean.
 
 ```{r}
 ck_df |> group_by(state, time) |> 
@@ -122,7 +122,7 @@ ck_df |> group_by(state, time) |>
   )
 ```
 
-NJ minium wage increased from \$4.61 to \$5.08. The PA minium wage (the control group), stayed relatively the same increases from \$4.63 to \$4.62. This sharp increase in New Jersey but not in Pennsylvania is consistent with the implementation of the minimum-wage increase in NJ only. Therefore, the results suggest that the policy was successfully adopted and had a clear effect on wages in New Jersey.
+In New Jersey, the minium wage increased from \$4.61 to \$5.08. The Pennsylvania minium wage (the control group), stayed relatively the same increases from \$4.63 to \$4.62. This sharp increase in New Jersey but not in Pennsylvania is consistent with the implementation of the minimum-wage increase in NJ only. Therefore, the results suggest that the policy was successfully adopted and had a clear effect on wages in New Jersey.
 
 ## DiD for wages
 
@@ -152,7 +152,7 @@ did_manual
 The average starting wage in New Jersey increased from $4.61 before the policy to $5.08 after the policy, a rise of $0.47. In Pennsylvania (the control group), wages changed only slightly from $4.63 to $4.62, a decrease of about $0.01. The Difference-in-Differences estimate is therefore $0.481, meaning wages rose by about 48 cents more in New Jersey than in Pennsylvania after the minimum wage increase. This suggests that the policy substantially increased wages in the treated state relative to the control state.
 
 
-2. Next, we will compute the DiD estimate via regression. We create a binary `post` indicator (1 after the NJ minimum wage increase), then run the DiD using `lm()` (or `lm_robust`). Recall that `treatment` is the interaction (`nj * post`).
+2. Next, we will compute the DiD estimate via regression. We create a binary `post` indicator (1 after the New Jersey minimum wage increase), then run the DiD using `lm()` (or `lm_robust`). Recall that `treatment` is the interaction (`nj * post`).
 
 ```{r}
 did_data <- ck_df |>
@@ -204,7 +204,7 @@ did_model |>
   bold_labels()
 ```
 
-Regression with full-time equivalent employment. 
+Next, regression with full-time equivalent employment. 
 
 ```{r}
 fte_model <- lm_robust(emp_fte ~ nj * post, data = ck_df)
@@ -224,7 +224,7 @@ fte_model %>%
   modify_caption("**Regression Results: Full Time Equivalent (Robust SE)**")
 ```
 
-The DiD estimate for employment is the coefficient on njTRUE:postTRUE, which is approximately 2.75. This suggests that, after the minimum wage increase, employment in New Jersey restaurants rose by about 2.75 full-time equivalent workers per restaurant relative to Pennsylvania. However, this estimate is not statistically significant (p ≈ 0.13), and the confidence interval includes zero. Therefore, there is no strong evidence that the minimum wage increase had a meaningful effect on employment.
+The DiD estimate for employment is the coefficient on "Interaction", which is approximately 2.75. This suggests that, after the minimum wage increase, employment in New Jersey restaurants rose by about 2.75 full-time equivalent workers per restaurant relative to Pennsylvania. However, this estimate is not statistically significant (p ≈ 0.13), and the confidence interval includes zero. Therefore, there is no strong evidence that the minimum wage increase had a meaningful effect on employment.
 
 ## Interpreting DiD
 
@@ -232,9 +232,9 @@ Under what conditions does this estimate identify the ATT? Do we have any sugges
 
 ### Answer
 
-The two-period DiD estimate identifies the ATT under the following assumptions. Firstly, parallel trends must hold. This means that absent the minimum wage increase, employment in New Jersey would have followed the same time trend as employment in Pennsylvania  and if there are no spillovers and no differential changes in sample composition across states over time (SUTVA). In this application we can provide only suggestive evidence: NJ and PA have similar pre-policy wages and are in the same industry and region, and wages increase sharply in NJ post-policy but not in PA, indicating the policy was implemented. We cannot test the parallel-trends assumption directly because there is only one pre-treatment period, so there is no pre-trend to estimate. Testing pre-trends would require employment outcomes in multiple pre-policy periods, enabling an event-study (lead) test or comparisons of pre-period changes between NJ and PA.
+The two-period DiD estimate identifies the ATT under the following assumptions. Firstly, parallel trends must hold. This means that absent the minimum wage increase, employment in New Jersey would have followed the same time trend as employment in Pennsylvania  and if there are no spillovers and no differential changes in sample composition across states over time (SUTVA). In this application we can provide only suggestive evidence: New Jersey and Pennsylvania have similar pre-policy wages and are in the same industry and region, and wages increase sharply in New Jersey post-policy but not in Pennsylvania, indicating the policy was implemented. We cannot test the parallel-trends assumption directly because there is only one pre-treatment period, so there is no pre-trend to estimate. Testing pre-trends would require employment outcomes in multiple pre-policy periods, enabling an event-study (lead) test or comparisons of pre-period changes between New Jersey and Pennsylvania.
 
-The DiD estimate also relies on a no-anticipation assumption: restaurants in New Jersey must not have adjusted employment prior to the policy in response to the expected minimum wage increase. If firms reduced staffing before April 1992, the pre-treatment period would already reflect treatment effects, biasing the estimate. In this study, the pre survey occurred in February 1992, only about two months before implementation, suggesting limited time for adjustment. However, because there is only one pre-treatment observation, we cannot test for anticipatory behavior directly. Doing so would require employment data from earlier pre-policy periods to determine whether NJ outcomes began diverging from PA before the law took effect.
+The DiD estimate also relies on a no-anticipation assumption: restaurants in New Jersey must not have adjusted employment prior to the policy in response to the expected minimum wage increase. If firms reduced staffing before April 1992, the pre-treatment period would already reflect treatment effects, biasing the estimate. In this study, the pre survey occurred in February 1992, only about two months before implementation, suggesting limited time for adjustment. However, because there is only one pre-treatment observation, we cannot test for anticipatory behavior directly. Doing so would require employment data from earlier pre-policy periods to determine whether New Jersey outcomes began diverging from Pennsylvania before the law took effect.
 
 ## Meal prices
 
@@ -281,7 +281,7 @@ pmeal_model %>%
   modify_caption("**Regression Results: Price of Meals (Robust SE)**")
 ```
 
-The DiD estimator for the average meal price (pmeal) is approximately −0.0195. This indicates that meal prices in New Jersey restaurants decreased slightly relative to those in Pennsylvania after the minimum wage increase. This contradicts standard economic theory that would suggest for prices to rise after a wage change. However, since the estimate is very small and not statistically significant, as the confidence interval includes zero we can conclude that there is no evidence that restaurants subject to the wage increase raised prices.
+The DiD estimator for the average meal price (`pmeal`) is approximately −0.0195. This indicates that meal prices in New Jersey restaurants decreased slightly relative to those in Pennsylvania after the minimum wage increase. This contradicts standard economic theory that would suggest for prices to rise after a wage change. However, since the estimate is very small and not statistically significant, as the confidence interval includes zero we can conclude that there is no evidence that restaurants subject to the wage increase raised prices.
 
 ## Another outcome
 
@@ -291,7 +291,7 @@ Open `CK1994_description.pdf` and choose another outcome variable (other than wa
 
 We repeat the regressions above and change the outcome variables to test the effect of the minium wage increase. 
 
-We first chose the variable "open", to test if the hour which a restaurant opens changes after the minimum wage increase in NJ. We follow the same steps as in the sections above. 
+We first chose the variable `open`, to test if the hour which a restaurant opens changes after the minimum wage increase in New Jersey. We follow the same steps as in the sections above. 
 
 Original model for reference. 
 
@@ -332,7 +332,7 @@ open_model %>%
 
 The DiD estimate for restaurant opening time is approximately 0.0105 hours, indicating that New Jersey restaurants opened about one minute later relative to Pennsylvania after the minimum wage increase. However, this effect is extremely small and statistically insignificant (p ≈ 0.97), with a confidence interval that includes zero. Therefore, there is no evidence that the policy affected opening hours. This suggests that restaurants did not adjust operating schedules in response to the wage increase.
 
-Next, we test if the number of part time employees changed as a result of the minimum wage change in NJ.
+Next, we test if the number of part time employees changed as a result of the minimum wage change in New Jersey.
 
 Original model for reference. 
 
@@ -667,7 +667,7 @@ modelsummary(
 )
 ```
 
-The coefficient on treatment is 2.087, which is very close to our earlier 2-period DiD estimate of 2.12. This result suggests that exposure to the refugee inflows caused a 2.09 percentage point increase in Golden Dawn vote share (t = 5.31, p < 0.001). This confirms that the effect remains strong and significant when using the full panel of data and controlling for all fixed characteristics.
+The coefficient on treatment is 2.087, which is very close to our earlier 2-period DiD estimate of 2.12. This result suggests that exposure to the refugee inflows caused a 2.09 percentage point increase in Golden Dawn vote share (t = 5.31, p < 0.001). This confirms that the effect remains strong and significant when using the full panel of data and controlling for fixed characteristics.
 
 ## Instrumental variables approach
 
@@ -696,7 +696,7 @@ Estimate the first-stage relationship between the instrument and treatment.
 
 ### Answer
 
-To estimate the first stage of this IV design, we need to regress our endogenous regressor (treatment) on our instrument (logdist).
+To estimate the first stage of this IV design, we need to regress our endogenous regressor (`treatment`) on our instrument (`logdist`).
 
 ```{r}
 first_stage <- lm(treatment ~ logdist, data = iv_df)
@@ -718,7 +718,7 @@ Use `iv_robust` to estimate the causal effect of refugee exposure on vote share 
 
 ### Answer
 
-To estimate the IV model with robust standard errors, we use the iv_robust function from the estimatr package. This performs Two-Stage Least Squares (2SLS), using logdist to extract the exogenous variation in refugee exposure. We will do this for both the binary `treatment` variable and the continuous `trarrprop` variable. 
+To estimate the IV model with robust standard errors, we use the iv_robust function from the estimatr package. This performs Two-Stage Least Squares (2SLS), using `logdist` to extract the exogenous variation in refugee exposure. We will do this for both the binary `treatment` variable and the continuous `trarrprop` variable. 
 
 Starting with the binary treatment regression.
 
@@ -758,9 +758,9 @@ msummary(iv_continuous,
          title = "Table: Causal Effect of Refugee Arrival Intensity (IV Design)")
 ```
 
-A one-unit increase in refugee arrivals per capita increased Golden Dawn vote share by approximately 0.74 percentage points (statistically significant at the 1% level). This gives a marginal causal effect rather than a treatment-group contrast.
+A one-unit increase in refugee arrivals per capita increased Golden Dawn vote share by approximately 0.74 percentage points (statistically significant at the 1% level). This gives a marginal causal effect rather than a treatment-group effect.
 
-The IV identifies a Local Average Treatment Effect (LATE), therefore these estimates reflect the causal effect for municipalities whose refugee exposure was influenced by their distance to the Turkish coast, rather than necessarily the effect for all municipalities. Notably, the binary IV estimate at 2.08 is nearly identical to the DiD estimate at 2.09 (the LATE and ATT are numerically very close), providing strong and consistent evidence that refugee inflows causally increased support for the far-right Golden Dawn party. The similarity between the IV and DiD results suggests limited bias from selection, supports the plausibility of the parallel trends assumption in the panel analysis, and reinforces the credibility of distance to the coast as a valid geographic instrument.
+The IV identifies a Local Average Treatment Effect (LATE), assuming all of the assumptions of the LATE theroem hold (instrument independence, exclusion restriction, first stage relationship and monotonicity). As a result, these estimates reflect the causal effect for municipalities whose refugee exposure was influenced by their distance to the Turkish coast, rather than necessarily the effect for all municipalities. Notably, the binary IV estimate at 2.08 is similar to the DiD estimate at 2.09 (the LATE and ATT are numerically very close), providing strong and consistent evidence that refugee inflows causally increased support for the far-right Golden Dawn party. The similarity between the IV and DiD results suggests that the effect for compliers is similar to the effect for treated units more broadly, implying limited selection into treatment based on gains (i.e., treatment effects may be relatively homogeneous). These results also support the plausibility of the parallel trends assumption in the panel analysis and reinforce the credibility of distance to the coast as a valid geographic instrument.
 
 ## IV assumptions
 
@@ -769,7 +769,7 @@ The IV identifies a Local Average Treatment Effect (LATE), therefore these estim
 
 ### Answer
 
-1. For log distance to the Turkish coast (logdist) to be a valid instrument, it must satisfy the following: the distance between a Greek municipality and the Turkish coast must affect the change in Golden Dawn’s vote share only through its impact on refugee arrivals, and not through any other direct or indirect channel.
+1. For log distance to the Turkish coast (logdist) to be a valid instrument, it must satisfy the following exclusion restriction: the distance between a Greek municipality and the Turkish coast must affect the change in Golden Dawn’s vote share only through its impact on refugee arrivals, and not through any other direct or indirect channel.
 
 2. This assumption is plausible because refugee arrivals were geographically driven and largely determined by proximity to Turkey (the "assignment" of refugees to specific islands was a matter of proximity, not local political leanings). Additionally, the strong first stage confirms that distance predicts refugee exposure, it is difficult to think of another factor that is perfectly correlated with distance to Turkey and changed so drastically in those exact 9 months to produce a 2-point swing in voting. However, the restriction could be violated if municipalities closer to Turkey experienced other concurrent shocks that independently affected far-right support (for example, border/island municipalities may differ economically (tourism, trade, migration history) and proximity to Turkey might influence national identity or security attitudes even absent refugee inflows). Therefore, while plausible, the assumption is not directly testable and must be justified substantively.
 
