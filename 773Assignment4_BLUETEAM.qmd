@@ -122,7 +122,7 @@ ck_df |> group_by(state, time) |>
   )
 ```
 
-In New Jersey, the minium wage increased from \$4.61 to \$5.08. The Pennsylvania minium wage (the control group), stayed relatively the same increases from \$4.63 to \$4.62. This sharp increase in New Jersey but not in Pennsylvania is consistent with the implementation of the minimum-wage increase in NJ only. Therefore, the results suggest that the policy was successfully adopted and had a clear effect on wages in New Jersey.
+In New Jersey, the minimum wage increased from \$4.61 to \$5.08. The Pennsylvania minimum wage (the control group), stayed relatively the same increases from \$4.63 to \$4.62. This sharp increase in New Jersey but not in Pennsylvania is consistent with the implementation of the minimum-wage increase in New Jersey only. Therefore, the results suggest that the policy was successfully adopted and had a clear effect on wages in New Jersey.
 
 ## DiD for wages
 
@@ -289,7 +289,7 @@ Open `CK1994_description.pdf` and choose another outcome variable (other than wa
 
 ### Answer
 
-We repeat the regressions above and change the outcome variables to test the effect of the minium wage increase. 
+We repeat the regressions above and change the outcome variables to test the effect of the minimum wage increase. 
 
 We first chose the variable `open`, to test if the hour which a restaurant opens changes after the minimum wage increase in New Jersey. We follow the same steps as in the sections above. 
 
@@ -375,7 +375,7 @@ emppt_table
 
 The DiD estimate for part-time employment is −0.7696, indicating that New Jersey restaurants employed slightly fewer part-time workers relative to Pennsylvania after the minimum wage increase. However, this effect is not statistically significant (p ≈ 0.67), and the confidence interval includes zero. Therefore, there is no evidence that the policy reduced part-time employment. Overall, the results suggest that the minimum wage increase did not meaningfully affect part-time staffing levels.
 
-Lastly, we test if the number of cash registers in the store changed as a result of the minium wage increase. This channel tests if the restaurants moved employees to the back of the store for production and reduced the number of employees needed to fill the spot at a cashregister. 
+Lastly, we test if the number of cash registers in the store changed as a result of the minimum wage increase. This channel tests if the restaurants moved employees to the back of the store for production and reduced the number of employees needed to fill the spot at a cash register. 
 
 Original model for reference. 
 
@@ -760,7 +760,7 @@ msummary(iv_continuous,
 
 A one-unit increase in refugee arrivals per capita increased Golden Dawn vote share by approximately 0.74 percentage points (statistically significant at the 1% level). This gives a marginal causal effect rather than a treatment-group effect.
 
-The IV identifies a Local Average Treatment Effect (LATE), assuming all of the assumptions of the LATE theroem hold (instrument independence, exclusion restriction, first stage relationship and monotonicity). As a result, these estimates reflect the causal effect for municipalities whose refugee exposure was influenced by their distance to the Turkish coast, rather than necessarily the effect for all municipalities. Notably, the binary IV estimate at 2.08 is similar to the DiD estimate at 2.09 (the LATE and ATT are numerically very close), providing strong and consistent evidence that refugee inflows causally increased support for the far-right Golden Dawn party. The similarity between the IV and DiD results suggests that the effect for compliers is similar to the effect for treated units more broadly, implying limited selection into treatment based on gains (i.e., treatment effects may be relatively homogeneous). These results also support the plausibility of the parallel trends assumption in the panel analysis and reinforce the credibility of distance to the coast as a valid geographic instrument.
+The IV identifies a Local Average Treatment Effect (LATE), assuming all of the assumptions of the LATE theorem hold (instrument independence, exclusion restriction, first stage relationship and monotonicity). As a result, these estimates reflect the causal effect for municipalities whose refugee exposure was influenced by their distance to the Turkish coast, rather than necessarily the effect for all municipalities. Notably, the binary IV estimate at 2.08 is similar to the DiD estimate at 2.09 (the LATE and ATT are numerically very close), providing strong and consistent evidence that refugee inflows causally increased support for the far-right Golden Dawn party. The similarity between the IV and DiD results suggests that the effect for compliers is similar to the effect for treated units more broadly, implying limited selection into treatment based on gains (i.e., treatment effects may be relatively homogeneous). These results also support the plausibility of the parallel trends assumption in the panel analysis and reinforce the credibility of distance to the coast as a valid geographic instrument.
 
 ## IV assumptions
 
